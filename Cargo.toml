@@ -32,5 +32,10 @@ default = ["cli"]
 cli = ["clap", "structopt", "rustyline", "minitt-util"]
 
 [lib]
-name = "narc"
+name = "nar"
 path = "src/lib.rs"
+
+[[bin]]
+name = "narc"
+path = "src/cli/mod.rs"
+required-features = ["cli"]

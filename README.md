@@ -5,6 +5,7 @@
 [![Crates.io](https://img.shields.io/crates/l/nar.svg)][crates]
 [![docs.rs](https://docs.rs/nar/badge.svg)][doc-rs]
 [![cc-svg]][cc-url]
+[![Build status](https://ci.appveyor.com/api/projects/status/wu6vpjhn094gd93g/branch/master?svg=true)][av-url]
 [![dep-svg]][dep-rs]
 
  [crates]: https://crates.io/crates/nar/
