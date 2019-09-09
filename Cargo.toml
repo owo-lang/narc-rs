@@ -13,7 +13,7 @@ repository = "https://github.com/owo-lang/narc-rs"
 [badges]
 appveyor = { repository = "owo-lang/narc-rs", service = "github" }
 circle-ci = { repository = "owo-lang/narc-rs", branch = "master" }
-maintenance = { status = "passively-maintained" }
+maintenance = { status = "actively-developed" }
 
 [package.metadata.docs.rs]
 rustdoc-args = ["--html-in-header", "rustdoc/katex-header.html", "--document-private-items"]
