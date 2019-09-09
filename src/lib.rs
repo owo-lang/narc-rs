@@ -2,6 +2,5 @@
 Narc is a dependently-typed programming language with Agda style dependent pattern matching.
 */
 
-fn hello() {
-    ()
-}
+/// Core language, abstract syntax, surface syntax, and the parser.
+pub mod syntax;
