@@ -1,3 +1,6 @@
+mod args;
+
 fn main() {
-    println!("Hello Narc!")
+    let args = args::pre();
+    drop(args);
 }
