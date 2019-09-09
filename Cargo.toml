@@ -1,0 +1,36 @@
+[package]
+name = "nar"
+version = "0.0.1"
+authors = ["ice1000 <ice1000kotlin@foxmail.com>"]
+edition = "2018"
+license = "Apache-2.0"
+description = "Narc, a dependently-typed programming language with dependent pattern matching"
+readme = "README.md"
+categories = ["development-tools"]
+documentation = "https://docs.rs/nar"
+repository = "https://github.com/owo-lang/narc-rs"
+
+[badges]
+appveyor = { repository = "owo-lang/narc-rs", service = "github" }
+circle-ci = { repository = "owo-lang/narc-rs", branch = "master" }
+maintenance = { status = "passively-maintained" }
+
+[package.metadata.docs.rs]
+rustdoc-args = ["--html-in-header", "rustdoc/katex-header.html", "--document-private-items"]
+
+[dependencies]
+pest = "2.1.2"
+pest_derive = "2.1.0"
+voile-util = { version = "0.1.2", features = ["parser", "lisp"] }
+clap = { version = "2.33.0", optional = true }
+structopt = { version = "0.3", optional = true }
+rustyline = { version = "5.0.0", optional = true }
+minitt-util = { version = "0.1.1", features = ["cli", "repl"], optional = true }
+
+[features]
+default = ["cli"]
+cli = ["clap", "structopt", "rustyline", "minitt-util"]
+
+[lib]
+name = "narc"
+path = "src/lib.rs"
