@@ -3,7 +3,7 @@
 [![Crates.io](https://img.shields.io/crates/d/nar.svg)][crates]
 [![Crates.io](https://img.shields.io/crates/v/nar.svg)][lib-rs]
 [![Crates.io](https://img.shields.io/crates/l/nar.svg)][crates]
-[![docs.rs](https://docs.rs/narc/badge.svg)][doc-rs]
+[![docs.rs](https://docs.rs/nar/badge.svg)][doc-rs]
 [![cc-svg]][cc-url]
 [![dep-svg]][dep-rs]
 
