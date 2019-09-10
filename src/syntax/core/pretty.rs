@@ -2,7 +2,7 @@ use std::fmt::{Display, Error, Formatter};
 
 use voile_util::tags::{PiSig::*, Plicit};
 
-use super::{Axiom, CaseSplit, Closure, Neutral, Val, ValInfo};
+use super::{CaseSplit, Closure, Neutral, Val, ValInfo};
 
 impl Display for Neutral {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
@@ -28,18 +28,6 @@ impl Display for Neutral {
             Fst(p) => write!(f, "({}.1)", p),
             Snd(p) => write!(f, "({}.2)", p),
             Lift(levels, p) => write!(f, "(^[{:?}] {})", levels, p),
-        }
-    }
-}
-
-impl Display for Axiom {
-    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        use Axiom::*;
-        match self {
-            Postulated(uid) => write!(f, "<{}>", uid),
-            Generated(uid, dbi) => write!(f, "<{} {}>", uid, dbi),
-            Unimplemented(uid, dbi) => write!(f, "[|{} {}|]", uid, dbi),
-            Implicit(uid) => write!(f, "{{{}}}", uid),
         }
     }
 }

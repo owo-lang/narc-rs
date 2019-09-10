@@ -3,9 +3,10 @@ use std::collections::BTreeMap;
 use voile_util::level::Level;
 use voile_util::meta::MI;
 use voile_util::tags::{PiSig, Plicit};
-use voile_util::uid::{DBI, GI, UID};
+use voile_util::uid::{DBI, GI};
 
 use super::{RedEx, TraverseNeutral};
+use voile_util::axiom::Axiom;
 
 /// Case-split expression.
 pub type CaseSplit = BTreeMap<String, Closure>;
@@ -97,32 +98,6 @@ pub enum Neutral {
     Snd(Box<Self>),
     /// Splitting on a neutral term.
     SplitOn(CaseSplit, Box<Self>),
-}
-
-/// Postulated value (or temporarily irreducible expressions), aka axioms.
-#[derive(Debug, Clone, Copy, Ord, PartialOrd, Eq, PartialEq, Hash)]
-pub enum Axiom {
-    /// Functions without implementation.
-    Postulated(UID),
-    /// Lambda parameters during type-checking.
-    /// (usually will be replaced with `Val::var` after the expression is type-checked).
-    Generated(UID, DBI),
-    /// Usages of definitions when they're not yet implemented.
-    /// (usually will be replaced with `Val::glob` after implemented).
-    Unimplemented(UID, GI),
-    /// Implicit parameters during type-checking.
-    Implicit(UID),
-}
-
-impl Axiom {
-    pub fn unique_id(&self) -> UID {
-        use Axiom::*;
-        match self {
-            Postulated(uid) | Generated(uid, ..) | Unimplemented(uid, ..) | Implicit(uid, ..) => {
-                *uid
-            }
-        }
-    }
 }
 
 impl Neutral {
