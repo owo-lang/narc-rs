@@ -11,11 +11,10 @@ impl LiftEx for Val {
         match self {
             Val::Type(l) => Val::Type(l + levels),
             Val::Lam(closure) => Val::Lam(closure.lift(levels)),
-            Val::Dt(kind, plicit, param_type, closure) => {
-                Val::dependent_type(kind, plicit, param_type.lift(levels), closure.lift(levels))
+            Val::Pi(plicit, param_type, closure) => {
+                Val::pi(plicit, param_type.lift(levels), closure.lift(levels))
             }
             Val::Cons(name, e) => Val::cons(name, e.lift(levels)),
-            Val::Pair(l, r) => Val::pair(l.lift(levels), r.lift(levels)),
             Val::Neut(neut) => Val::Neut(neut.lift(levels)),
         }
     }
@@ -23,12 +22,11 @@ impl LiftEx for Val {
     fn calc_level(&self) -> LevelCalcState {
         match self {
             Val::Type(level) => Some(*level + 1),
-            Val::Dt(_, _, param_ty, closure) => {
+            Val::Pi(_, param_ty, closure) => {
                 Some(param_ty.calc_level()?.max(closure.calc_level()?))
             }
             Val::Lam(closure) => closure.calc_level(),
             Val::Neut(neut) => neut.calc_level(),
-            Val::Pair(l, r) => Some(l.calc_level()?.max(r.calc_level()?)),
             Val::Cons(_, e) => e.calc_level(),
         }
     }
@@ -54,8 +52,6 @@ impl LiftEx for Neutral {
             // Level is zero by default
             Var(..) | Axi(..) | Meta(..) => Some(Default::default()),
             Ref(..) => None,
-            Fst(expr) => expr.calc_level(),
-            Snd(expr) => expr.calc_level(),
             App(f, args) => calc_slice_plus_one_level(&**f, args),
             SplitOn(split, on) => calc_tree_map_plus_one_level(&**on, split),
         }

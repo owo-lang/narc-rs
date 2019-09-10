@@ -17,15 +17,10 @@ pub trait RedEx<T: Sized = Val>: Sized {
 impl RedEx for Val {
     fn reduce_with_dbi(self, arg: Val, dbi: DBI) -> Val {
         match self {
-            Val::Pair(a, b) => Val::pair(
-                a.reduce_with_dbi_borrow(&arg, dbi),
-                b.reduce_with_dbi(arg, dbi),
-            ),
             Val::Neut(neutral_value) => neutral_value.reduce_with_dbi(arg, dbi),
             Val::Lam(closure) => Val::Lam(closure.reduce_with_dbi(arg, dbi + 1)),
-            Val::Dt(kind, param_plicit, param_type, closure) => Val::dependent_type(
-                kind,
-                param_plicit,
+            Val::Pi(plicit, param_type, closure) => Val::pi(
+                plicit,
                 param_type.reduce_with_dbi_borrow(&arg, dbi),
                 closure.reduce_with_dbi(arg, dbi + 1),
             ),
@@ -36,15 +31,10 @@ impl RedEx for Val {
 
     fn reduce_with_dbi_borrow(self, arg: &Val, dbi: DBI) -> Val {
         match self {
-            Val::Pair(a, b) => Val::pair(
-                a.reduce_with_dbi_borrow(arg, dbi),
-                b.reduce_with_dbi_borrow(arg, dbi),
-            ),
             Val::Neut(neutral_value) => neutral_value.reduce_with_dbi_borrow(arg, dbi),
             Val::Lam(closure) => Val::Lam(closure.reduce_with_dbi_borrow(arg, dbi + 1)),
-            Val::Dt(kind, param_plicit, param_type, closure) => Val::dependent_type(
-                kind,
-                param_plicit,
+            Val::Pi(plicit, param_type, closure) => Val::pi(
+                plicit,
                 param_type.reduce_with_dbi_borrow(arg, dbi),
                 closure.reduce_with_dbi_borrow(arg, dbi + 1),
             ),
@@ -73,8 +63,6 @@ impl RedEx for Neutral {
                 .apply(obj.reduce_with_dbi_borrow(&arg, dbi))
                 // further reduce because the `split` is not yet reduced
                 .reduce_with_dbi(arg, dbi),
-            Fst(pair) => pair.reduce_with_dbi(arg, dbi).first(),
-            Snd(pair) => pair.reduce_with_dbi(arg, dbi).second(),
             Lift(levels, neut) => neut.reduce_with_dbi(arg, dbi).lift(levels),
         }
     }
@@ -97,8 +85,6 @@ impl RedEx for Neutral {
                 .apply(obj.reduce_with_dbi_borrow(&arg, dbi))
                 // further reduce because the `split` is not yet reduced
                 .reduce_with_dbi_borrow(arg, dbi),
-            Fst(pair) => pair.reduce_with_dbi_borrow(arg, dbi).first(),
-            Snd(pair) => pair.reduce_with_dbi_borrow(arg, dbi).second(),
             Lift(levels, neut) => neut.reduce_with_dbi_borrow(arg, dbi).lift(levels),
         }
     }

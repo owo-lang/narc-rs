@@ -1,6 +1,6 @@
 use std::fmt::{Display, Error, Formatter};
 
-use voile_util::tags::{PiSig::*, Plicit};
+use voile_util::tags::Plicit;
 
 use super::{CaseSplit, Closure, Neutral, Val, ValInfo};
 
@@ -25,8 +25,6 @@ impl Display for Neutral {
                 pretty_split(f, &split)?;
                 f.write_str("})")
             }
-            Fst(p) => write!(f, "({}.1)", p),
-            Snd(p) => write!(f, "({}.2)", p),
             Lift(levels, p) => write!(f, "(^[{:?}] {})", levels, p),
         }
     }
@@ -58,10 +56,8 @@ impl Display for Val {
         match self {
             Val::Type(l) => write!(f, "set{}", l),
             Val::Lam(clos) => write!(f, "(\\ {})", clos),
-            Val::Dt(Pi, Plicit::Ex, param_ty, clos) => write!(f, "({} -> {})", param_ty, clos),
-            Val::Dt(Pi, Plicit::Im, param_ty, clos) => write!(f, "({{{}}} -> {})", param_ty, clos),
-            Val::Dt(Sigma, _, param_ty, clos) => write!(f, "({} * {})", param_ty, clos),
-            Val::Pair(fst, snd) => write!(f, "({}, {})", fst, snd),
+            Val::Pi(Plicit::Ex, param_ty, clos) => write!(f, "({} -> {})", param_ty, clos),
+            Val::Pi(Plicit::Im, param_ty, clos) => write!(f, "({{{}}} -> {})", param_ty, clos),
             Val::Neut(neut) => neut.fmt(f),
             Val::Cons(name, a) => write!(f, "(@{} {})", name, a),
         }

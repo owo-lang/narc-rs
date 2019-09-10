@@ -1,6 +1,6 @@
 use voile_util::axiom::Axiom;
 use voile_util::meta::MI;
-use voile_util::tags::*;
+use voile_util::tags::Plicit;
 use voile_util::uid::*;
 
 use crate::syntax::core::{CaseSplit, Closure, Neutral, TVal, Val};
@@ -10,10 +10,10 @@ impl Val {
     pub fn is_type(&self) -> bool {
         use Val::*;
         match self {
-            Type(..) | Dt(..) => true,
+            Type(..) | Pi(..) => true,
             // In case it's neutral, we use `is_universe` on its type.
             // In case it's a meta, we're supposed to solve it.
-            Lam(..) | Cons(..) | Pair(..) | Neut(..) => false,
+            Lam(..) | Cons(..) | Neut(..) => false,
         }
     }
 
@@ -22,10 +22,6 @@ impl Val {
             Val::Type(..) => true,
             _ => false,
         }
-    }
-
-    pub fn pair(first: Self, second: Self) -> Self {
-        Val::Pair(Box::new(first), Box::new(second))
     }
 
     pub fn cons(name: String, param: Self) -> Self {
@@ -82,28 +78,8 @@ impl Val {
         Val::Neut(Neutral::App(Box::new(function), args))
     }
 
-    pub fn fst(pair: Neutral) -> Self {
-        Val::Neut(Neutral::Fst(Box::new(pair)))
-    }
-
-    pub fn snd(pair: Neutral) -> Self {
-        Val::Neut(Neutral::Snd(Box::new(pair)))
-    }
-
-    pub fn closure_dependent_type(kind: PiSig, visib: Plicit, param_ty: TVal, body: TVal) -> TVal {
-        Self::dependent_type(kind, visib, param_ty, Closure::plain(body))
-    }
-
-    pub fn dependent_type(kind: PiSig, plicit: Plicit, param_type: TVal, closure: Closure) -> TVal {
-        Val::Dt(kind, plicit, Box::new(param_type), closure)
-    }
-
-    pub fn pi(param_plicit: Plicit, param_type: TVal, body: Closure) -> TVal {
-        Self::dependent_type(PiSig::Pi, param_plicit, param_type, body)
-    }
-
-    pub fn sig(param_type: TVal, body: Closure) -> TVal {
-        Self::dependent_type(PiSig::Sigma, Plicit::Ex, param_type, body)
+    pub fn pi(plicit: Plicit, param_type: TVal, body: Closure) -> TVal {
+        Val::Pi(plicit, Box::new(param_type), body)
     }
 
     pub fn into_neutral(self) -> Result<Neutral, Self> {

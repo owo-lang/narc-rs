@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 
 use voile_util::level::Level;
 use voile_util::meta::MI;
-use voile_util::tags::{PiSig, Plicit};
+use voile_util::tags::Plicit;
 use voile_util::uid::{DBI, GI};
 
 use super::{RedEx, TraverseNeutral};
@@ -22,22 +22,6 @@ impl Val {
             }
             Val::Neut(otherwise) => Val::app(otherwise, vec![arg]),
             e => panic!("Cannot apply on `{}`.", e),
-        }
-    }
-
-    pub fn first(self) -> Self {
-        match self {
-            Val::Pair(a, _) => *a,
-            Val::Neut(otherwise) => Val::fst(otherwise),
-            e => panic!("Cannot project on `{}`.", e),
-        }
-    }
-
-    pub fn second(self) -> Val {
-        match self {
-            Val::Pair(_, b) => *b,
-            Val::Neut(otherwise) => Val::snd(otherwise),
-            e => panic!("Cannot project on `{}`.", e),
         }
     }
 
@@ -92,10 +76,6 @@ pub enum Neutral {
     ///
     /// The "arguments" is supposed to be non-empty.
     App(Box<Self>, Vec<Val>),
-    /// Projecting the first element of a pair.
-    Fst(Box<Self>),
-    /// Projecting the second element of a pair.
-    Snd(Box<Self>),
     /// Splitting on a neutral term.
     SplitOn(CaseSplit, Box<Self>),
 }
@@ -112,8 +92,6 @@ impl Neutral {
                     .map(|a| a.map_neutral(&mut |n| Val::Neut(n.map_axiom(f))))
                     .collect(),
             ),
-            Fst(p) => Fst(Box::new(p.map_axiom(f))),
-            Snd(p) => Snd(Box::new(p.map_axiom(f))),
             Var(n) => Var(n),
             Ref(n) => Ref(n),
             Meta(n) => Meta(n),
@@ -145,11 +123,9 @@ pub enum Val {
     /// For untyped closures, it can be represented as `Neut` directly.
     Lam(Closure),
     /// Pi-like types (dependent types), with parameter explicitly typed.
-    Dt(PiSig, Plicit, Box<Self>, Closure),
+    Pi(Plicit, Box<Self>, Closure),
     /// Constructor invocation.
     Cons(String, Box<Self>),
-    /// Sigma instance.
-    Pair(Box<Self>, Box<Self>),
     /// Neutral value means irreducible but not canonical values.
     Neut(Neutral),
 }

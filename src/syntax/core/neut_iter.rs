@@ -28,11 +28,9 @@ impl TraverseNeutral for Val {
     fn try_map_neutral<R>(self, f: &mut impl FnMut(Neutral) -> Result<Val, R>) -> Result<Self, R> {
         match self {
             Val::Neut(n) => f(n),
-            Val::Pair(a, b) => Ok(Self::pair(a.try_map_neutral(f)?, b.try_map_neutral(f)?)),
             Val::Lam(closure) => closure.try_map_neutral(f).map(Self::Lam),
-            Val::Dt(kind, param_plicit, param_type, closure) => Ok(Self::dependent_type(
-                kind,
-                param_plicit,
+            Val::Pi(plicit, param_type, closure) => Ok(Self::pi(
+                plicit,
                 param_type.try_map_neutral(f)?,
                 closure.try_map_neutral(f)?,
             )),
@@ -48,11 +46,8 @@ impl TraverseNeutral for Val {
     ) -> Result<R, E> {
         match self {
             Val::Neut(n) => f(init, n),
-            Val::Pair(a, b) => a
-                .try_fold_neutral(init, f)
-                .and_then(|r| b.try_fold_neutral(r, f)),
             Val::Lam(closure) => closure.try_fold_neutral(init, f),
-            Val::Dt(_, _, param_ty, closure) => closure
+            Val::Pi(_, param_ty, closure) => closure
                 .try_fold_neutral(init, f)
                 .and_then(|r| param_ty.try_fold_neutral(r, f)),
             Val::Cons(_, a) => a.try_fold_neutral(init, f),
