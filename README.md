@@ -17,6 +17,7 @@
  [dep-svg]: https://deps.rs/repo/github/owo-lang/narc-rs/status.svg
  [plugin]: https://github.com/owo-lang/intellij-dtlc/
  [av-url]: https://ci.appveyor.com/project/ice1000/narc-rs/branch/master
+ [paper]: https://dl.acm.org/citation.cfm?id=3236770
 
 Narc is a dependently-typed programming language with Agda style dependent pattern matching.
 It's called "Narc", but a rust crate `narc` has already been registered,
@@ -25,6 +26,7 @@ For language description, please head to the [docs.rs][doc-rs] page.
 
 ## Resources
 
++ [Original Paper][paper] that Narc is based on
 + [Docs.rs][doc-rs] documentation
 + [Change Log](CHANGELOG.md), useful resource for tracking language evolution
 
