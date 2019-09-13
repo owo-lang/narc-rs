@@ -1,59 +1,62 @@
-use voile_util::axiom::Axiom;
 use voile_util::meta::MI;
-use voile_util::tags::Plicit;
+use voile_util::tags::{Plicit, VarRec};
 use voile_util::uid::*;
 
-use crate::syntax::core::{CaseSplit, Closure, Neutral, TVal, Val};
+use crate::syntax::core::{Closure, Term, Val};
+use voile_util::level::Level;
 
 /// Constructors and traversal functions.
-impl Val {
+impl Term {
     pub fn is_type(&self) -> bool {
         use Val::*;
-        match self {
-            Type(..) | Pi(..) => true,
+        match match self {
+            Term::Whnf(val) => val,
+            Term::Redex(..) => return false,
+        } {
+            Id(..) | Type(..) | Pi(..) | Data(..) => true,
             // In case it's neutral, we use `is_universe` on its type.
             // In case it's a meta, we're supposed to solve it.
-            Lam(..) | Cons(..) | Neut(..) => false,
+            Refl | App(..) | Meta(..) | Cons(..) | Axiom(..) => false,
         }
     }
 
     pub fn is_universe(&self) -> bool {
         match self {
-            Val::Type(..) => true,
+            Term::Whnf(Val::Type(..)) => true,
             _ => false,
         }
     }
 
-    pub fn cons(name: String, param: Self) -> Self {
-        Val::Cons(name, Box::new(param))
+    pub fn cons(name: String, params: Vec<Term>) -> Self {
+        Term::Whnf(Val::Cons(name, params))
     }
 
-    pub fn case_tree(tree: CaseSplit) -> Self {
-        Val::Lam(Closure::Tree(tree))
+    pub fn data(kind: VarRec, params: Vec<Term>) -> Self {
+        Term::Whnf(Val::Data(kind, params))
     }
 
-    pub fn lift(levels: u32, expr: Neutral) -> Self {
-        Val::Neut(Neutral::Lift(levels, Box::new(expr)))
+    pub fn inductive(params: Vec<Term>) -> Self {
+        Self::data(VarRec::Variant, params)
+    }
+
+    pub fn coinductive(params: Vec<Term>) -> Self {
+        Self::data(VarRec::Record, params)
     }
 
     pub fn meta(index: MI) -> Self {
-        Val::Neut(Neutral::Meta(index))
+        Term::Whnf(Val::Meta(index))
     }
 
-    pub fn var(index: DBI) -> Self {
-        Val::Neut(Neutral::Var(index))
+    pub fn reflexivity() -> Self {
+        Term::Whnf(Val::Refl)
     }
 
-    pub fn closure_lam(body: Self) -> Self {
-        Val::Lam(Closure::plain(body))
+    pub fn universe(level: Level) -> Self {
+        Term::Whnf(Val::Type(level))
     }
 
-    pub fn glob(index: GI) -> Self {
-        Val::Neut(Neutral::Ref(index))
-    }
-
-    pub fn split_on(split: CaseSplit, on: Neutral) -> Self {
-        Val::Neut(Neutral::SplitOn(split, Box::new(on)))
+    pub fn identity(ty: Self, a: Self, b: Self) -> Self {
+        Term::Whnf(Val::Id(Box::new(ty), Box::new(a), Box::new(b)))
     }
 
     pub fn fresh_axiom() -> Self {
@@ -61,37 +64,16 @@ impl Val {
     }
 
     pub(crate) fn postulate(uid: UID) -> Self {
-        Val::Neut(Neutral::Axi(Axiom::Postulated(uid)))
+        Term::Whnf(Val::Axiom(uid))
     }
 
-    pub fn fresh_implicit() -> Self {
-        let axiom = Axiom::Implicit(unsafe { next_uid() });
-        Val::Neut(Neutral::Axi(axiom))
-    }
-
-    pub fn fresh_unimplemented(index: GI) -> Self {
-        let axiom = Axiom::Unimplemented(unsafe { next_uid() }, index);
-        Val::Neut(Neutral::Axi(axiom))
-    }
-
-    pub fn app(function: Neutral, args: Vec<Self>) -> Self {
-        Val::Neut(Neutral::App(Box::new(function), args))
-    }
-
-    pub fn pi(plicit: Plicit, param_type: TVal, body: Closure) -> TVal {
-        Val::Pi(plicit, Box::new(param_type), body)
-    }
-
-    pub fn into_neutral(self) -> Result<Neutral, Self> {
-        match self {
-            Val::Neut(n) => Ok(n),
-            e => Err(e),
-        }
+    pub fn pi(plicit: Plicit, param_type: Term, body: Closure) -> Term {
+        Term::Whnf(Val::Pi(plicit, Box::new(param_type), body))
     }
 }
 
 impl Closure {
-    pub fn plain(body: Val) -> Self {
+    pub fn plain(body: Term) -> Self {
         Closure::Plain(Box::new(body))
     }
 }

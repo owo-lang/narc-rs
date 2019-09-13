@@ -2,30 +2,40 @@ use std::fmt::{Display, Error, Formatter};
 
 use voile_util::tags::Plicit;
 
-use super::{CaseSplit, Closure, Neutral, Val, ValInfo};
+use super::{Closure, Elim, Term, Val, ValInfo};
 
-impl Display for Neutral {
+impl Display for Elim {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        use Neutral::*;
         match self {
-            Var(dbi) => write!(f, "[{}]", dbi),
-            // This might be conflict with other syntax.
-            Ref(dbi) => write!(f, "[|{}|]", dbi),
-            Axi(a) => a.fmt(f),
+            Elim::App(app) => app.fmt(f),
+            Elim::Proj(field) => write!(f, ".{}", field),
+        }
+    }
+}
+
+impl Display for Term {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        match self {
+            Term::Whnf(v) => v.fmt(f),
+            Term::Redex(fun, args) => pretty_application(f, fun, args),
+        }
+    }
+}
+
+impl Display for Val {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        use Val::*;
+        match self {
             Meta(mi) => write!(f, "?{}", mi),
-            App(fun, a) => {
-                write!(f, "({}", fun)?;
-                for x in a {
-                    write!(f, " {}", x)?;
-                }
-                f.write_str(")")
-            }
-            SplitOn(split, on) => {
-                write!(f, "(case {} of {{ ", on)?;
-                pretty_split(f, &split)?;
-                f.write_str("})")
-            }
-            Lift(levels, p) => write!(f, "(^[{:?}] {})", levels, p),
+            App(fun, a) => pretty_application(f, fun, a),
+            Type(l) => write!(f, "set{}", l),
+            Pi(Plicit::Ex, param_ty, clos) => write!(f, "({} -> {})", param_ty, clos),
+            Pi(Plicit::Im, param_ty, clos) => write!(f, "({{{}}} -> {})", param_ty, clos),
+            Cons(name, a) => pretty_application(f, name, a),
+            Data(kind, params) => unimplemented!(),
+            Axiom(i) => write!(f, "<{}>", i),
+            Id(ty, a, b) => write!(f, "({} =[{}] {})", a, ty, b),
+            Refl => f.write_str("refl"),
         }
     }
 }
@@ -33,15 +43,8 @@ impl Display for Neutral {
 impl Display for Closure {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
         use Closure::*;
-        match self {
-            Plain(body) => body.fmt(f),
-            Tree(split) => {
-                for (label, closure) in split {
-                    write!(f, "{} => {}; ", label, closure)?;
-                }
-                Ok(())
-            }
-        }
+        let Plain(body) = self;
+        body.fmt(f)
     }
 }
 
@@ -51,22 +54,14 @@ impl Display for ValInfo {
     }
 }
 
-impl Display for Val {
-    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        match self {
-            Val::Type(l) => write!(f, "set{}", l),
-            Val::Lam(clos) => write!(f, "(\\ {})", clos),
-            Val::Pi(Plicit::Ex, param_ty, clos) => write!(f, "({} -> {})", param_ty, clos),
-            Val::Pi(Plicit::Im, param_ty, clos) => write!(f, "({{{}}} -> {})", param_ty, clos),
-            Val::Neut(neut) => neut.fmt(f),
-            Val::Cons(name, a) => write!(f, "(@{} {})", name, a),
-        }
+fn pretty_application(
+    f: &mut Formatter,
+    fun: &impl Display,
+    a: &[impl Display],
+) -> Result<(), Error> {
+    write!(f, "({}", fun)?;
+    for x in a {
+        write!(f, " {}", x)?;
     }
-}
-
-fn pretty_split(f: &mut Formatter, split: &CaseSplit) -> Result<(), Error> {
-    for (name, closure) in split {
-        write!(f, "{}: \\ {}; ", name, closure)?;
-    }
-    Ok(())
+    f.write_str(")")
 }

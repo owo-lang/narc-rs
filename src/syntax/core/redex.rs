@@ -1,10 +1,9 @@
-use voile_util::level::LiftEx;
 use voile_util::uid::DBI;
 
-use super::{CaseSplit, Closure, Neutral, Val};
+use super::{Closure, Term, Val};
 
 /// Reducible expressions.
-pub trait RedEx<T: Sized = Val>: Sized {
+pub trait RedEx<T: Sized = Term>: Sized {
     /// This is primarily a private implementation-related API.
     /// Use at your own risk.
     fn reduce_with_dbi(self, arg: Val, dbi: DBI) -> T;
@@ -14,78 +13,84 @@ pub trait RedEx<T: Sized = Val>: Sized {
     fn reduce_with_dbi_borrow(self, arg: &Val, dbi: DBI) -> T;
 }
 
-impl RedEx for Val {
-    fn reduce_with_dbi(self, arg: Val, dbi: DBI) -> Val {
+impl RedEx for Term {
+    fn reduce_with_dbi(self, arg: Val, dbi: DBI) -> Term {
         match self {
-            Val::Neut(neutral_value) => neutral_value.reduce_with_dbi(arg, dbi),
-            Val::Lam(closure) => Val::Lam(closure.reduce_with_dbi(arg, dbi + 1)),
-            Val::Pi(plicit, param_type, closure) => Val::pi(
-                plicit,
-                param_type.reduce_with_dbi_borrow(&arg, dbi),
-                closure.reduce_with_dbi(arg, dbi + 1),
-            ),
-            Val::Cons(name, a) => Self::cons(name, a.reduce_with_dbi(arg, dbi)),
-            Val::Type(n) => Val::Type(n),
+            Term::Whnf(n) => n.reduce_with_dbi(arg, dbi),
+            Term::Redex(f, args) => unimplemented!(),
         }
     }
 
-    fn reduce_with_dbi_borrow(self, arg: &Val, dbi: DBI) -> Val {
+    fn reduce_with_dbi_borrow(self, arg: &Val, dbi: DBI) -> Term {
         match self {
-            Val::Neut(neutral_value) => neutral_value.reduce_with_dbi_borrow(arg, dbi),
-            Val::Lam(closure) => Val::Lam(closure.reduce_with_dbi_borrow(arg, dbi + 1)),
-            Val::Pi(plicit, param_type, closure) => Val::pi(
-                plicit,
-                param_type.reduce_with_dbi_borrow(arg, dbi),
-                closure.reduce_with_dbi_borrow(arg, dbi + 1),
-            ),
-            Val::Cons(name, a) => Self::cons(name, a.reduce_with_dbi_borrow(arg, dbi)),
-            Val::Type(n) => Val::Type(n),
+            Term::Whnf(n) => n.reduce_with_dbi_borrow(&arg, dbi),
+            Term::Redex(f, args) => unimplemented!(),
         }
     }
 }
 
-impl RedEx for Neutral {
-    fn reduce_with_dbi(self, arg: Val, dbi: DBI) -> Val {
-        use Neutral::*;
+impl RedEx for Val {
+    fn reduce_with_dbi(self, arg: Val, dbi: DBI) -> Term {
         match self {
-            Var(n) if dbi == n => arg.attach_dbi(dbi),
-            Var(n) => Val::var(n),
-            Ref(n) => Val::glob(n),
-            Meta(mi) => Val::meta(mi),
-            Axi(a) => Val::Neut(Axi(a)),
-            App(f, args) => args
-                .into_iter()
-                .fold(f.reduce_with_dbi_borrow(&arg, dbi), |f, a| {
-                    // Do we need to `reduce` after `apply` again?
-                    f.apply(a.reduce_with_dbi_borrow(&arg, dbi))
-                }),
-            SplitOn(split, obj) => Val::case_tree(split)
-                .apply(obj.reduce_with_dbi_borrow(&arg, dbi))
-                // further reduce because the `split` is not yet reduced
-                .reduce_with_dbi(arg, dbi),
-            Lift(levels, neut) => neut.reduce_with_dbi(arg, dbi).lift(levels),
+            Val::Pi(plicit, param_type, closure) => Term::pi(
+                plicit,
+                param_type.reduce_with_dbi_borrow(&arg, dbi),
+                closure.reduce_with_dbi(arg, dbi + 1),
+            ),
+            Val::Cons(name, a) => Term::cons(
+                name,
+                a.into_iter()
+                    .map(|a| a.reduce_with_dbi_borrow(&arg, dbi))
+                    .collect(),
+            ),
+            Val::Type(n) => Term::universe(n),
+            Val::Data(kind, a) => Term::data(
+                kind,
+                a.into_iter()
+                    .map(|a| a.reduce_with_dbi_borrow(&arg, dbi))
+                    .collect(),
+            ),
+            Val::Meta(a) => Term::meta(a),
+            Val::App(f, args) => unimplemented!(),
+            Val::Axiom(a) => Term::Whnf(Val::Axiom(a)),
+            Val::Refl => Term::reflexivity(),
+            Val::Id(ty, a, b) => Term::identity(
+                ty.reduce_with_dbi_borrow(&arg, dbi),
+                a.reduce_with_dbi_borrow(&arg, dbi),
+                b.reduce_with_dbi(arg, dbi),
+            ),
         }
     }
 
-    fn reduce_with_dbi_borrow(self, arg: &Val, dbi: DBI) -> Val {
-        use Neutral::*;
+    fn reduce_with_dbi_borrow(self, arg: &Val, dbi: DBI) -> Term {
         match self {
-            Var(n) if dbi == n => arg.clone().attach_dbi(dbi),
-            Var(n) => Val::var(n),
-            Ref(n) => Val::glob(n),
-            Meta(mi) => Val::meta(mi),
-            Axi(a) => Val::Neut(Axi(a)),
-            App(f, args) => args
-                .into_iter()
-                .fold(f.reduce_with_dbi_borrow(arg, dbi), |f, a| {
-                    // Do we need to `reduce` after `apply` again?
-                    f.apply(a.reduce_with_dbi_borrow(arg, dbi))
-                }),
-            SplitOn(split, obj) => Val::case_tree(split)
-                .apply(obj.reduce_with_dbi_borrow(&arg, dbi))
-                // further reduce because the `split` is not yet reduced
-                .reduce_with_dbi_borrow(arg, dbi),
-            Lift(levels, neut) => neut.reduce_with_dbi_borrow(arg, dbi).lift(levels),
+            Val::Pi(plicit, param_type, closure) => Term::pi(
+                plicit,
+                param_type.reduce_with_dbi_borrow(arg, dbi),
+                closure.reduce_with_dbi_borrow(arg, dbi + 1),
+            ),
+            Val::Cons(name, a) => Term::cons(
+                name,
+                a.into_iter()
+                    .map(|a| a.reduce_with_dbi_borrow(arg, dbi))
+                    .collect(),
+            ),
+            Val::Type(n) => Term::universe(n),
+            Val::Data(kind, a) => Term::data(
+                kind,
+                a.into_iter()
+                    .map(|a| a.reduce_with_dbi_borrow(arg, dbi))
+                    .collect(),
+            ),
+            Val::Meta(a) => Term::meta(a),
+            Val::App(f, args) => unimplemented!(),
+            Val::Axiom(a) => Term::Whnf(Val::Axiom(a)),
+            Val::Refl => Term::reflexivity(),
+            Val::Id(ty, a, b) => Term::identity(
+                ty.reduce_with_dbi_borrow(arg, dbi),
+                a.reduce_with_dbi_borrow(arg, dbi),
+                b.reduce_with_dbi_borrow(arg, dbi),
+            ),
         }
     }
 }
@@ -93,24 +98,13 @@ impl RedEx for Neutral {
 impl RedEx<Closure> for Closure {
     fn reduce_with_dbi(self, arg: Val, dbi: DBI) -> Self {
         use Closure::*;
-        match self {
-            Plain(body) => Self::plain(body.reduce_with_dbi(arg, dbi)),
-            Tree(split) => Tree(reduce_case_tree_with_dbi(split, dbi, &arg)),
-        }
+        let Plain(body) = self;
+        Self::plain(body.reduce_with_dbi(arg, dbi))
     }
 
     fn reduce_with_dbi_borrow(self, arg: &Val, dbi: DBI) -> Self {
         use Closure::*;
-        match self {
-            Plain(body) => Self::plain(body.reduce_with_dbi_borrow(arg, dbi)),
-            Tree(split) => Tree(reduce_case_tree_with_dbi(split, dbi, arg)),
-        }
+        let Plain(body) = self;
+        Self::plain(body.reduce_with_dbi_borrow(arg, dbi))
     }
-}
-
-fn reduce_case_tree_with_dbi(cases: CaseSplit, dbi: DBI, arg: &Val) -> CaseSplit {
-    cases
-        .into_iter()
-        .map(|(name, ty)| (name, ty.reduce_with_dbi_borrow(&arg, dbi)))
-        .collect()
 }
