@@ -3,7 +3,11 @@ use voile_util::meta::MI;
 use voile_util::tags::{Plicit, VarRec};
 use voile_util::uid::{DBI, GI, UID};
 
+use crate::syntax::pat;
+
 use super::RedEx;
+
+pub type Copat = pat::Copat<Term>;
 
 /// Reduction functions.
 impl Val {

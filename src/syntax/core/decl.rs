@@ -2,6 +2,8 @@ use voile_util::level::Level;
 use voile_util::loc::Labelled;
 use voile_util::uid::GI;
 
+use crate::syntax::core::Copat;
+
 use super::{Tele, Term};
 
 /// Declaration.
@@ -39,5 +41,11 @@ pub enum Decl {
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.Syntax.Internal.html#Clause).
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Clause {
-    TODO: (),
+    /// $\Delta$. The types of the pattern variables in dependency order.
+    pat_tele: Tele,
+    /// $\Delta \vdash ps$. The de Bruijn indices refer to $\Delta$.
+    patterns: Vec<Copat>,
+    /// `Some(v)` if $\Delta \vdash v$, while `None` if the patterns are absurd.
+    body: Option<Term>,
+    // TODO: case-trees.
 }

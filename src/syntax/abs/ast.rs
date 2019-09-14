@@ -1,4 +1,4 @@
-use crate::syntax::pat::Pat;
+use crate::syntax::pat::Copat;
 
 /// The abstract syntax.
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -10,4 +10,4 @@ pub enum Abs {
 pub type AbsTele = Vec<Abs>;
 
 /// Patterns in the abstract syntax.
-pub type AbsPat = Pat<Abs>;
+pub type AbsPat = Copat<Abs>;
