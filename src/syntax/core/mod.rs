@@ -3,6 +3,7 @@ use voile_util::loc::{Loc, ToLoc};
 pub use self::ast::*;
 pub use self::ast_cons::*;
 pub use self::ctx::*;
+pub use self::decl::*;
 pub use self::pat::*;
 pub use self::pretty::*;
 pub use self::redex::*;
@@ -13,6 +14,8 @@ mod ast;
 mod ast_cons;
 /// Contexts and telescopes.
 mod ctx;
+/// Checked declarations.
+mod decl;
 /// AST for patterns.
 mod pat;
 /// Pretty printing things.

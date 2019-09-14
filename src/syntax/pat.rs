@@ -2,7 +2,7 @@ use super::Term;
 
 /// Patterns.
 #[derive(Debug, PartialEq, Eq, Clone)]
-pub enum Pat {
+pub enum Pat<Term> {
     /// Variable pattern.
     /// TODO: what should be in this variant?
     ///  As we're using DBI, no name need to be stored;
@@ -23,9 +23,9 @@ pub enum Pat {
 
 /// Copatterns.
 #[derive(Debug, PartialEq, Eq, Clone)]
-pub enum Copat {
+pub enum Copat<Term> {
     /// Application copatterns.
-    App(Pat),
+    App(Pat<Term>),
     /// Projection copatterns.
     Proj(String),
 }
