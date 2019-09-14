@@ -31,26 +31,21 @@ impl RedEx for Term {
 
 impl RedEx for Val {
     fn reduce_with_dbi(self, arg: Val, dbi: DBI) -> Term {
+        let reduce_vec = |a: Vec<Term>| {
+            a.into_iter()
+                .map(|a| a.reduce_with_dbi_borrow(&arg, dbi))
+                .collect()
+        };
         match self {
             Val::Pi(plicit, param_type, closure) => Term::pi(
                 plicit,
                 param_type.reduce_with_dbi_borrow(&arg, dbi),
                 closure.reduce_with_dbi(arg, dbi + 1),
             ),
-            Val::Cons(name, a) => Term::cons(
-                name,
-                a.into_iter()
-                    .map(|a| a.reduce_with_dbi_borrow(&arg, dbi))
-                    .collect(),
-            ),
+            Val::Cons(name, a) => Term::cons(name, reduce_vec(a)),
             Val::Type(n) => Term::universe(n),
-            Val::Data(kind, a) => Term::data(
-                kind,
-                a.into_iter()
-                    .map(|a| a.reduce_with_dbi_borrow(&arg, dbi))
-                    .collect(),
-            ),
-            Val::Meta(a) => Term::meta(a),
+            Val::Data(kind, a) => Term::data(kind, reduce_vec(a)),
+            Val::Meta(m, a) => unimplemented!(),
             Val::App(f, args) => unimplemented!(),
             Val::Axiom(a) => Term::Whnf(Val::Axiom(a)),
             Val::Refl => Term::reflexivity(),
@@ -63,26 +58,21 @@ impl RedEx for Val {
     }
 
     fn reduce_with_dbi_borrow(self, arg: &Val, dbi: DBI) -> Term {
+        let reduce_vec = |a: Vec<Term>| {
+            a.into_iter()
+                .map(|a| a.reduce_with_dbi_borrow(&arg, dbi))
+                .collect()
+        };
         match self {
             Val::Pi(plicit, param_type, closure) => Term::pi(
                 plicit,
                 param_type.reduce_with_dbi_borrow(arg, dbi),
                 closure.reduce_with_dbi_borrow(arg, dbi + 1),
             ),
-            Val::Cons(name, a) => Term::cons(
-                name,
-                a.into_iter()
-                    .map(|a| a.reduce_with_dbi_borrow(arg, dbi))
-                    .collect(),
-            ),
+            Val::Cons(name, a) => Term::cons(name, reduce_vec(a)),
             Val::Type(n) => Term::universe(n),
-            Val::Data(kind, a) => Term::data(
-                kind,
-                a.into_iter()
-                    .map(|a| a.reduce_with_dbi_borrow(arg, dbi))
-                    .collect(),
-            ),
-            Val::Meta(a) => Term::meta(a),
+            Val::Data(kind, a) => Term::data(kind, reduce_vec(a)),
+            Val::Meta(m, a) => unimplemented!(),
             Val::App(f, args) => unimplemented!(),
             Val::Axiom(a) => Term::Whnf(Val::Axiom(a)),
             Val::Refl => Term::reflexivity(),

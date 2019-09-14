@@ -26,7 +26,10 @@ impl Display for Val {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
         use Val::*;
         match self {
-            Meta(mi) => write!(f, "?{}", mi),
+            Meta(mi, a) => {
+                f.write_str("?")?;
+                pretty_application(f, mi, a)
+            }
             App(fun, a) => pretty_application(f, fun, a),
             Type(l) => write!(f, "set{}", l),
             Pi(Plicit::Ex, param_ty, clos) => write!(f, "({} -> {})", param_ty, clos),

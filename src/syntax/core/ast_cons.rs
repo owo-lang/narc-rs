@@ -1,9 +1,9 @@
+use voile_util::level::Level;
 use voile_util::meta::MI;
 use voile_util::tags::{Plicit, VarRec};
 use voile_util::uid::*;
 
-use crate::syntax::core::{Closure, Term, Val};
-use voile_util::level::Level;
+use crate::syntax::core::{Closure, Elim, Term, Val};
 
 /// Constructors and traversal functions.
 impl Term {
@@ -43,8 +43,8 @@ impl Term {
         Self::data(VarRec::Record, params)
     }
 
-    pub fn meta(index: MI) -> Self {
-        Term::Whnf(Val::Meta(index))
+    pub fn meta(index: MI, params: Vec<Elim>) -> Self {
+        Term::Whnf(Val::Meta(index, params))
     }
 
     pub fn reflexivity() -> Self {

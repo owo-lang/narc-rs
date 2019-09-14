@@ -7,6 +7,8 @@ pub enum Pat {
     /// TODO: what should be in this variant?
     ///  As we're using DBI, no name need to be stored;
     ///  while the $PV(\bar{p})$ function seems to depend on variable names.
+    /// Note: it has a name suggestion in Agda.
+    /// http://hackage.haskell.org/package/Agda-2.6.0.1/docs/Agda-Syntax-Internal.html#t:Pattern
     Var,
     /// Dual to [Refl](../ast/enum.Val.html#variant.Refl).
     Refl,

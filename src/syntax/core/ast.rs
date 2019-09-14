@@ -29,8 +29,10 @@ pub enum Val {
     Pi(Plicit, Box<Term>, Closure),
     /// Constructor invocation, fully applied.
     Cons(String, Vec<Term>),
-    /// Meta reference.
-    Meta(MI),
+    /// Meta reference, with eliminations.
+    /// This does not appear in Cockx18, but we can find it in the
+    /// [implementation](http://hackage.haskell.org/package/Agda-2.6.0.1/docs/Agda-Syntax-Internal.html#v:MetaV).
+    Meta(MI, Vec<Elim>),
     /// Postulated values.
     Axiom(UID),
     /// Variable elimination, in spine-normal form.
