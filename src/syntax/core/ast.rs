@@ -1,14 +1,9 @@
-use std::collections::BTreeMap;
-
 use voile_util::level::Level;
 use voile_util::meta::MI;
 use voile_util::tags::{Plicit, VarRec};
 use voile_util::uid::{DBI, GI, UID};
 
 use super::RedEx;
-
-/// Case-split expression.
-pub type CaseSplit = BTreeMap<String, Closure>;
 
 /// Reduction functions.
 impl Val {

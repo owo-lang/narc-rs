@@ -2,6 +2,7 @@ use voile_util::loc::{Loc, ToLoc};
 
 pub use self::ast::*;
 pub use self::ast_cons::*;
+pub use self::pat::*;
 pub use self::pretty::*;
 pub use self::redex::*;
 
@@ -9,6 +10,8 @@ pub use self::redex::*;
 mod ast;
 /// Constructor functions.
 mod ast_cons;
+/// AST for patterns.
+mod pat;
 mod pretty;
 /// Reduction function (red-ex stands for **red**ducible **ex**pression).
 mod redex;
