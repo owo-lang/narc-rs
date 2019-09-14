@@ -1,7 +1,7 @@
 use voile_util::level::Level;
 use voile_util::loc::Labelled;
 
-use super::Tele;
+use super::{Tele, Term};
 
 /// Declaration.
 /// https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Monad.Base.html#Function
@@ -22,4 +22,4 @@ pub type Constructor = Labelled<Tele>;
 /// Fields.
 /// This definition follows the paper version instead
 /// of the one in Agda's implementation.
-pub type Field = Labelled<Tele>;
+pub type Field = Labelled<Term>;

@@ -1,5 +1,3 @@
-use super::Term;
-
 /// Patterns.
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum Pat<Term> {

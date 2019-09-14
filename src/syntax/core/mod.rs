@@ -4,7 +4,6 @@ pub use self::ast::*;
 pub use self::ast_cons::*;
 pub use self::ctx::*;
 pub use self::decl::*;
-pub use self::pat::*;
 pub use self::pretty::*;
 pub use self::redex::*;
 
@@ -16,8 +15,6 @@ mod ast_cons;
 mod ctx;
 /// Checked declarations.
 mod decl;
-/// AST for patterns.
-mod pat;
 /// Pretty printing things.
 mod pretty;
 /// Reduction function (red-ex stands for **red**ducible **ex**pression).
