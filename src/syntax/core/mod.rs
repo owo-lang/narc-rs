@@ -5,6 +5,7 @@ pub use self::ast_cons::*;
 pub use self::ctx::*;
 pub use self::decl::*;
 pub use self::pretty::*;
+pub use self::subst::*;
 
 /// Core language syntax definitions.
 mod ast;
@@ -16,6 +17,8 @@ mod ctx;
 mod decl;
 /// Pretty printing things.
 mod pretty;
+/// Substitution is a mapping.
+mod subst;
 
 impl Term {
     pub fn into_info(self, loc: Loc) -> ValInfo {

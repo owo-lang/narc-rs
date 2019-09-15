@@ -9,7 +9,7 @@ pub type Copat = pat::Copat<Term>;
 
 /// Reduction functions.
 impl Val {
-    pub fn apply(self, arg: Elim) -> Self {
+    pub fn eliminate(self, arg: Elim) -> Self {
         match self {
             Val::App(f, mut a) => {
                 a.push(arg);
@@ -19,7 +19,7 @@ impl Val {
                 a.push(arg);
                 Val::Meta(m, a)
             }
-            e => panic!("Cannot apply on `{}`.", e),
+            e => panic!("Cannot eliminate `{}`.", e),
         }
     }
 }
