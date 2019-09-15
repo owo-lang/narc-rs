@@ -5,7 +5,6 @@ pub use self::ast_cons::*;
 pub use self::ctx::*;
 pub use self::decl::*;
 pub use self::pretty::*;
-pub use self::redex::*;
 
 /// Core language syntax definitions.
 mod ast;
@@ -17,8 +16,6 @@ mod ctx;
 mod decl;
 /// Pretty printing things.
 mod pretty;
-/// Reduction function (red-ex stands for **red**ducible **ex**pression).
-mod redex;
 
 impl Term {
     pub fn into_info(self, loc: Loc) -> ValInfo {

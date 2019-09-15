@@ -5,8 +5,6 @@ use voile_util::uid::{DBI, GI, UID};
 
 use crate::syntax::pat;
 
-use super::RedEx;
-
 pub type Copat = pat::Copat<Term>;
 
 /// Reduction functions.
@@ -28,7 +26,7 @@ pub enum Val {
     /// Type universe.
     Type(Level),
     /// (Co)Data types, fully applied.
-    Data(VarRec, Vec<Term>),
+    Data(VarRec, GI, Vec<Term>),
     /// Pi-like types (dependent types), with parameter explicitly typed.
     Pi(Plicit, Box<Term>, Closure),
     /// Constructor invocation, fully applied.
@@ -68,16 +66,4 @@ pub enum Elim {
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum Closure {
     Plain(Box<Term>),
-}
-
-impl Closure {
-    pub fn instantiate(self, arg: Val) -> Term {
-        self.instantiate_safe(arg)
-            .unwrap_or_else(|e| panic!("Cannot split on `{}`.", e))
-    }
-
-    pub fn instantiate_safe(self, arg: Val) -> Result<Term, Term> {
-        let Closure::Plain(body) = self;
-        Ok(body.reduce_with_dbi(arg, Default::default()))
-    }
 }

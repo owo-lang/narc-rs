@@ -1,6 +1,6 @@
 use std::fmt::{Display, Error, Formatter};
 
-use voile_util::tags::Plicit;
+use voile_util::tags::{Plicit, VarRec};
 
 use super::{Closure, Elim, Term, Val, ValInfo};
 
@@ -35,7 +35,13 @@ impl Display for Val {
             Pi(Plicit::Ex, param_ty, clos) => write!(f, "({} -> {})", param_ty, clos),
             Pi(Plicit::Im, param_ty, clos) => write!(f, "({{{}}} -> {})", param_ty, clos),
             Cons(name, a) => pretty_application(f, name, a),
-            Data(kind, params) => unimplemented!(),
+            Data(kind, ix, args) => {
+                f.write_str(match kind {
+                    VarRec::Variant => "data",
+                    VarRec::Record => "codata",
+                })?;
+                pretty_application(f, ix, args)
+            }
             Axiom(i) => write!(f, "<{}>", i),
             Id(ty, a, b) => write!(f, "({} =[{}] {})", a, ty, b),
             Refl => f.write_str("refl"),

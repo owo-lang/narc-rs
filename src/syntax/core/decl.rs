@@ -1,5 +1,4 @@
 use voile_util::level::Level;
-use voile_util::loc::Labelled;
 use voile_util::uid::GI;
 
 use crate::syntax::core::Copat;
