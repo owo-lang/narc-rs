@@ -24,4 +24,9 @@ href="https://www.zhihu.com/people/wu-liang-95-71"><em>Narc</em></a> (or
 */
 
 /// Core language, abstract syntax, surface syntax, and the parser.
+/// Corresponds to Agda's `Agda.Syntax`.
 pub mod syntax;
+
+/// Anything relevant to type-checking.
+/// Corresponds to Agda's `Agda.TypeChecking`.
+pub mod check;
