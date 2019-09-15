@@ -15,6 +15,10 @@ impl Val {
                 a.push(arg);
                 Val::App(f, a)
             }
+            Val::Meta(m, mut a) => {
+                a.push(arg);
+                Val::Meta(m, a)
+            }
             e => panic!("Cannot apply on `{}`.", e),
         }
     }
