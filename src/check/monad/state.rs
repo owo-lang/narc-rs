@@ -1,5 +1,6 @@
 use crate::syntax::core::{Decl, Tele, Term};
 use voile_util::meta::MetaContext;
+use voile_util::uid::GI;
 
 /// Typing context.
 pub type Sigma = Vec<Decl>;
@@ -7,7 +8,7 @@ pub type Sigma = Vec<Decl>;
 /// Type-checking state.
 #[derive(Debug, Clone, Default)]
 pub struct TCS {
-    /// Global typing context.
+    /// Global context (definitions are attached with type annotations).
     pub sigma: Sigma,
     /// Local typing context.
     pub gamma: Tele,
@@ -20,5 +21,13 @@ impl TCS {
     /// used for generating fresh metas during elaboration.
     pub fn fresh_meta(&mut self) -> Term {
         self.meta_context.fresh_meta(|m| Term::meta(m, vec![]))
+    }
+
+    pub fn def(&self, ix: GI) -> &Decl {
+        &self.sigma[ix.0]
+    }
+
+    pub fn mut_def(&mut self, ix: GI) -> &mut Decl {
+        &mut self.sigma[ix.0]
     }
 }
