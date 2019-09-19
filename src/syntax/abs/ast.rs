@@ -14,8 +14,8 @@ pub enum Abs {
     App(Loc, Box<Self>, Box<Self>),
     Pi(Loc, AbsTele, Box<Self>),
     Type(Ident, Level),
-    Cons(Ident),
-    Proj(Ident),
+    Cons(Ident, GI),
+    Proj(Ident, GI),
     TODO, // TODO
 }
 

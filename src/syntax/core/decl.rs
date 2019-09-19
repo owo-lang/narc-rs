@@ -29,6 +29,10 @@ pub enum Decl {
         name: String,
         params: Tele,
     },
+    Proj {
+        name: String,
+        ty: Term,
+    },
     /// Function definitions.
     Func {
         name: String,
