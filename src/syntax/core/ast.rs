@@ -5,7 +5,7 @@ use voile_util::uid::{DBI, GI, UID};
 
 use crate::syntax::pat;
 
-pub type Copat = pat::Copat<Term>;
+pub type Copat = pat::Copat<DBI, Term>;
 
 /// Reduction functions.
 impl Val {

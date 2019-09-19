@@ -1,13 +1,13 @@
 /// Patterns.
 #[derive(Debug, PartialEq, Eq, Clone)]
-pub enum Pat<Term> {
+pub enum Pat<Ix, Term> {
     /// Variable pattern.
     /// TODO: what should be in this variant?
     ///  As we're using DBI, no name need to be stored;
     ///  while the $PV(\bar{p})$ function seems to depend on variable names.
     /// Note: it has a name suggestion in Agda.
     /// https://hackage.haskell.org/package/Agda-2.6.0.1/docs/Agda-Syntax-Internal.html#t:Pattern
-    Var,
+    Var(Ix),
     /// Dual to [Refl](../ast/enum.Val.html#variant.Refl).
     Refl,
     /// Impossible pattern.
@@ -20,10 +20,12 @@ pub enum Pat<Term> {
 }
 
 /// Copatterns.
+/// The `Ix` is the representation of variable abstraction,
+/// like `UID` in abstract or `DBI` in core.
 #[derive(Debug, PartialEq, Eq, Clone)]
-pub enum Copat<Term> {
+pub enum Copat<Ix, Term> {
     /// Application copatterns.
-    App(Pat<Term>),
+    App(Pat<Ix, Term>),
     /// Projection copatterns.
     Proj(String),
 }
