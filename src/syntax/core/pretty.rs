@@ -2,7 +2,7 @@ use std::fmt::{Display, Error, Formatter};
 
 use voile_util::tags::{Plicit, VarRec};
 
-use super::{Closure, Elim, Term, Val, ValInfo};
+use super::{Closure, Elim, Term, TermInfo, Val};
 
 impl Display for Elim {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
@@ -57,7 +57,7 @@ impl Display for Closure {
     }
 }
 
-impl Display for ValInfo {
+impl Display for TermInfo {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
         write!(f, "{} at {}", self.ast, self.loc)
     }

@@ -21,20 +21,20 @@ mod pretty;
 mod subst;
 
 impl Term {
-    pub fn into_info(self, loc: Loc) -> ValInfo {
-        ValInfo::new(self, loc)
+    pub fn into_info(self, loc: Loc) -> TermInfo {
+        TermInfo::new(self, loc)
     }
 }
 
 /// A value with syntax info.
 /// This is what should be stored inside of the context.
 #[derive(Debug, PartialEq, Eq, Clone)]
-pub struct ValInfo {
+pub struct TermInfo {
     pub ast: Term,
     pub loc: Loc,
 }
 
-impl ValInfo {
+impl TermInfo {
     pub fn new(ast: Term, loc: Loc) -> Self {
         Self { ast, loc }
     }
@@ -44,7 +44,7 @@ impl ValInfo {
     }
 }
 
-impl ToLoc for ValInfo {
+impl ToLoc for TermInfo {
     fn loc(&self) -> Loc {
         self.loc.clone()
     }
