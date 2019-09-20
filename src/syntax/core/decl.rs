@@ -1,7 +1,7 @@
 use voile_util::level::Level;
 use voile_util::uid::GI;
 
-use crate::syntax::core::Copat;
+use crate::syntax::core::Pat;
 
 use super::{Tele, Term};
 
@@ -47,7 +47,7 @@ pub struct Clause {
     /// $\Delta$. The types of the pattern variables in dependency order.
     pat_tele: Tele,
     /// $\Delta \vdash ps$. The de Bruijn indices refer to $\Delta$.
-    patterns: Vec<Copat>,
+    patterns: Vec<Pat>,
     /// `Some(v)` if $\Delta \vdash v$, while `None` if the patterns are absurd.
     body: Option<Term>,
     // TODO: case-trees.

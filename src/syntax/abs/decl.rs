@@ -1,8 +1,9 @@
 use voile_util::level::Level;
 use voile_util::loc::{Ident, Labelled, Loc, ToLoc};
 
-use super::{Abs, AbsTele};
-use crate::syntax::abs::AbsPat;
+use crate::syntax::core::Term;
+
+use super::{Abs, AbsPat, AbsTele};
 
 /// Declaration.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/Agda-Syntax-Abstract.html#t:Declaration).
@@ -37,12 +38,7 @@ pub enum AbsDecl {
     /// Function signature definition.
     Defn { source: Loc, name: Ident, ty: Abs },
     /// Pattern matching clause.
-    Clause {
-        source: Loc,
-        name: Ident,
-        patterns: Vec<AbsPat>,
-        body: Abs,
-    },
+    Clause { source: Loc, info: AbsClause },
     /// Coinductive records.
     Codata {
         source: Loc,
@@ -65,6 +61,28 @@ impl ToLoc for AbsDecl {
             | Codata { source, .. } => *source,
         }
     }
+}
+
+/// A user pattern and a core term that they should equal
+/// after splitting is complete.
+/// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.Syntax.Abstract.html#ProblemEq).
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub struct ProblemEq {
+    in_pat: AbsPat,
+    inst: Term,
+    ty: Term,
+}
+
+/// Clause information in abstract syntax.
+/// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.Syntax.Abstract.html#Clause%27).
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub struct AbsClause {
+    /// Name of the function we're adding clause to.
+    name: Ident,
+    /// Lhs.
+    patterns: Vec<AbsPat>,
+    /// Rhs.
+    body: Abs,
 }
 
 /// Constructors.

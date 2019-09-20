@@ -4,9 +4,11 @@ use crate::check::monad::{TermTCM, TCE, TCS};
 use crate::syntax::abs::Abs;
 use crate::syntax::core::{Term, Val};
 
+use self::clause::clause;
 use self::infer::*;
-use self::unify::*;
 
+/// Type check a function clause.
+mod clause;
 /// Synthesize the type from an abstract term.
 mod infer;
 /// Conversion check.
