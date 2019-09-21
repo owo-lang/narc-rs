@@ -1,8 +1,5 @@
-use super::{Elim, Term, Val};
+use super::super::{Elim, Term, Val};
 use voile_util::uid::GI;
-
-/// Substitution.
-pub type Substitution = Vec<Elim>;
 
 impl Term {
     /// Use `Term` instead of `Self` to emphasize that it's not `Elim`.
