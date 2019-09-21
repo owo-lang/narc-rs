@@ -3,7 +3,7 @@ use voile_util::meta::MI;
 use voile_util::tags::{Plicit, VarRec};
 use voile_util::uid::*;
 
-use crate::syntax::core::{Closure, Elim, Term, Val};
+use super::{Closure, ConHead, Elim, Term, Val};
 
 /// Constructors and traversal functions.
 impl Term {
@@ -27,7 +27,7 @@ impl Term {
         }
     }
 
-    pub fn cons(name: String, params: Vec<Term>) -> Self {
+    pub fn cons(name: ConHead, params: Vec<Term>) -> Self {
         Term::Whnf(Val::Cons(name, params))
     }
 
@@ -81,5 +81,12 @@ impl Closure {
 impl Elim {
     pub fn app(term: Term) -> Self {
         Elim::App(Box::new(term))
+    }
+
+    pub fn into_app(self) -> Option<Term> {
+        match self {
+            Elim::App(term) => Some(*term),
+            Elim::Proj(_) => None,
+        }
     }
 }

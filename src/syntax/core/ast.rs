@@ -3,9 +3,23 @@ use voile_util::meta::MI;
 use voile_util::tags::{Plicit, VarRec};
 use voile_util::uid::{DBI, GI, UID};
 
+use crate::syntax::common::Ductive;
 use crate::syntax::pat;
 
 pub type Pat = pat::Copat<DBI, Term>;
+
+/// Constructor information.
+/// [Agda](http://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.Syntax.Internal.html#ConHead).
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub struct ConHead {
+    /// Constructor name.
+    pub name: String,
+    /// Records might be coinductive.
+    pub ductive: Ductive,
+    /// Field names.
+    /// This allows us to project fields from a record without the `TCS`.
+    pub fields: Vec<String>,
+}
 
 /// Weak-head-normal-form terms, canonical values.
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -17,7 +31,7 @@ pub enum Val {
     /// Pi-like types (dependent types), with parameter explicitly typed.
     Pi(Plicit, Box<Term>, Closure),
     /// Constructor invocation, fully applied.
-    Cons(String, Vec<Term>),
+    Cons(ConHead, Vec<Term>),
     /// Meta reference, with eliminations.
     /// This does not appear in Cockx18, but we can find it in the
     /// [implementation](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/Agda-Syntax-Internal.html#v:MetaV).

@@ -8,6 +8,9 @@ The purpose of this language is to realize the elaboration algorithm described
 in [this paper][paper].
 
  [paper]: https://dl.acm.org/citation.cfm?id=3236770
+ [Agda]: http://hackage.haskell.org/package/Agda-2.6.0.1
+
+The implementation is heavily inspired from [Agda version 2.6.0.1][Agda].
 
 <br/>
 <span>

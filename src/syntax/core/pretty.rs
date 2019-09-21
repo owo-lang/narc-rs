@@ -2,7 +2,7 @@ use std::fmt::{Display, Error, Formatter};
 
 use voile_util::tags::{Plicit, VarRec};
 
-use super::{Closure, Elim, Term, TermInfo, Val};
+use super::{Closure, ConHead, Elim, Term, TermInfo, Val};
 
 impl Display for Elim {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
@@ -54,6 +54,12 @@ impl Display for Closure {
         use Closure::*;
         let Plain(body) = self;
         body.fmt(f)
+    }
+}
+
+impl Display for ConHead {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        self.name.fmt(f)
     }
 }
 

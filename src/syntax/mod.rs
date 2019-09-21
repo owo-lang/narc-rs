@@ -6,3 +6,6 @@ pub mod abs;
 
 /// Generic patterns.
 pub mod pat;
+
+/// To be moved to a separate crate for future languages.
+pub mod common;
