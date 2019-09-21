@@ -2,21 +2,21 @@ use voile_util::loc::{Loc, ToLoc};
 
 pub use self::ast::*;
 pub use self::ast_cons::*;
-pub use self::ctx::*;
 pub use self::decl::*;
 pub use self::pretty::*;
+pub use self::redex::*;
 pub use self::subst::*;
 
 /// Core language syntax definitions.
 mod ast;
 /// Constructor functions.
 mod ast_cons;
-/// Contexts and telescopes.
-mod ctx;
 /// Checked declarations.
 mod decl;
 /// Pretty printing things.
 mod pretty;
+/// Reduction function (red-ex stands for **red**ducible **ex**pression).
+mod redex;
 /// Substitution is a mapping.
 mod subst;
 
@@ -49,3 +49,9 @@ impl ToLoc for TermInfo {
         self.loc.clone()
     }
 }
+
+/// Telescopes.
+pub type Tele = Vec<Term>;
+
+/// Contexts.
+pub type Ctx = Vec<Term>;

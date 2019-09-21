@@ -1,7 +1,8 @@
 use super::{Elim, Term, Val};
+use voile_util::uid::GI;
 
 /// Substitution.
-pub type Subst = Vec<Elim>;
+pub type Substitution = Vec<Elim>;
 
 impl Term {
     /// Use `Term` instead of `Self` to emphasize that it's not `Elim`.
@@ -36,20 +37,22 @@ impl Term {
                     }
                 }
             }
-            Term::Redex(f, mut a) => {
-                /* // Does not support projection using application syntax.
-                match args.first() {
-                    Some(Elim::App(arg)) => {
-                        let mut iter = args.into_iter();
-                        let fst = iter.next().unwrap().into_app().unwrap();
-                    }
-                    _ => Term::Redex(f,name, args),
-                }
-                */
-                a.append(&mut args);
-                Term::Redex(f, a)
-            }
+            Term::Redex(f, mut a) => def_app(f, a, args),
             e => panic!("Cannot eliminate `{}`.", e),
         }
     }
+}
+
+pub fn def_app(f: GI, mut a: Vec<Elim>, mut args: Vec<Elim>) -> Term {
+    /* // Does not support projection using application syntax.
+    match args.first() {
+        Some(Elim::App(arg)) => {
+            let mut iter = args.into_iter();
+            let fst = iter.next().unwrap().into_app().unwrap();
+        }
+        _ => Term::Redex(f,name, args),
+    }
+    */
+    a.append(&mut args);
+    Term::Redex(f, a)
 }
