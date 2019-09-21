@@ -1,21 +1,24 @@
 use voile_util::uid::DBI;
 
-use super::Elim;
+use super::{Pat, Term};
 
 pub use self::apply::*;
 pub use self::redex::*;
 
 /// Substitution type.
-pub struct Subst {
+pub struct PrimSubst<T> {
     /// The things to be substituted.
-    elims: Vec<Elim>,
+    elims: Vec<T>,
 }
 
-impl Subst {
-    pub fn lookup(&self, dbi: DBI) -> &Elim {
+impl<T> PrimSubst<T> {
+    pub fn lookup(&self, dbi: DBI) -> &T {
         unimplemented!()
     }
 }
+
+pub type Subst = PrimSubst<Term>;
+pub type PatSubst = PrimSubst<Pat>;
 
 /// Eliminate something with something else.
 mod apply;

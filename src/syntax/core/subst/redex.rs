@@ -38,7 +38,10 @@ impl RedEx for Val {
             Val::Type(n) => Term::universe(n),
             Val::Data(kind, gi, a) => Term::data(kind, gi, reduce_vec(a)),
             Val::Meta(m, a) => Term::meta(m, reduce_vec_dbi(a, &subst)),
-            Val::App(f, args) => unimplemented!(),
+            Val::App(f, args) => subst
+                .lookup(f)
+                .clone()
+                .apply_elim(reduce_vec_dbi(args, subst)),
             Val::Axiom(a) => Term::Whnf(Val::Axiom(a)),
             Val::Refl => Term::reflexivity(),
             Val::Id(ty, a, b) => Term::identity(
