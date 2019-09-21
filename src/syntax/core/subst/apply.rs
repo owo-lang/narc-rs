@@ -34,7 +34,7 @@ impl Term {
                     }
                 }
             }
-            Term::Redex(f, mut a) => def_app(f, a, args),
+            Term::Redex(f, a) => def_app(f, a, args),
             e => panic!("Cannot eliminate `{}`.", e),
         }
     }
