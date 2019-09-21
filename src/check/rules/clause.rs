@@ -26,6 +26,10 @@ pub struct LhsState {
     // TODO: what is `_lhsPartialSplit`?
 }
 
+pub fn init_lhs_state(tele: Tele) -> TCM<LhsState> {
+    unimplemented!()
+}
+
 /// Checking an abstract clause.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.Def.html#checkClause).
 pub fn clause(tcs: TCS, cls: AbsClause, against: &Val) -> TCM<Clause> {

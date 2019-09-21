@@ -77,3 +77,9 @@ impl Closure {
         Closure::Plain(Box::new(body))
     }
 }
+
+impl Elim {
+    pub fn app(term: Term) -> Self {
+        Elim::App(Box::new(term))
+    }
+}

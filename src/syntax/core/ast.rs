@@ -7,23 +7,6 @@ use crate::syntax::pat;
 
 pub type Pat = pat::Copat<DBI, Term>;
 
-/// Reduction functions.
-impl Val {
-    pub fn eliminate(self, arg: Elim) -> Self {
-        match self {
-            Val::App(f, mut a) => {
-                a.push(arg);
-                Val::App(f, a)
-            }
-            Val::Meta(m, mut a) => {
-                a.push(arg);
-                Val::Meta(m, a)
-            }
-            e => panic!("Cannot eliminate `{}`.", e),
-        }
-    }
-}
-
 /// Weak-head-normal-form terms, canonical values.
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum Val {
