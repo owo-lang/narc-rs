@@ -10,31 +10,16 @@ impl Term {
     }
 
     pub fn apply_elim(self, mut args: Vec<Elim>) -> Self {
-        match match self {
-            Term::Whnf(val) => val,
-            Term::Redex(f, mut a) => {
-                /* // Does not support projection using application syntax.
-                match args.first() {
-                    Some(Elim::App(arg)) => {
-                        let mut iter = args.into_iter();
-                        let fst = iter.next().unwrap().into_app().unwrap();
-                    }
-                    _ => Term::Redex(f,name, args),
-                }
-                */
-                a.append(&mut args);
-                return Term::Redex(f, a);
-            }
-        } {
-            Val::App(f, mut a) => {
+        match self {
+            Term::Whnf(Val::App(f, mut a)) => {
                 a.append(&mut args);
                 Term::Whnf(Val::App(f, a))
             }
-            Val::Meta(m, mut a) => {
+            Term::Whnf(Val::Meta(m, mut a)) => {
                 a.append(&mut args);
                 Term::meta(m, a)
             }
-            Val::Cons(c, mut a) => {
+            Term::Whnf(Val::Cons(c, mut a)) => {
                 let mut iter = args.into_iter();
                 match iter.next() {
                     None => Term::cons(c, a),
@@ -50,6 +35,19 @@ impl Term {
                         a.remove(ix).apply_elim(iter.collect())
                     }
                 }
+            }
+            Term::Redex(f, mut a) => {
+                /* // Does not support projection using application syntax.
+                match args.first() {
+                    Some(Elim::App(arg)) => {
+                        let mut iter = args.into_iter();
+                        let fst = iter.next().unwrap().into_app().unwrap();
+                    }
+                    _ => Term::Redex(f,name, args),
+                }
+                */
+                a.append(&mut args);
+                Term::Redex(f, a)
             }
             e => panic!("Cannot eliminate `{}`.", e),
         }
