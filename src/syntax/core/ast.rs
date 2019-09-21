@@ -9,7 +9,7 @@ use crate::syntax::pat;
 pub type Pat = pat::Copat<DBI, Term>;
 
 /// Constructor information.
-/// [Agda](http://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.Syntax.Internal.html#ConHead).
+/// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.Syntax.Internal.html#ConHead).
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct ConHead {
     /// Constructor name.

@@ -40,6 +40,8 @@ impl Term {
     }
 }
 
+/// Application on a definition.
+/// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.html#defApp).
 pub fn def_app(f: GI, mut a: Vec<Elim>, mut args: Vec<Elim>) -> Term {
     /* // Does not support projection using application syntax.
     match args.first() {

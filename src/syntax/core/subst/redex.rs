@@ -2,6 +2,7 @@ use super::super::{Closure, Elim, Term, Val};
 use super::{def_app, Subst};
 
 /// Reducible expressions.
+/// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#Subst).
 pub trait RedEx<T: Sized = Term>: Sized {
     /// Apply a substitution to a redex.
     fn reduce_dbi(self, subst: &Subst) -> T;
@@ -40,7 +41,8 @@ impl RedEx for Val {
             Val::Meta(m, a) => Term::meta(m, reduce_vec_dbi(a, &subst)),
             Val::App(f, args) => subst
                 .lookup(f)
-                .clone()
+                .map(|o| o.clone())
+                .unwrap_or_else(|dbi| Term::Whnf(Val::App(dbi, vec![])))
                 .apply_elim(reduce_vec_dbi(args, subst)),
             Val::Axiom(a) => Term::Whnf(Val::Axiom(a)),
             Val::Refl => Term::reflexivity(),
