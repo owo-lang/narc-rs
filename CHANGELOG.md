@@ -2,6 +2,10 @@
 
 # 0.0.3
 
++ Add the substitution type
++ Implement the substitution operation
++ Initial type-checking code
+
 # 0.0.2
 
 + Add core language definition from Voile,

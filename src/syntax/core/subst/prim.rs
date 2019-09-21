@@ -87,7 +87,7 @@ impl PrimSubst<Term> {
 
     /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#raiseFrom).
     pub fn raise_from(n: usize, k: usize, term: Term) -> Term {
-        term.reduce_dbi(&Self::lift(Self::raise(k), n))
+        term.reduce_dbi(&Self::lift_by(Self::raise(k), n))
     }
 }
 
@@ -99,7 +99,7 @@ impl<T> PrimSubst<T> {
 
     /// Lift a substitution under k binders.
     /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#liftS).
-    pub fn lift(me: Rc<Self>, by: usize) -> Rc<Self> {
+    pub fn lift_by(me: Rc<Self>, by: usize) -> Rc<Self> {
         use PrimSubst::*;
         match (by, me) {
             (0, rho) => rho,
@@ -122,6 +122,27 @@ impl<T> PrimSubst<T> {
                 _ => Rc::new(Weak(n, rho)),
             },
         }
+    }
+
+    // === Constructors ===
+
+    pub fn one(t: T) -> Self {
+        Self::cons(Self::default(), t)
+    }
+
+    /// Constructor.
+    pub fn cons(self, t: T) -> Self {
+        PrimSubst::Cons(t, Rc::new(self))
+    }
+
+    /// Constructor.
+    pub fn lift(self, i: usize) -> Self {
+        PrimSubst::Lift(i, Rc::new(self))
+    }
+
+    /// Constructor.
+    pub fn weak(self, i: usize) -> Self {
+        PrimSubst::Weak(i, Rc::new(self))
     }
 }
 

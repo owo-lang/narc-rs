@@ -6,6 +6,8 @@ use voile_util::uid::{DBI, GI, UID};
 use crate::syntax::common::Ductive;
 use crate::syntax::pat;
 
+use super::subst::{RedEx, Subst};
+
 pub type Pat = pat::Copat<DBI, Term>;
 
 /// Constructor information.
@@ -67,4 +69,16 @@ pub enum Elim {
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum Closure {
     Plain(Box<Term>),
+}
+
+impl Closure {
+    pub fn instantiate(self, arg: Term) -> Term {
+        self.instantiate_safe(arg)
+            .unwrap_or_else(|e| panic!("Cannot split on `{}`.", e))
+    }
+
+    pub fn instantiate_safe(self, arg: Term) -> Result<Term, Term> {
+        let Closure::Plain(body) = self;
+        Ok(body.reduce_dbi(&Subst::one(arg)))
+    }
 }
