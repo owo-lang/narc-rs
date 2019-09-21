@@ -1,3 +1,5 @@
+use voile_util::uid::DBI;
+
 use super::super::{Closure, Elim, Term, Val};
 use super::{def_app, Subst};
 
@@ -6,6 +8,9 @@ use super::{def_app, Subst};
 pub trait RedEx<T: Sized = Term>: Sized {
     /// Apply a substitution to a redex.
     fn reduce_dbi(self, subst: &Subst) -> T;
+
+    /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.DeBruijn.html#DeBruijn).
+    fn from_dbi(dbi: DBI) -> Self;
 }
 
 impl RedEx for Term {
@@ -15,6 +20,10 @@ impl RedEx for Term {
             Term::Redex(f, args) => def_app(f, vec![], reduce_vec_dbi(args, &subst)),
         }
     }
+
+    fn from_dbi(dbi: DBI) -> Self {
+        Term::Whnf(RedEx::from_dbi(dbi))
+    }
 }
 
 impl RedEx<Elim> for Elim {
@@ -23,6 +32,10 @@ impl RedEx<Elim> for Elim {
             Elim::App(term) => Elim::app(term.reduce_dbi(subst)),
             e => e,
         }
+    }
+
+    fn from_dbi(dbi: DBI) -> Self {
+        Elim::app(RedEx::from_dbi(dbi))
     }
 }
 
@@ -39,11 +52,7 @@ impl RedEx for Val {
             Val::Type(n) => Term::universe(n),
             Val::Data(kind, gi, a) => Term::data(kind, gi, reduce_vec(a)),
             Val::Meta(m, a) => Term::meta(m, reduce_vec_dbi(a, &subst)),
-            Val::App(f, args) => subst
-                .lookup(f)
-                .map(|o| o.clone())
-                .unwrap_or_else(|dbi| Term::Whnf(Val::App(dbi, vec![])))
-                .apply_elim(reduce_vec_dbi(args, subst)),
+            Val::App(f, args) => subst.lookup(f).apply_elim(reduce_vec_dbi(args, subst)),
             Val::Axiom(a) => Term::Whnf(Val::Axiom(a)),
             Val::Refl => Term::reflexivity(),
             Val::Id(ty, a, b) => Term::identity(
@@ -53,6 +62,10 @@ impl RedEx for Val {
             ),
         }
     }
+
+    fn from_dbi(dbi: DBI) -> Self {
+        Val::App(dbi, vec![])
+    }
 }
 
 impl RedEx<Closure> for Closure {
@@ -60,6 +73,10 @@ impl RedEx<Closure> for Closure {
         use Closure::*;
         let Plain(body) = self;
         Self::plain(body.reduce_dbi(subst))
+    }
+
+    fn from_dbi(dbi: DBI) -> Self {
+        Self::plain(RedEx::from_dbi(dbi))
     }
 }
 

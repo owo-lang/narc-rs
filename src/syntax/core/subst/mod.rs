@@ -44,26 +44,33 @@ impl<T> Default for PrimSubst<T> {
     }
 }
 
-impl<T> PrimSubst<T> {
+impl PrimSubst<Term> {
     /// If lookup failed, return the DBI.
     /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#lookupS).
-    pub fn lookup(&self, dbi: DBI) -> Result<&T, DBI> {
+    pub fn lookup_impl(&self, dbi: DBI) -> Result<&Term, Term> {
         use PrimSubst::*;
         match self {
-            IdS => Err(dbi),
+            IdS => Err(Term::from_dbi(dbi)),
             Cons(o, rest) => match dbi.nat() {
                 None => Ok(o),
-                Some(dbi) => rest.lookup(dbi),
+                Some(dbi) => rest.lookup_impl(dbi),
             },
-            Succ(rest) => rest.lookup(dbi.pred()),
+            Succ(rest) => rest.lookup_impl(dbi.pred()),
             Weak(i, rest) => match &**rest {
-                IdS => Err(dbi + *i),
-                // TODO: apply_subst to this lookup result.
-                rho => rho.lookup(DBI(*i)),
+                IdS => Err(Term::from_dbi(dbi + *i)),
+                rho => Err(rho.lookup(DBI(*i)).reduce_dbi(&*Self::raise(*i))),
             },
         }
     }
 
+    pub fn lookup(&self, dbi: DBI) -> Term {
+        self.lookup_impl(dbi)
+            .map(Clone::clone)
+            .unwrap_or_else(|e| e)
+    }
+}
+
+impl<T> PrimSubst<T> {
     /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#raiseS).
     pub fn raise(by: usize) -> Rc<Self> {
         Self::weaken(Default::default(), by)
