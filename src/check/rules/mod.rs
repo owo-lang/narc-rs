@@ -9,6 +9,8 @@ use self::infer::*;
 
 /// Type check a function clause.
 mod clause;
+/// Turning an abstract term into a core term.
+mod eval;
 /// Synthesize the type from an abstract term.
 mod infer;
 /// Conversion check.
