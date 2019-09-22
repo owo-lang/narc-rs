@@ -17,7 +17,7 @@ mod pretty;
 pub mod subst;
 
 impl Term {
-    pub fn into_info(self, loc: Loc) -> TermInfo {
+    pub fn at(self, loc: Loc) -> TermInfo {
         TermInfo::new(self, loc)
     }
 }

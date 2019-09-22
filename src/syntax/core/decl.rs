@@ -28,6 +28,9 @@ pub enum Decl {
     Cons {
         name: String,
         params: Tele,
+        /// If this is a record constructor,
+        /// we fill the fields' names here.
+        fields: Option<Vec<String>>,
     },
     Proj {
         name: String,

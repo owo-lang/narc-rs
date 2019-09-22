@@ -20,7 +20,7 @@ pub fn check(tcs: TCS, abs: &Abs, against: &Val) -> TermTCM {
     match (abs, against) {
         (Abs::Type(info, lower), Val::Type(upper)) => {
             if upper > lower {
-                Ok((Term::universe(*lower).into_info(info.loc), tcs))
+                Ok((Term::universe(*lower).at(info.loc), tcs))
             } else {
                 Err(TCE::LevelMismatch(abs.loc(), *lower + 1, *upper))
             }
