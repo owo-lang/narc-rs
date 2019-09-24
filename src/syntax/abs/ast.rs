@@ -19,6 +19,44 @@ pub enum Abs {
     TODO, // TODO
 }
 
+/// Application's internal view.
+/// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.Syntax.Abstract.Views.html#AppView).
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub struct AppView {
+    pub fun: Abs,
+    pub args: Vec<(Loc, Abs)>,
+}
+
+impl AppView {
+    pub fn new(fun: Abs, args: Vec<(Loc, Abs)>) -> Self {
+        Self { fun, args }
+    }
+
+    pub fn into_abs(self) -> Abs {
+        self.args
+            .into_iter()
+            .fold(self.fun, |f, (loc, arg)| Abs::app(loc, f, arg))
+    }
+}
+
+impl Abs {
+    /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.Syntax.Abstract.Views.html#appView).
+    pub fn into_app_view(self) -> AppView {
+        match self {
+            Abs::App(loc, f, arg) => {
+                let mut view = f.into_app_view();
+                view.args.push((loc, *arg));
+                view
+            }
+            e => AppView::new(e, vec![]),
+        }
+    }
+
+    pub fn app(loc: Loc, f: Self, arg: Self) -> Self {
+        Abs::App(loc, Box::new(f), Box::new(arg))
+    }
+}
+
 impl ToLoc for Abs {
     fn loc(&self) -> Loc {
         use Abs::*;
