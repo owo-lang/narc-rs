@@ -1,9 +1,9 @@
+use voile_util::level::Level;
 use voile_util::loc::{Ident, Loc, ToLoc};
 use voile_util::meta::MI;
 use voile_util::uid::{GI, UID};
 
 use crate::syntax::pat::Copat;
-use voile_util::level::Level;
 
 /// The abstract syntax.
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -16,7 +16,6 @@ pub enum Abs {
     Type(Ident, Level),
     Cons(Ident, GI),
     Proj(Ident, GI),
-    TODO, // TODO
 }
 
 /// Application's internal view.
@@ -64,7 +63,6 @@ impl ToLoc for Abs {
             Proj(ident, ..) | Cons(ident, ..) | Type(ident, ..) | Def(ident, ..)
             | Var(ident, ..) | Meta(ident, ..) => ident.loc,
             App(loc, ..) | Pi(loc, ..) => *loc,
-            TODO => unreachable!(),
         }
     }
 }

@@ -4,11 +4,8 @@ use voile_util::tags::{Plicit, VarRec};
 use voile_util::uid::{DBI, GI, UID};
 
 use crate::syntax::common::Ductive;
-use crate::syntax::pat;
 
 use super::subst::{RedEx, Subst};
-
-pub type Pat = pat::Copat<DBI, Term>;
 
 /// Constructor information.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.Syntax.Internal.html#ConHead).
