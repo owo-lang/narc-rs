@@ -1,3 +1,5 @@
+use crate::syntax::core::ConHead;
+
 /// Patterns.
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum Pat<Ix, Term> {
@@ -14,7 +16,7 @@ pub enum Pat<Ix, Term> {
     Absurd,
     /// Dual to [Cons](../ast/enum.Val.html#variant.Cons),
     /// but can be forced (the first member is "is\_forced").
-    Cons(bool, Vec<Self>),
+    Cons(bool, ConHead, Vec<Self>),
     /// Forced term as an expression.
     Forced(Term),
 }
