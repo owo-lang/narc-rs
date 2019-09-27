@@ -19,7 +19,7 @@ pub struct LhsState {
     tele: Tele,
     /// Patterns after splitting. Indices are positioned from right to left.
     pats: Vec<Pat>,
-    /// User patterns. TODO: of what?
+    /// User patterns' unification problems.
     problem: Problem,
     /// Type eliminated by `problem.rest_pats`.
     target: Term,

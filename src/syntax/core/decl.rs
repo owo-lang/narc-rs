@@ -1,5 +1,5 @@
 use voile_util::level::Level;
-use voile_util::loc::Loc;
+use voile_util::loc::{Loc, ToLoc};
 use voile_util::uid::GI;
 
 use crate::syntax::core::Pat;
@@ -51,6 +51,18 @@ pub enum Decl {
         signature: Term,
         clauses: Vec<Clause>,
     },
+}
+
+impl ToLoc for Decl {
+    fn loc(&self) -> Loc {
+        match self {
+            Decl::Data { loc, .. }
+            | Decl::Codata { loc, .. }
+            | Decl::Cons { loc, .. }
+            | Decl::Proj { loc, .. }
+            | Decl::Func { loc, .. } => *loc,
+        }
+    }
 }
 
 /// Function clauses.

@@ -4,9 +4,6 @@ use crate::syntax::core::ConHead;
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum Pat<Ix, Term> {
     /// Variable pattern.
-    /// TODO: what should be in this variant?
-    ///  As we're using DBI, no name need to be stored;
-    ///  while the $PV(\bar{p})$ function seems to depend on variable names.
     /// Note: it has a name suggestion in Agda.
     /// https://hackage.haskell.org/package/Agda-2.6.0.1/docs/Agda-Syntax-Internal.html#t:Pattern
     Var(Ix),

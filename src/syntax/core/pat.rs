@@ -1,3 +1,5 @@
+use std::convert::TryInto;
+
 use voile_util::uid::DBI;
 
 use crate::syntax::core::subst::RedEx;
@@ -5,7 +7,6 @@ use crate::syntax::core::Elim;
 use crate::syntax::pat;
 
 use super::Term;
-use std::convert::TryInto;
 
 pub type Pat = pat::Copat<DBI, Term>;
 pub type APat = pat::Pat<DBI, Term>;
@@ -41,7 +42,7 @@ impl Into<Elim> for APat {
             Var(ix) => Elim::from_dbi(ix),
             Forced(t) => Elim::app(t),
             Refl => Elim::app(Term::reflexivity()),
-            Cons(is_forced, head, args) => Elim::app(Term::cons(
+            Cons(_, head, args) => Elim::app(Term::cons(
                 head,
                 args.into_iter()
                     .map(Into::into)

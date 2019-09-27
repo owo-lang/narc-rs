@@ -2,7 +2,7 @@ use voile_util::loc::ToLoc;
 use voile_util::tags::Plicit;
 use voile_util::uid::{DBI, GI};
 
-use crate::check::monad::{TermTCM, ValTCM, TCE, TCS};
+use crate::check::monad::{TermTCM, TCE, TCS};
 use crate::check::rules::check;
 use crate::check::rules::whnf::normalize;
 use crate::syntax::abs::Abs;
@@ -13,7 +13,11 @@ use super::eval::eval;
 use super::unify::subtype;
 
 /// Infer the type of an expression.
-pub fn infer(tcs: TCS, abs: Abs) -> TermTCM {
+pub fn infer(tcs: TCS, abs: &Abs) -> TermTCM {
+    let abs = match abs {
+        Abs::Type(id, level) => return Ok((Term::universe(*level + 1).at(id.loc), tcs)),
+        abs => abs.clone(),
+    };
     let view = abs.into_app_view();
     let (head, mut tcs) = infer_head(tcs, &view.fun)?;
     let mut ty = head.ast;
@@ -80,9 +84,8 @@ pub fn infer_head(tcs: TCS, abs: &Abs) -> TermTCM {
 }
 
 pub fn check_fallback(tcs: TCS, expr: Abs, expected_type: &Val) -> TermTCM {
-    let loc = expr.loc();
-    let (inferred, tcs) = infer(tcs, expr.clone())?;
+    let (inferred, tcs) = infer(tcs, &expr)?;
     let (whnf, tcs) = normalize(tcs, inferred.ast)?;
-    let tcs = subtype(tcs, &whnf, expected_type).map_err(|e| e.wrap(loc))?;
+    let tcs = subtype(tcs, &whnf, expected_type).map_err(|e| e.wrap(expr.loc()))?;
     eval(tcs, expr)
 }
