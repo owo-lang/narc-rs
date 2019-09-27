@@ -1,6 +1,6 @@
-use crate::syntax::core::{Decl, Tele, Term};
+use crate::syntax::core::{Decl, Param, Tele, Term};
 use voile_util::meta::MetaContext;
-use voile_util::uid::GI;
+use voile_util::uid::{DBI, GI};
 
 /// Typing context.
 pub type Sigma = Vec<Decl>;
@@ -27,7 +27,15 @@ impl TCS {
         &self.sigma[ix.0]
     }
 
+    pub fn local(&self, ix: DBI) -> &Param {
+        &self.gamma[ix.0]
+    }
+
     pub fn mut_def(&mut self, ix: GI) -> &mut Decl {
         &mut self.sigma[ix.0]
+    }
+
+    pub fn mut_local(&mut self, ix: DBI) -> &mut Param {
+        &mut self.gamma[ix.0]
     }
 }

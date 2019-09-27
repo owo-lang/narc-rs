@@ -1,9 +1,11 @@
 use voile_util::loc::ToLoc;
-use voile_util::uid::GI;
+use voile_util::tags::Plicit;
+use voile_util::uid::{DBI, GI};
 
 use crate::check::monad::{TermTCM, ValTCM, TCE, TCS};
 use crate::syntax::abs::Abs;
-use crate::syntax::core::{Decl, Term, Val};
+use crate::syntax::core::subst::RedEx;
+use crate::syntax::core::{Decl, Elim, Param, Term, Val};
 
 use super::eval::eval;
 use super::unify::subtype;
@@ -18,24 +20,46 @@ pub fn type_of_decl(tcs: TCS, decl: GI) -> TermTCM {
     match decl {
         Decl::Data {
             loc, params, level, ..
+        }
+        | Decl::Codata {
+            loc, params, level, ..
         } => {
             let term = Term::pi_from_tele(params.clone(), Term::universe(*level)).at(*loc);
             Ok((term, tcs))
         }
-        Decl::Codata { .. } => unimplemented!(),
-        Decl::Cons { .. } => unimplemented!(),
+        Decl::Cons {
+            loc, data, params, ..
+        } => {
+            let data_tele = match tcs.def(*data) {
+                Decl::Data { params, .. } => params,
+                _ => unreachable!(),
+            };
+            let data_tele_len = data_tele.len();
+            let tele = data_tele
+                .iter()
+                .cloned()
+                .map(Param::into_implicit)
+                .chain(params.iter().cloned())
+                .collect();
+            let params_len = params.len();
+            let range = params_len..params_len + data_tele_len;
+            let ret = Term::def(*data, range.rev().map(DBI).map(Elim::from_dbi).collect());
+            Ok((Term::pi_from_tele(tele, ret).at(*loc), tcs))
+        }
         Decl::Proj { .. } => unimplemented!(),
         Decl::Func { loc, signature, .. } => Ok((signature.clone().at(*loc), tcs)),
     }
 }
 
 pub fn infer_head(tcs: TCS, abs: &Abs) -> TermTCM {
+    use Abs::*;
     match abs {
-        Abs::Def(_, def) => type_of_decl(tcs, *def),
-        Abs::Var(_, var) => unimplemented!(),
-        Abs::App(_, _, _) => unimplemented!(),
-        Abs::Cons(_, _) => unimplemented!(),
-        Abs::Proj(_, _) => unimplemented!(),
+        Proj(_, def) | Cons(_, def) | Def(_, def) => type_of_decl(tcs, *def),
+        Var(loc, var) => {
+            let ty: &Param = unimplemented!();
+            debug_assert_eq!(ty.licit, Plicit::Ex);
+            Ok((ty.term.clone().at(loc.loc), tcs))
+        }
         e => Err(TCE::NotHead(e.clone())),
     }
 }

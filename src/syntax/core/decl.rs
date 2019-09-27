@@ -24,6 +24,7 @@ pub enum Decl {
         loc: Loc,
         self_ref: String,
         name: String,
+        params: Tele,
         /// References to its projections (fields).
         fields: Vec<GI>,
         level: Level,

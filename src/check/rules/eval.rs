@@ -1,7 +1,7 @@
 use crate::check::monad::{TermTCM, TCS};
 use crate::syntax::abs::Abs;
 use crate::syntax::common::Ductive;
-use crate::syntax::core::{ConHead, Decl, Term, TermInfo};
+use crate::syntax::core::{ConHead, Decl, Term};
 
 pub fn eval(tcs: TCS, abs: Abs) -> TermTCM {
     use Abs::*;

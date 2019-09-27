@@ -69,6 +69,14 @@ impl Term {
         Term::Whnf(Val::Axiom(uid))
     }
 
+    pub fn def(gi: GI, elims: Vec<Elim>) -> Self {
+        Term::Redex(gi, elims)
+    }
+
+    pub fn simple_def(gi: GI) -> Self {
+        Self::def(gi, vec![])
+    }
+
     pub fn pi_from_tele(tele: Tele, ret: Self) -> Self {
         tele.into_iter().rfold(ret, |ret, param| {
             Self::pi2(param.map_term(Box::new), Closure::plain(ret))
@@ -87,6 +95,11 @@ impl Term {
 impl<T> Param<T> {
     pub fn new(licit: Plicit, term: T) -> Self {
         Self { licit, term }
+    }
+
+    pub fn into_implicit(mut self) -> Self {
+        self.licit = Plicit::Im;
+        self
     }
 
     pub fn map_term<R>(self, f: impl FnOnce(T) -> R) -> Param<R> {
