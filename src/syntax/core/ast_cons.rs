@@ -3,6 +3,8 @@ use voile_util::meta::MI;
 use voile_util::tags::{Plicit, VarRec};
 use voile_util::uid::*;
 
+use crate::syntax::core::{Param, Tele};
+
 use super::{Closure, ConHead, Elim, Term, Val};
 
 /// Constructors and traversal functions.
@@ -67,8 +69,34 @@ impl Term {
         Term::Whnf(Val::Axiom(uid))
     }
 
-    pub fn pi(plicit: Plicit, param_type: Term, body: Closure) -> Term {
-        Term::Whnf(Val::Pi(plicit, Box::new(param_type), body))
+    pub fn pi_from_tele(tele: Tele, ret: Self) -> Self {
+        tele.into_iter().rfold(ret, |ret, param| {
+            Self::pi2(param.map_term(Box::new), Closure::plain(ret))
+        })
+    }
+
+    pub fn pi(licit: Plicit, param_type: Term, body: Closure) -> Self {
+        Self::pi2(Param::boxed(licit, param_type), body)
+    }
+
+    pub fn pi2(param: Param<Box<Term>>, body: Closure) -> Self {
+        Term::Whnf(Val::Pi(param, body))
+    }
+}
+
+impl<T> Param<T> {
+    pub fn new(licit: Plicit, term: T) -> Self {
+        Self { licit, term }
+    }
+
+    pub fn map_term<R>(self, f: impl FnOnce(T) -> R) -> Param<R> {
+        Param::new(self.licit, f(self.term))
+    }
+}
+
+impl<T> Param<Box<T>> {
+    pub fn boxed(licit: Plicit, term: T) -> Self {
+        Self::new(licit, Box::new(term))
     }
 }
 

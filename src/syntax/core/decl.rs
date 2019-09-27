@@ -1,4 +1,5 @@
 use voile_util::level::Level;
+use voile_util::loc::Loc;
 use voile_util::uid::GI;
 
 use crate::syntax::core::Pat;
@@ -11,6 +12,7 @@ use super::{Tele, Term};
 pub enum Decl {
     /// Datatypes.
     Data {
+        loc: Loc,
         name: String,
         params: Tele,
         /// References to its constructors.
@@ -19,6 +21,7 @@ pub enum Decl {
     },
     /// Coinductive records.
     Codata {
+        loc: Loc,
         self_ref: String,
         name: String,
         /// References to its projections (fields).
@@ -26,19 +29,25 @@ pub enum Decl {
         level: Level,
     },
     Cons {
+        loc: Loc,
         name: String,
         params: Tele,
+        data: GI,
         /// If this is a record constructor,
         /// we fill the fields' names here.
         fields: Option<Vec<String>>,
     },
     Proj {
+        loc: Loc,
         name: String,
+        codata: GI,
         ty: Term,
     },
     /// Function definitions.
     Func {
+        loc: Loc,
         name: String,
+        signature: Term,
         clauses: Vec<Clause>,
     },
 }

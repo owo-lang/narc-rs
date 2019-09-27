@@ -1,3 +1,4 @@
+use crate::syntax::abs::Abs;
 use std::fmt::{Display, Error as FmtError, Formatter};
 use voile_util::level::Level;
 use voile_util::loc::Loc;
@@ -9,6 +10,9 @@ pub enum TCE {
     LevelMismatch(Loc, Level, Level),
     Textual(String),
     Wrapped(Box<Self>, Loc),
+
+    // === Not* === //
+    NotHead(Abs),
 }
 
 impl TCE {
@@ -29,6 +33,8 @@ impl Display for TCE {
             TCE::Wrapped(inner, info) => {
                 write!(f, "{}\nWhen checking the expression at: {}.", inner, info)
             }
+            // TODO: Display
+            TCE::NotHead(abs) => write!(f, "`{:?}` is not a head expression.", abs),
         }
     }
 }

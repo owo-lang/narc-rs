@@ -28,7 +28,7 @@ pub enum Val {
     /// (Co)Data types, fully applied.
     Data(VarRec, GI, Vec<Term>),
     /// Pi-like types (dependent types), with parameter explicitly typed.
-    Pi(Plicit, Box<Term>, Closure),
+    Pi(Param<Box<Term>>, Closure),
     /// Constructor invocation, fully applied.
     Cons(ConHead, Vec<Term>),
     /// Meta reference, with eliminations.
@@ -53,6 +53,14 @@ pub enum Val {
 pub enum Term {
     Whnf(Val),
     Redex(GI, Vec<Elim>),
+}
+
+/// Parameter information -- with type and visibility.
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub struct Param<T = Term> {
+    pub(crate) licit: Plicit,
+    /// Type.
+    pub(crate) term: T,
 }
 
 /// Type for eliminations.

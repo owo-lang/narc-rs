@@ -1,4 +1,7 @@
+use voile_util::tags::Plicit;
 use voile_util::uid::DBI;
+
+use crate::syntax::core::Param;
 
 use super::super::{Closure, Elim, Term, Val};
 use super::{def_app, Subst};
@@ -39,13 +42,23 @@ impl RedEx<Elim> for Elim {
     }
 }
 
+impl<R, T: RedEx<R>> RedEx<Param<R>> for Param<T> {
+    fn reduce_dbi(self, subst: &Subst) -> Param<R> {
+        Param::new(self.licit, self.term.reduce_dbi(subst))
+    }
+
+    fn from_dbi(dbi: DBI) -> Self {
+        Self::new(Plicit::Ex, RedEx::from_dbi(dbi))
+    }
+}
+
 impl RedEx for Val {
     fn reduce_dbi(self, subst: &Subst) -> Term {
         let reduce_vec = |a: Vec<Term>| a.into_iter().map(|a| a.reduce_dbi(&subst)).collect();
         match self {
-            Val::Pi(plicit, param_type, closure) => Term::pi(
-                plicit,
-                param_type.reduce_dbi(subst),
+            Val::Pi(arg, closure) => Term::pi(
+                arg.licit,
+                arg.term.reduce_dbi(subst),
                 closure.reduce_dbi(subst),
             ),
             Val::Cons(name, a) => Term::cons(name, reduce_vec(a)),
