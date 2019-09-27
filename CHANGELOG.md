@@ -1,5 +1,7 @@
 # Change Log
 
+# 0.0.4
+
 # 0.0.3
 
 + Add the substitution type
