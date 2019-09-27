@@ -83,10 +83,14 @@ impl Elim {
         Elim::App(Box::new(term))
     }
 
-    pub fn into_app(self) -> Option<Term> {
+    pub fn into_app(self) -> Term {
+        self.try_into_app().unwrap()
+    }
+
+    pub fn try_into_app(self) -> Result<Term, String> {
         match self {
-            Elim::App(term) => Some(*term),
-            Elim::Proj(_) => None,
+            Elim::App(term) => Ok(*term),
+            Elim::Proj(field) => Err(field),
         }
     }
 }

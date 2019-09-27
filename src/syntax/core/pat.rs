@@ -5,24 +5,22 @@ use crate::syntax::core::Elim;
 use crate::syntax::pat;
 
 use super::Term;
+use std::convert::TryInto;
 
 pub type Pat = pat::Copat<DBI, Term>;
+pub type APat = pat::Pat<DBI, Term>;
 
-impl Into<Term> for Pat {
-    fn into(self) -> Term {
-        match self.into() {
-            Elim::App(t) => *t,
-            _ => unreachable!(),
-        }
+impl TryInto<Term> for Pat {
+    type Error = String;
+    fn try_into(self) -> Result<Term, String> {
+        Into::<Elim>::into(self).try_into_app()
     }
 }
 
-impl Into<Term> for pat::Pat<DBI, Term> {
-    fn into(self) -> Term {
-        match self.into() {
-            Elim::App(t) => *t,
-            _ => unreachable!(),
-        }
+impl TryInto<Term> for APat {
+    type Error = String;
+    fn try_into(self) -> Result<Term, String> {
+        pat::Copat::App(self).try_into()
     }
 }
 
@@ -36,16 +34,20 @@ impl Into<Elim> for Pat {
     }
 }
 
-impl Into<Elim> for pat::Pat<DBI, Term> {
+impl Into<Elim> for APat {
     fn into(self) -> Elim {
         use pat::Pat::*;
         match self {
             Var(ix) => Elim::from_dbi(ix),
             Forced(t) => Elim::app(t),
             Refl => Elim::app(Term::reflexivity()),
-            Cons(is_forced, head, args) => {
-                Elim::app(Term::cons(head, args.into_iter().map(Into::into).collect()))
-            }
+            Cons(is_forced, head, args) => Elim::app(Term::cons(
+                head,
+                args.into_iter()
+                    .map(Into::into)
+                    .map(Elim::into_app)
+                    .collect(),
+            )),
             // what?
             Absurd => unimplemented!(),
         }
