@@ -3,6 +3,8 @@ use voile_util::tags::Plicit;
 use voile_util::uid::{DBI, GI};
 
 use crate::check::monad::{TermTCM, ValTCM, TCE, TCS};
+use crate::check::rules::check;
+use crate::check::rules::whnf::normalize;
 use crate::syntax::abs::Abs;
 use crate::syntax::core::subst::RedEx;
 use crate::syntax::core::{Decl, Elim, Param, Term, Val};
@@ -11,8 +13,21 @@ use super::eval::eval;
 use super::unify::subtype;
 
 /// Infer the type of an expression.
-pub fn infer(tcs: TCS, abs: &Abs) -> ValTCM {
-    unimplemented!()
+pub fn infer(tcs: TCS, abs: Abs) -> TermTCM {
+    let view = abs.into_app_view();
+    let (head, mut tcs) = infer_head(tcs, &view.fun)?;
+    let mut ty = head.ast;
+    for (loc, arg) in view.args {
+        let (param, clos) = match ty {
+            Term::Whnf(Val::Pi(param, clos)) => (param, clos),
+            e => return Err(TCE::NotPi(e, loc)),
+        };
+        let (param, new_tcs) = normalize(tcs, *param.term)?;
+        let (arg, new_tcs) = check(new_tcs, &arg, &param)?;
+        ty = clos.instantiate(arg.ast);
+        tcs = new_tcs;
+    }
+    Ok((ty.at(head.loc), tcs))
 }
 
 pub fn type_of_decl(tcs: TCS, decl: GI) -> TermTCM {
@@ -64,8 +79,10 @@ pub fn infer_head(tcs: TCS, abs: &Abs) -> TermTCM {
     }
 }
 
-pub fn check_fallback(tcs: TCS, expr: &Abs, expected_type: &Val) -> TermTCM {
-    let (inferred, tcs) = infer(tcs, expr)?;
-    let tcs = subtype(tcs, &inferred, expected_type).map_err(|e| e.wrap(expr.loc()))?;
-    eval(tcs, expr.clone())
+pub fn check_fallback(tcs: TCS, expr: Abs, expected_type: &Val) -> TermTCM {
+    let loc = expr.loc();
+    let (inferred, tcs) = infer(tcs, expr.clone())?;
+    let (whnf, tcs) = normalize(tcs, inferred.ast)?;
+    let tcs = subtype(tcs, &whnf, expected_type).map_err(|e| e.wrap(loc))?;
+    eval(tcs, expr)
 }

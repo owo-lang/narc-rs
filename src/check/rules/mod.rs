@@ -15,6 +15,8 @@ mod eval;
 mod infer;
 /// Conversion check.
 mod unify;
+/// Find the weak-head-normal-form (normalize) of an expression.
+mod whnf;
 
 pub fn check(tcs: TCS, abs: &Abs, against: &Val) -> TermTCM {
     match (abs, against) {
@@ -25,6 +27,6 @@ pub fn check(tcs: TCS, abs: &Abs, against: &Val) -> TermTCM {
                 Err(TCE::LevelMismatch(abs.loc(), *lower + 1, *upper))
             }
         }
-        (expr, anything) => check_fallback(tcs, expr, anything),
+        (expr, anything) => check_fallback(tcs, expr.clone(), anything),
     }
 }

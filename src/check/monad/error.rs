@@ -1,4 +1,5 @@
 use crate::syntax::abs::Abs;
+use crate::syntax::core::Term;
 use std::fmt::{Display, Error as FmtError, Formatter};
 use voile_util::level::Level;
 use voile_util::loc::Loc;
@@ -13,6 +14,7 @@ pub enum TCE {
 
     // === Not* === //
     NotHead(Abs),
+    NotPi(Term, Loc),
 }
 
 impl TCE {
@@ -35,6 +37,9 @@ impl Display for TCE {
             }
             // TODO: Display
             TCE::NotHead(abs) => write!(f, "`{:?}` is not a head expression.", abs),
+            TCE::NotPi(term, loc) => {
+                write!(f, "`{}` is not a pi type expression (at {}).", term, loc)
+            }
         }
     }
 }
