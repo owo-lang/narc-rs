@@ -4,7 +4,10 @@
 
 + Add the substitution type
 + Implement the substitution operation
-+ Initial type-checking code
++ Document the design of this language (#2)
++ Initial type-checking code, including:
+  + Application inference
+  + Core language's definition improvements
 
 # 0.0.2
 

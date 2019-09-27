@@ -53,19 +53,36 @@ pub fn type_of_decl(tcs: TCS, decl: GI) -> TermTCM {
                 Decl::Data { params, .. } => params,
                 _ => unreachable!(),
             };
-            let data_tele_len = data_tele.len();
+            let params_len = params.len();
+            let range = params_len..params_len + data_tele.len() - 1;
             let tele = data_tele
                 .iter()
                 .cloned()
+                // Because we have no GADT (
                 .map(Param::into_implicit)
                 .chain(params.iter().cloned())
                 .collect();
-            let params_len = params.len();
-            let range = params_len..params_len + data_tele_len;
             let ret = Term::def(*data, range.rev().map(DBI).map(Elim::from_dbi).collect());
             Ok((Term::pi_from_tele(tele, ret).at(*loc), tcs))
         }
-        Decl::Proj { .. } => unimplemented!(),
+        Decl::Proj {
+            loc, codata, ty, ..
+        } => {
+            let data_tele = match tcs.def(*codata) {
+                Decl::Codata { params, .. } => params,
+                _ => unreachable!(),
+            };
+            let range = 0..data_tele.len() - 1;
+            let codata = Term::def(*codata, range.rev().map(DBI).map(Elim::from_dbi).collect());
+            let tele = data_tele
+                .iter()
+                .cloned()
+                // Or maybe we shouldn't?
+                .map(Param::into_implicit)
+                .chain(vec![Param::new(Plicit::Ex, codata)].into_iter())
+                .collect();
+            Ok((Term::pi_from_tele(tele, ty.clone()).at(*loc), tcs))
+        }
         Decl::Func { loc, signature, .. } => Ok((signature.clone().at(*loc), tcs)),
     }
 }
