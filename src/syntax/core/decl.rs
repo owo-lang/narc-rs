@@ -53,6 +53,18 @@ pub enum Decl {
     },
 }
 
+impl Decl {
+    pub fn def_name(&self) -> &String {
+        match self {
+            Decl::Data { name, .. }
+            | Decl::Codata { name, .. }
+            | Decl::Cons { name, .. }
+            | Decl::Proj { name, .. }
+            | Decl::Func { name, .. } => name,
+        }
+    }
+}
+
 impl ToLoc for Decl {
     fn loc(&self) -> Loc {
         match self {

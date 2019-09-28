@@ -1,5 +1,5 @@
 use crate::syntax::abs::Abs;
-use crate::syntax::core::Term;
+use crate::syntax::core::{Elim, Term};
 use std::fmt::{Display, Error as FmtError, Formatter};
 use voile_util::level::Level;
 use voile_util::loc::Loc;
@@ -15,6 +15,11 @@ pub enum TCE {
     // === Not* === //
     NotHead(Abs),
     NotPi(Term, Loc),
+
+    // === Different* === //
+    DifferentTerm(Term, Term),
+    DifferentElim(Elim, Elim),
+    DifferentName(String, String),
 }
 
 impl TCE {
@@ -40,6 +45,13 @@ impl Display for TCE {
             TCE::NotPi(term, loc) => {
                 write!(f, "`{}` is not a pi type expression (at {}).", term, loc)
             }
+            TCE::DifferentTerm(a, b) => write!(f, "Failed to unify `{}` and `{}`.", a, b),
+            TCE::DifferentElim(a, b) => write!(f, "Failed to unify `{}` and `{}`.", a, b),
+            TCE::DifferentName(a, b) => write!(
+                f,
+                "`{}` and `{}` are different (conversion check is not structural in Narc).",
+                a, b
+            ),
         }
     }
 }

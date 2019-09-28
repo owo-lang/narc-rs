@@ -2,6 +2,8 @@
 
 # 0.0.4
 
++ Conversion check (#3)
+
 # 0.0.3
 
 + Add the substitution type
