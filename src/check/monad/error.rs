@@ -1,8 +1,10 @@
-use crate::syntax::abs::Abs;
-use crate::syntax::core::{Elim, Term};
 use std::fmt::{Display, Error as FmtError, Formatter};
+
 use voile_util::level::Level;
 use voile_util::loc::Loc;
+
+use crate::syntax::abs::Abs;
+use crate::syntax::core::{Elim, Term};
 
 /// Type-Checking Error.
 #[derive(Debug, PartialEq, Eq, Clone)]
