@@ -60,8 +60,12 @@ impl ToLoc for Abs {
     fn loc(&self) -> Loc {
         use Abs::*;
         match self {
-            Proj(ident, ..) | Cons(ident, ..) | Type(ident, ..) | Def(ident, ..)
-            | Var(ident, ..) | Meta(ident, ..) => ident.loc,
+            Proj(ident, ..)
+            | Cons(ident, ..)
+            | Type(ident, ..)
+            | Def(ident, ..)
+            | Var(ident, ..)
+            | Meta(ident, ..) => ident.loc,
             App(loc, ..) | Pi(loc, ..) => *loc,
         }
     }

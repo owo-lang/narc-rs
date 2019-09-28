@@ -2,10 +2,18 @@ use crate::check::monad::{TCE, TCM, TCS};
 use crate::syntax::core::{Closure, Elim, Term, Val};
 use voile_util::uid::GI;
 
-pub fn subtype(tcs: TCS, sub: &Val, sup: &Val) -> TCM {
+pub fn subtype(mut tcs: TCS, sub: &Val, sup: &Val) -> TCM {
     use Val::*;
     match (sub, sup) {
         (Type(sub_l), Type(sup_l)) if sub_l <= sup_l => Ok(tcs),
+        (Pi(a, c0), Pi(b, c1)) if a.licit == b.licit => {
+            tcs = Unify::unify(tcs, &*a.term, &*b.term)?;
+            compare_closure(tcs, c0, c1, |tcs, a, b| match (a, b) {
+                // Covariance
+                (Term::Whnf(left), Term::Whnf(right)) => subtype(tcs, left, right),
+                (a, b) => Unify::unify(tcs, a, b),
+            })
+        }
         (e, t) => Unify::unify(tcs, e, t),
     }
 }
@@ -41,10 +49,9 @@ impl Unify for Term {
 impl Unify for GI {
     fn unify(mut tcs: TCS, left: &Self, right: &Self) -> TCM {
         if left != right {
-            return Err(TCE::DifferentName(
-                tcs.def(*left).def_name().clone(),
-                tcs.def(*right).def_name().clone(),
-            ));
+            let left_name = tcs.def(*left).def_name().clone();
+            let right_name = tcs.def(*right).def_name().clone();
+            Err(TCE::DifferentName(left_name, right_name))
         } else {
             Ok(tcs)
         }
@@ -62,12 +69,21 @@ impl Unify for Elim {
     }
 }
 
+fn compare_closure(
+    tcs: TCS,
+    left: &Closure,
+    right: &Closure,
+    term_cmp: impl FnOnce(TCS, &Term, &Term) -> TCM,
+) -> TCM {
+    use Closure::*;
+    match (left, right) {
+        (Plain(a), Plain(b)) => term_cmp(tcs, &**a, &**b),
+    }
+}
+
 impl Unify for Closure {
     fn unify(tcs: TCS, left: &Self, right: &Self) -> TCM {
-        use Closure::*;
-        match (left, right) {
-            (Plain(a), Plain(b)) => Unify::unify(tcs, &**a, &**b),
-        }
+        compare_closure(tcs, left, right, Unify::unify)
     }
 }
 

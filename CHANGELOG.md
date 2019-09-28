@@ -3,6 +3,8 @@
 # 0.0.4
 
 + Conversion check (#3)
+  + Subtyping for universe types
+  + Covariance for pi types' return parts
 
 # 0.0.3
 
