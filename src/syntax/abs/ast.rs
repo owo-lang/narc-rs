@@ -4,6 +4,7 @@ use voile_util::meta::MI;
 use voile_util::uid::{GI, UID};
 
 use crate::syntax::pat::Copat;
+use voile_util::tags::Plicit;
 
 /// The abstract syntax.
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -71,8 +72,15 @@ impl ToLoc for Abs {
     }
 }
 
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub struct Bind {
+    pub licit: Plicit,
+    pub name: UID,
+    pub ty: Abs,
+}
+
 /// Telescopes in the abstract syntax.
-pub type AbsTele = Vec<Abs>;
+pub type AbsTele = Vec<Bind>;
 
 /// Patterns in the abstract syntax.
 pub type AbsPat = Copat<UID, Abs>;
