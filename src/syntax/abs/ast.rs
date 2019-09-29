@@ -13,7 +13,7 @@ pub enum Abs {
     Var(Ident, UID),
     Meta(Ident, MI),
     App(Loc, Box<Self>, Box<Self>),
-    Pi(Loc, AbsTele, Box<Self>),
+    Pi(Loc, Bind<Box<Self>>, Box<Self>),
     Type(Ident, Level),
     Cons(Ident, GI),
     Proj(Ident, GI),
@@ -73,10 +73,10 @@ impl ToLoc for Abs {
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
-pub struct Bind {
+pub struct Bind<T = Abs> {
     pub licit: Plicit,
     pub name: UID,
-    pub ty: Abs,
+    pub ty: T,
 }
 
 /// Telescopes in the abstract syntax.

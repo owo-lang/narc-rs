@@ -2,6 +2,7 @@ use voile_util::loc::{Loc, ToLoc};
 
 pub use self::ast::*;
 pub use self::ast_cons::*;
+pub use self::ast_fold::*;
 pub use self::decl::*;
 pub use self::pat::*;
 pub use self::pretty::*;
@@ -10,6 +11,8 @@ pub use self::pretty::*;
 mod ast;
 /// Constructor functions.
 mod ast_cons;
+/// Ast traversal functions.
+mod ast_fold;
 /// Checked declarations.
 mod decl;
 /// Patterns and its operations.
