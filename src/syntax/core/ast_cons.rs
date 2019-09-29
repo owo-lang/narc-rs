@@ -83,33 +83,12 @@ impl Term {
         })
     }
 
-    pub fn pi(licit: Plicit, param_type: Term, body: Closure) -> Self {
-        Self::pi2(Param::boxed(licit, param_type), body)
+    pub fn pi(licit: Plicit, name: UID, param_type: Term, body: Closure) -> Self {
+        Self::pi2(Param::boxed(licit, name, param_type), body)
     }
 
     pub fn pi2(param: Param<Box<Term>>, body: Closure) -> Self {
         Term::Whnf(Val::Pi(param, body))
-    }
-}
-
-impl<T> Param<T> {
-    pub fn new(licit: Plicit, term: T) -> Self {
-        Self { licit, term }
-    }
-
-    pub fn into_implicit(mut self) -> Self {
-        self.licit = Plicit::Im;
-        self
-    }
-
-    pub fn map_term<R>(self, f: impl FnOnce(T) -> R) -> Param<R> {
-        Param::new(self.licit, f(self.term))
-    }
-}
-
-impl<T> Param<Box<T>> {
-    pub fn boxed(licit: Plicit, term: T) -> Self {
-        Self::new(licit, Box::new(term))
     }
 }
 

@@ -16,7 +16,7 @@ pub fn subtype(mut tcs: TCS, sub: &Val, sup: &Val) -> TCM {
     match (sub, sup) {
         (Type(sub_l), Type(sup_l)) if sub_l <= sup_l => Ok(tcs),
         (Pi(a, c0), Pi(b, c1)) if a.licit == b.licit => {
-            tcs = Unify::unify(tcs, &*a.term, &*b.term)?;
+            tcs = Unify::unify(tcs, &*a.ty, &*b.ty)?;
             compare_closure(tcs, c0, c1, |tcs, a, b| match (a, b) {
                 // Covariance
                 (Term::Whnf(left), Term::Whnf(right)) => subtype(tcs, left, right),
@@ -111,7 +111,7 @@ fn unify_val(mut tcs: TCS, left: &Val, right: &Val) -> TCM {
             Unify::unify(tcs, a.as_slice(), b.as_slice())
         }
         (Pi(a, c0), Pi(b, c1)) if a.licit == b.licit => {
-            tcs = Unify::unify(tcs, &*a.term, &*b.term)?;
+            tcs = Unify::unify(tcs, &*a.ty, &*b.ty)?;
             Unify::unify(tcs, c0, c1)
         }
         (Cons(c0, a), Cons(c1, b)) if c0.name == c1.name => {

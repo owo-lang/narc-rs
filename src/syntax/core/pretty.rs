@@ -38,17 +38,19 @@ impl Display for Val {
             Pi(
                 Param {
                     licit: Explicit,
-                    term,
+                    ty,
+                    ..
                 },
                 clos,
-            ) => write!(f, "({} -> {})", term, clos),
+            ) => write!(f, "({} -> {})", ty, clos),
             Pi(
                 Param {
                     licit: Implicit,
-                    term,
+                    ty,
+                    ..
                 },
                 clos,
-            ) => write!(f, "({{{}}} -> {})", term, clos),
+            ) => write!(f, "({{{}}} -> {})", ty, clos),
             Cons(name, a) => pretty_application(f, name, a),
             Data(kind, ix, args) => {
                 f.write_str(match kind {

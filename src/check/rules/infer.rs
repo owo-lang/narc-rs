@@ -1,6 +1,6 @@
 use voile_util::loc::ToLoc;
 use voile_util::tags::Plicit;
-use voile_util::uid::{DBI, GI};
+use voile_util::uid::{next_uid, DBI, GI};
 
 use crate::check::monad::{TermTCM, TCE, TCS};
 use crate::check::rules::check;
@@ -26,7 +26,7 @@ pub fn infer(tcs: TCS, abs: &Abs) -> TermTCM {
             Term::Whnf(Val::Pi(param, clos)) => (param, clos),
             e => return Err(TCE::NotPi(e, loc)),
         };
-        let (param, new_tcs) = normalize(tcs, *param.term)?;
+        let (param, new_tcs) = normalize(tcs, *param.ty)?;
         let (arg, new_tcs) = check(new_tcs, &arg, &param)?;
         ty = clos.instantiate(arg.ast);
         tcs = new_tcs;
@@ -79,7 +79,7 @@ pub fn type_of_decl(tcs: TCS, decl: GI) -> TermTCM {
                 .cloned()
                 // Or maybe we shouldn't?
                 .map(Param::into_implicit)
-                .chain(vec![Param::new(Plicit::Ex, codata)].into_iter())
+                .chain(vec![Param::new(Plicit::Ex, unsafe { next_uid() }, codata)].into_iter())
                 .collect();
             Ok((Term::pi_from_tele(tele, ty.clone()).at(*loc), tcs))
         }
@@ -94,7 +94,7 @@ pub fn infer_head(tcs: TCS, abs: &Abs) -> TermTCM {
         Var(loc, var) => {
             let ty: &Param = unimplemented!();
             debug_assert_eq!(ty.licit, Plicit::Ex);
-            Ok((ty.term.clone().at(loc.loc), tcs))
+            Ok((ty.ty.clone().at(loc.loc), tcs))
         }
         e => Err(TCE::NotHead(e.clone())),
     }

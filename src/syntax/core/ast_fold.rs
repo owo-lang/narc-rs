@@ -68,7 +68,7 @@ impl FoldVal for Val {
         match self {
             Data(_, _, v) | Cons(_, v) => v.try_fold_val(init, f),
             Axiom(..) | Type(..) | Refl => Ok(init),
-            Pi(p, clos) => clos.try_fold_val(p.term.try_fold_val(init, f)?, f),
+            Pi(p, clos) => clos.try_fold_val(p.ty.try_fold_val(init, f)?, f),
             Id(a, b, c) => c.try_fold_val(b.try_fold_val(a.try_fold_val(init, f)?, f)?, f),
             App(_, v) | Meta(_, v) => v.try_fold_val(init, f),
         }

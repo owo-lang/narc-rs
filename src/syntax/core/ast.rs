@@ -3,6 +3,7 @@ use voile_util::meta::MI;
 use voile_util::tags::{Plicit, VarRec};
 use voile_util::uid::{DBI, GI, UID};
 
+use crate::syntax::abs;
 use crate::syntax::common::Ductive;
 
 use super::subst::{RedEx, Subst};
@@ -56,12 +57,7 @@ pub enum Term {
 }
 
 /// Parameter information -- with type and visibility.
-#[derive(Debug, PartialEq, Eq, Clone)]
-pub struct Param<T = Term> {
-    pub(crate) licit: Plicit,
-    /// Type.
-    pub(crate) term: T,
-}
+pub type Param<T = Term> = abs::Bind<T>;
 
 /// Type for eliminations.
 #[derive(Debug, PartialEq, Eq, Clone)]

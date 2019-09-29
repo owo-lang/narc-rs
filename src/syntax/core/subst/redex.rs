@@ -1,10 +1,11 @@
 use voile_util::tags::Plicit;
-use voile_util::uid::DBI;
+use voile_util::uid::{next_uid, DBI};
 
 use crate::syntax::core::Param;
 
 use super::super::{Closure, Elim, Term, Val};
 use super::{def_app, Subst};
+use crate::syntax::common::Bind;
 
 /// Reducible expressions.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#Subst).
@@ -42,13 +43,14 @@ impl RedEx<Elim> for Elim {
     }
 }
 
-impl<R, T: RedEx<R>> RedEx<Param<R>> for Param<T> {
-    fn reduce_dbi(self, subst: &Subst) -> Param<R> {
-        Param::new(self.licit, self.term.reduce_dbi(subst))
+impl<R, T: RedEx<R>> RedEx<Bind<R>> for Bind<T> {
+    fn reduce_dbi(self, subst: &Subst) -> Bind<R> {
+        Bind::new(self.licit, self.name, self.ty.reduce_dbi(subst))
     }
 
     fn from_dbi(dbi: DBI) -> Self {
-        Self::new(Plicit::Ex, RedEx::from_dbi(dbi))
+        eprintln!("Warning: generating new UID that is not resolved!");
+        Bind::new(Plicit::Ex, unsafe { next_uid() }, RedEx::from_dbi(dbi))
     }
 }
 
@@ -58,7 +60,8 @@ impl RedEx for Val {
         match self {
             Val::Pi(arg, closure) => Term::pi(
                 arg.licit,
-                arg.term.reduce_dbi(subst),
+                arg.name,
+                arg.ty.reduce_dbi(subst),
                 closure.reduce_dbi(subst),
             ),
             Val::Cons(name, a) => Term::cons(name, reduce_vec(a)),
