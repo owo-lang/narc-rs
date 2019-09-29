@@ -8,6 +8,7 @@ pub enum Ductive {
     Coin,
 }
 
+/// Parameter information -- with type and visibility.
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Bind<T> {
     pub licit: Plicit,

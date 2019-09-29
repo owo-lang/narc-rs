@@ -7,7 +7,7 @@ use crate::check::rules::check;
 use crate::check::rules::whnf::normalize;
 use crate::syntax::abs::Abs;
 use crate::syntax::core::subst::RedEx;
-use crate::syntax::core::{Decl, Elim, Param, Term, Val};
+use crate::syntax::core::{Bind, Decl, Elim, Term, Val};
 
 use super::eval::eval;
 use super::unify::subtype;
@@ -59,7 +59,7 @@ pub fn type_of_decl(tcs: TCS, decl: GI) -> TermTCM {
                 .iter()
                 .cloned()
                 // Because we have no GADT (
-                .map(Param::into_implicit)
+                .map(Bind::into_implicit)
                 .chain(params.iter().cloned())
                 .collect();
             let ret = Term::def(*data, range.rev().map(DBI).map(Elim::from_dbi).collect());
@@ -78,8 +78,8 @@ pub fn type_of_decl(tcs: TCS, decl: GI) -> TermTCM {
                 .iter()
                 .cloned()
                 // Or maybe we shouldn't?
-                .map(Param::into_implicit)
-                .chain(vec![Param::new(Plicit::Ex, unsafe { next_uid() }, codata)].into_iter())
+                .map(Bind::into_implicit)
+                .chain(vec![Bind::new(Plicit::Ex, unsafe { next_uid() }, codata)].into_iter())
                 .collect();
             Ok((Term::pi_from_tele(tele, ty.clone()).at(*loc), tcs))
         }
@@ -92,7 +92,7 @@ pub fn infer_head(tcs: TCS, abs: &Abs) -> TermTCM {
     match abs {
         Proj(_, def) | Cons(_, def) | Def(_, def) => type_of_decl(tcs, *def),
         Var(loc, var) => {
-            let ty: &Param = unimplemented!();
+            let (_ix, ty) = tcs.local_by_id(*var);
             debug_assert_eq!(ty.licit, Plicit::Ex);
             Ok((ty.ty.clone().at(loc.loc), tcs))
         }

@@ -7,6 +7,7 @@
   + Covariance for pi types' return parts
   + Solve metas
 + Ast traversal functions (#5)
++ Local context lookup by uid (#7)
 
 # 0.0.3
 

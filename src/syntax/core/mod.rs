@@ -53,7 +53,7 @@ impl ToLoc for TermInfo {
 }
 
 /// Telescopes.
-pub type Tele = Vec<Param>;
+pub type Tele = Vec<Bind>;
 
 /// Contexts.
 pub type Ctx = Vec<Term>;

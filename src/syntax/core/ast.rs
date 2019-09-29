@@ -1,10 +1,9 @@
 use voile_util::level::Level;
 use voile_util::meta::MI;
-use voile_util::tags::{Plicit, VarRec};
+use voile_util::tags::VarRec;
 use voile_util::uid::{DBI, GI, UID};
 
-use crate::syntax::abs;
-use crate::syntax::common::Ductive;
+use crate::syntax::common::{self, Ductive};
 
 use super::subst::{RedEx, Subst};
 
@@ -29,7 +28,7 @@ pub enum Val {
     /// (Co)Data types, fully applied.
     Data(VarRec, GI, Vec<Term>),
     /// Pi-like types (dependent types), with parameter explicitly typed.
-    Pi(Param<Box<Term>>, Closure),
+    Pi(Bind<Box<Term>>, Closure),
     /// Constructor invocation, fully applied.
     Cons(ConHead, Vec<Term>),
     /// Meta reference, with eliminations.
@@ -56,8 +55,7 @@ pub enum Term {
     Redex(GI, Vec<Elim>),
 }
 
-/// Parameter information -- with type and visibility.
-pub type Param<T = Term> = abs::Bind<T>;
+pub type Bind<T = Term> = common::Bind<T>;
 
 /// Type for eliminations.
 #[derive(Debug, PartialEq, Eq, Clone)]

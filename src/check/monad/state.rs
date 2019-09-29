@@ -1,6 +1,6 @@
-use crate::syntax::core::{Decl, Param, Tele, Term};
+use crate::syntax::core::{Bind, Decl, Tele, Term};
 use voile_util::meta::MetaContext;
-use voile_util::uid::{DBI, GI};
+use voile_util::uid::{DBI, GI, UID};
 
 /// Typing context.
 pub type Sigma = Vec<Decl>;
@@ -27,15 +27,24 @@ impl TCS {
         &self.sigma[ix.0]
     }
 
-    pub fn local(&self, ix: DBI) -> &Param {
+    pub fn local(&self, ix: DBI) -> &Bind {
         &self.gamma[ix.0]
+    }
+
+    pub fn local_by_id(&self, id: UID) -> (DBI, &Bind) {
+        self.local_by_id_safe(id).expect("Unresolved reference")
+    }
+
+    pub fn local_by_id_safe(&self, id: UID) -> Option<(DBI, &Bind)> {
+        let (ix, bind) = self.gamma.iter().enumerate().find(|(_, b)| b.name == id)?;
+        Some((DBI(ix), bind))
     }
 
     pub fn mut_def(&mut self, ix: GI) -> &mut Decl {
         &mut self.sigma[ix.0]
     }
 
-    pub fn mut_local(&mut self, ix: DBI) -> &mut Param {
+    pub fn mut_local(&mut self, ix: DBI) -> &mut Bind {
         &mut self.gamma[ix.0]
     }
 }

@@ -27,6 +27,11 @@ pub fn check(tcs: TCS, abs: &Abs, against: &Val) -> TermTCM {
                 Err(TCE::LevelMismatch(abs.loc(), *lower + 1, *upper))
             }
         }
+        (Abs::Pi(info, bind, ret), Val::Type(level)) => {
+            // Because `against` is `Val::Type(level)`
+            let (tcs, bind_ty) = check(tcs, &*bind.ty, against)?;
+            unimplemented!()
+        }
         (expr, anything) => check_fallback(tcs, expr.clone(), anything),
     }
 }

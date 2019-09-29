@@ -3,7 +3,7 @@ use std::fmt::{Display, Error, Formatter};
 use voile_util::tags::{Plicit, VarRec};
 use Plicit::{Ex as Explicit, Im as Implicit};
 
-use crate::syntax::core::Param;
+use crate::syntax::core::Bind;
 
 use super::{Closure, ConHead, Elim, Term, TermInfo, Val};
 
@@ -35,22 +35,10 @@ impl Display for Val {
             }
             App(fun, a) => pretty_application(f, fun, a),
             Type(l) => write!(f, "set{}", l),
-            Pi(
-                Param {
-                    licit: Explicit,
-                    ty,
-                    ..
-                },
-                clos,
-            ) => write!(f, "({} -> {})", ty, clos),
-            Pi(
-                Param {
-                    licit: Implicit,
-                    ty,
-                    ..
-                },
-                clos,
-            ) => write!(f, "({{{}}} -> {})", ty, clos),
+            Pi(Bind { licit, ty, .. }, clos) => match licit {
+                Explicit => write!(f, "({} -> {})", ty, clos),
+                Implicit => write!(f, "({{{}}} -> {})", ty, clos),
+            },
             Cons(name, a) => pretty_application(f, name, a),
             Data(kind, ix, args) => {
                 f.write_str(match kind {

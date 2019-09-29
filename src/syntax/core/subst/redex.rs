@@ -1,11 +1,10 @@
 use voile_util::tags::Plicit;
 use voile_util::uid::{next_uid, DBI};
 
-use crate::syntax::core::Param;
+use crate::syntax::common::Bind;
 
 use super::super::{Closure, Elim, Term, Val};
 use super::{def_app, Subst};
-use crate::syntax::common::Bind;
 
 /// Reducible expressions.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#Subst).

@@ -3,7 +3,7 @@ use voile_util::meta::MI;
 use voile_util::tags::{Plicit, VarRec};
 use voile_util::uid::*;
 
-use crate::syntax::core::{Param, Tele};
+use crate::syntax::core::{Bind, Tele};
 
 use super::{Closure, ConHead, Elim, Term, Val};
 
@@ -84,10 +84,10 @@ impl Term {
     }
 
     pub fn pi(licit: Plicit, name: UID, param_type: Term, body: Closure) -> Self {
-        Self::pi2(Param::boxed(licit, name, param_type), body)
+        Self::pi2(Bind::boxed(licit, name, param_type), body)
     }
 
-    pub fn pi2(param: Param<Box<Term>>, body: Closure) -> Self {
+    pub fn pi2(param: Bind<Box<Term>>, body: Closure) -> Self {
         Term::Whnf(Val::Pi(param, body))
     }
 }
