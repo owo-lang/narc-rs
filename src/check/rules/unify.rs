@@ -1,6 +1,15 @@
-use crate::check::monad::{TCE, TCM, TCS};
-use crate::syntax::core::{Closure, Elim, Term, Val};
+use voile_util::meta::MI;
 use voile_util::uid::GI;
+
+use crate::check::monad::{TCE, TCM, TCS};
+use crate::syntax::core::{Closure, Elim, FoldVal, Term, Val};
+
+fn check_solution(meta: MI, rhs: &Val) -> TCM<()> {
+    rhs.try_fold_val((), |(), v| match v {
+        Val::Meta(mi, ..) if mi == &meta => Err(TCE::MetaRecursion(*mi)),
+        _ => Ok(()),
+    })
+}
 
 pub fn subtype(mut tcs: TCS, sub: &Val, sup: &Val) -> TCM {
     use Val::*;
@@ -47,7 +56,7 @@ impl Unify for Term {
 }
 
 impl Unify for GI {
-    fn unify(mut tcs: TCS, left: &Self, right: &Self) -> TCM {
+    fn unify(tcs: TCS, left: &Self, right: &Self) -> TCM {
         if left != right {
             let left_name = tcs.def(*left).def_name().clone();
             let right_name = tcs.def(*right).def_name().clone();
@@ -111,7 +120,7 @@ fn unify_val(mut tcs: TCS, left: &Val, right: &Val) -> TCM {
         (Axiom(i), Axiom(j)) if i == j => Ok(tcs),
         (Meta(i, a), Meta(j, b)) if i == j => Unify::unify(tcs, a.as_slice(), b.as_slice()),
         (Meta(i, a), b) | (b, Meta(i, a)) if a.is_empty() => {
-            // TODO: check solution
+            check_solution(*i, b)?;
             tcs.meta_context.solve_meta(*i, Term::Whnf(b.clone()));
             Ok(tcs)
         }

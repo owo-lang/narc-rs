@@ -1,10 +1,10 @@
 use voile_util::level::Level;
 use voile_util::loc::{Ident, Loc, ToLoc};
 use voile_util::meta::MI;
+use voile_util::tags::Plicit;
 use voile_util::uid::{GI, UID};
 
 use crate::syntax::pat::Copat;
-use voile_util::tags::Plicit;
 
 /// The abstract syntax.
 #[derive(Debug, PartialEq, Eq, Clone)]

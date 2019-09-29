@@ -2,6 +2,7 @@ use std::fmt::{Display, Error as FmtError, Formatter};
 
 use voile_util::level::Level;
 use voile_util::loc::Loc;
+use voile_util::meta::MI;
 
 use crate::syntax::abs::Abs;
 use crate::syntax::core::{Elim, Term};
@@ -17,6 +18,9 @@ pub enum TCE {
     // === Not* === //
     NotHead(Abs),
     NotPi(Term, Loc),
+
+    // === Meta* === //
+    MetaRecursion(MI),
 
     // === Different* === //
     DifferentTerm(Term, Term),
@@ -46,6 +50,9 @@ impl Display for TCE {
             TCE::NotHead(abs) => write!(f, "`{:?}` is not a head expression.", abs),
             TCE::NotPi(term, loc) => {
                 write!(f, "`{}` is not a pi type expression (at {}).", term, loc)
+            }
+            TCE::MetaRecursion(mi) => {
+                write!(f, "Trying to solve a recursive meta of index {}.", mi)
             }
             TCE::DifferentTerm(a, b) => write!(f, "Failed to unify `{}` and `{}`.", a, b),
             TCE::DifferentElim(a, b) => write!(f, "Failed to unify `{}` and `{}`.", a, b),
