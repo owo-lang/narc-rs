@@ -9,9 +9,9 @@ impl Term {
 
     pub fn apply_elim(self, mut args: Vec<Elim>) -> Self {
         match self {
-            Term::Whnf(Val::App(f, mut a)) => {
+            Term::Whnf(Val::Var(f, mut a)) => {
                 a.append(&mut args);
-                Term::Whnf(Val::App(f, a))
+                Term::Whnf(Val::Var(f, a))
             }
             Term::Whnf(Val::Meta(m, mut a)) => {
                 a.append(&mut args);

@@ -18,7 +18,7 @@ impl Term {
             Id(..) | Type(..) | Pi(..) | Data(..) => true,
             // In case it's neutral, we use `is_universe` on its type.
             // In case it's a meta, we're supposed to solve it.
-            Refl | App(..) | Meta(..) | Cons(..) | Axiom(..) => false,
+            Refl | Var(..) | Meta(..) | Cons(..) | Axiom(..) => false,
         }
     }
 

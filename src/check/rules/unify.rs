@@ -124,7 +124,7 @@ fn unify_val(mut tcs: TCS, left: &Val, right: &Val) -> TCM {
             tcs.meta_context.solve_meta(*i, Term::Whnf(b.clone()));
             Ok(tcs)
         }
-        (App(i, a), App(j, b)) if i == j => Unify::unify(tcs, a.as_slice(), b.as_slice()),
+        (Var(i, a), Var(j, b)) if i == j => Unify::unify(tcs, a.as_slice(), b.as_slice()),
         (Id(a, b, c), Id(x, y, z)) => {
             tcs = Unify::unify(tcs, &**a, &**x)?;
             tcs = Unify::unify(tcs, &**b, &**y)?;

@@ -70,7 +70,7 @@ impl FoldVal for Val {
             Axiom(..) | Type(..) | Refl => Ok(init),
             Pi(p, clos) => clos.try_fold_val(p.ty.try_fold_val(init, f)?, f),
             Id(a, b, c) => c.try_fold_val(b.try_fold_val(a.try_fold_val(init, f)?, f)?, f),
-            App(_, v) | Meta(_, v) => v.try_fold_val(init, f),
+            Var(_, v) | Meta(_, v) => v.try_fold_val(init, f),
         }
     }
 }

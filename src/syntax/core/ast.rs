@@ -40,7 +40,7 @@ pub enum Val {
     /// Variable elimination, in spine-normal form.
     /// (so we have easy access to application arguments).<br/>
     /// This is convenient for meta resolution and termination check.
-    App(DBI, Vec<Elim>),
+    Var(DBI, Vec<Elim>),
     /// The homogeneous identity (equality) type.
     /// Arguments are the type and two inhabitants.
     Id(Box<Term>, Box<Term>, Box<Term>),

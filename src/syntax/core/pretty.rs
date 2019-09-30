@@ -33,7 +33,7 @@ impl Display for Val {
                 f.write_str("?")?;
                 pretty_application(f, mi, a)
             }
-            App(fun, a) => pretty_application(f, fun, a),
+            Var(fun, a) => pretty_application(f, fun, a),
             Type(l) => write!(f, "set{}", l),
             Pi(Bind { licit, ty, .. }, clos) => match licit {
                 Explicit => write!(f, "({} -> {})", ty, clos),

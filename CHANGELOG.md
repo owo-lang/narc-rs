@@ -8,6 +8,7 @@
   + Solve metas
 + Ast traversal functions (#5)
 + Local context lookup by uid (#7)
++ `Val::App` is renamed to `Val::Var`
 
 # 0.0.3
 
