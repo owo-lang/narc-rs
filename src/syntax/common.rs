@@ -26,13 +26,17 @@ impl<T> Bind<T> {
         self
     }
 
+    pub fn boxed(self) -> Bind<Box<T>> {
+        Bind::boxing(self.licit, self.name, self.ty)
+    }
+
     pub fn map_term<R>(self, f: impl FnOnce(T) -> R) -> Bind<R> {
         Bind::new(self.licit, self.name, f(self.ty))
     }
 }
 
 impl<T> Bind<Box<T>> {
-    pub fn boxed(licit: Plicit, name: UID, term: T) -> Self {
+    pub fn boxing(licit: Plicit, name: UID, term: T) -> Self {
         Self::new(licit, name, Box::new(term))
     }
 }

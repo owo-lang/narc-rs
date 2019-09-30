@@ -2,7 +2,7 @@ use voile_util::loc::ToLoc;
 
 use crate::check::monad::{TermTCM, TCE, TCS};
 use crate::syntax::abs::Abs;
-use crate::syntax::core::{Term, Val};
+use crate::syntax::core::{Bind, Closure, Term, Val};
 
 use self::clause::clause;
 use self::infer::*;
@@ -27,10 +27,15 @@ pub fn check(tcs: TCS, abs: &Abs, against: &Val) -> TermTCM {
                 Err(TCE::LevelMismatch(abs.loc(), *lower + 1, *upper))
             }
         }
-        (Abs::Pi(info, bind, ret), Val::Type(level)) => {
+        (Abs::Pi(info, bind, ret), Val::Type(..)) => {
             // Because `against` is `Val::Type(level)`
-            let (tcs, bind_ty) = check(tcs, &*bind.ty, against)?;
-            unimplemented!()
+            let (bind_ty, mut tcs) = check(tcs, &*bind.ty, against)?;
+            tcs.gamma
+                .push(Bind::new(bind.licit, bind.name, bind_ty.ast));
+            let (ret_ty, mut tcs) = check(tcs, &**ret, against)?;
+            let bind_ty = tcs.gamma.pop().expect("Bad index");
+            let term = Term::pi2(bind_ty.boxed(), Closure::plain(ret_ty.ast));
+            Ok((term.at(*info), tcs))
         }
         (expr, anything) => check_fallback(tcs, expr.clone(), anything),
     }
