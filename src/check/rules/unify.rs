@@ -97,7 +97,7 @@ impl Unify for Closure {
 }
 
 impl Unify for Val {
-    fn unify(tcs: TCS, left: &Self, right: &Self) -> Result<TCS, TCE> {
+    fn unify(tcs: TCS, left: &Self, right: &Self) -> TCM {
         unify_val(tcs, left, right)
     }
 }

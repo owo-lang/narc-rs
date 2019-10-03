@@ -36,8 +36,9 @@ impl TCS {
     }
 
     pub fn local_by_id_safe(&self, id: UID) -> Option<(DBI, &Bind)> {
-        let (ix, bind) = self.gamma.iter().enumerate().find(|(_, b)| b.name == id)?;
-        Some((DBI(ix), bind))
+        (self.gamma.iter().enumerate())
+            .find(|(_, b)| b.name == id)
+            .map(|(ix, bind)| (DBI(ix), bind))
     }
 
     pub fn mut_def(&mut self, ix: GI) -> &mut Decl {

@@ -1,19 +1,37 @@
 use voile_util::meta::MetaSolution;
 
-use crate::check::monad::{TermTCM, TCS};
+use crate::check::monad::{TermTCM, TCM, TCS};
 use crate::syntax::abs::Abs;
 use crate::syntax::common::Ductive;
-use crate::syntax::core::{ConHead, Decl, Term};
+use crate::syntax::core::{ConHead, Decl, Elim, Term};
+use std::hint::unreachable_unchecked;
+use voile_util::loc::Loc;
+
+pub fn abs_to_elim(tcs: TCS, abs: Abs) -> TCM<(Elim, TCS)> {
+    unimplemented!()
+}
 
 pub fn eval(tcs: TCS, abs: Abs) -> TermTCM {
     use Abs::*;
-    match abs {
+    let view = abs.into_app_view();
+    if !view.args.is_empty() {
+        let (head, tcs) = eval(tcs, view.fun)?;
+        let (elims, loc, tcs) = view.args.into_iter().try_fold(
+            (vec![], head.loc, tcs),
+            |(mut elims, o_loc, tcs), (loc, abs)| {
+                let (elim, tcs) = abs_to_elim(tcs, abs)?;
+                elims.push(elim);
+                Ok((elims, o_loc + loc, tcs))
+            },
+        )?;
+        return Ok((head.ast.apply_elim(elims).at(loc), tcs));
+    }
+    match view.fun {
         Type(ident, level) => Ok((Term::universe(level).at(ident.loc), tcs)),
-        App(loc, f, a) => {
-            let (f, tcs) = eval(tcs, *f)?;
-            let (a, tcs) = eval(tcs, *a)?;
-            Ok((f.ast.apply(vec![a.ast]).at(loc), tcs))
-        }
+        // Clearly eliminated by `into_app_view`.
+        App(loc, f, a) => unsafe { unreachable_unchecked() },
+        // Unlikely to desugar a thing like this, but I'm not sure.
+        Proj(..) => unreachable!(),
         Cons(ident, ix) => {
             let fields = match tcs.def(ix) {
                 Decl::Cons { fields, .. } => fields,
