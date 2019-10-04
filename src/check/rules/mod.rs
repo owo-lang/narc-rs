@@ -4,8 +4,10 @@ use crate::check::monad::{TermTCM, TCE, TCS};
 use crate::syntax::abs::Abs;
 use crate::syntax::core::{Bind, Closure, Term, Val};
 
-use self::clause::clause;
+use self::eval::eval;
 use self::infer::*;
+use self::unify::subtype;
+use self::whnf::normalize;
 
 /// Type check a function clause.
 mod clause;
@@ -39,4 +41,11 @@ pub fn check(tcs: TCS, abs: &Abs, against: &Val) -> TermTCM {
         }
         (expr, anything) => check_fallback(tcs, expr.clone(), anything),
     }
+}
+
+pub fn check_fallback(tcs: TCS, expr: Abs, expected_type: &Val) -> TermTCM {
+    let (inferred, tcs) = infer(tcs, &expr)?;
+    let (whnf, tcs) = normalize(tcs, inferred.ast)?;
+    let tcs = subtype(tcs, &whnf, expected_type).map_err(|e| e.wrap(expr.loc()))?;
+    eval(tcs, expr)
 }

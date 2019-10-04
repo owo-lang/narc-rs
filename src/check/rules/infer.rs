@@ -1,4 +1,3 @@
-use voile_util::loc::ToLoc;
 use voile_util::tags::Plicit;
 use voile_util::uid::{next_uid, DBI, GI};
 
@@ -8,9 +7,6 @@ use crate::check::rules::whnf::normalize;
 use crate::syntax::abs::Abs;
 use crate::syntax::core::subst::RedEx;
 use crate::syntax::core::{Bind, Decl, Elim, Term, Val};
-
-use super::eval::eval;
-use super::unify::subtype;
 
 /// Infer the type of an expression.
 pub fn infer(tcs: TCS, abs: &Abs) -> TermTCM {
@@ -98,11 +94,4 @@ pub fn infer_head(tcs: TCS, abs: &Abs) -> TermTCM {
         }
         e => Err(TCE::NotHead(e.clone())),
     }
-}
-
-pub fn check_fallback(tcs: TCS, expr: Abs, expected_type: &Val) -> TermTCM {
-    let (inferred, tcs) = infer(tcs, &expr)?;
-    let (whnf, tcs) = normalize(tcs, inferred.ast)?;
-    let tcs = subtype(tcs, &whnf, expected_type).map_err(|e| e.wrap(expr.loc()))?;
-    eval(tcs, expr)
 }
