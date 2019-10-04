@@ -1,0 +1,7 @@
+//
+// Created by intellij-pest on 2019-10-04
+// narc-grammar
+// Author: ice1000
+//
+
+file = { "Hello World!" }

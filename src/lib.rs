@@ -56,6 +56,9 @@ href="https://www.zhihu.com/people/wu-liang-95-71"><em>Narc</em></a> (or
 </details></span>
 */
 
+#[macro_use]
+extern crate voile_util;
+
 /// Core language, abstract syntax, surface syntax, and the parser.
 /// Corresponds to Agda's `Agda.Syntax`.
 pub mod syntax;
