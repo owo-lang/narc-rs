@@ -8,7 +8,14 @@ use std::hint::unreachable_unchecked;
 use voile_util::loc::Loc;
 
 pub fn abs_to_elim(tcs: TCS, abs: Abs) -> TCM<(Elim, TCS)> {
-    unimplemented!()
+    use Abs::*;
+    match abs {
+        Proj(ident, ix) => {
+            debug_assert!(tcs.sigma.len() > ix.0);
+            Ok((Elim::Proj(ident.text), tcs))
+        }
+        e => eval(tcs, e).map(|(t, tcs)| (Elim::app(t.ast), tcs)),
+    }
 }
 
 pub fn eval(tcs: TCS, abs: Abs) -> TermTCM {
