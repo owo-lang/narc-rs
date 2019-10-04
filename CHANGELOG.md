@@ -9,6 +9,7 @@
 + Ast traversal functions (#5)
 + Local context lookup by uid (#7)
 + `Val::App` is renamed to `Val::Var`
++ Fix evaluation for app (#12)
 
 # 0.0.3
 

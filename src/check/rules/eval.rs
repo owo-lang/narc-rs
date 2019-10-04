@@ -1,11 +1,12 @@
+use std::hint::unreachable_unchecked;
+
 use voile_util::meta::MetaSolution;
+use voile_util::tags::Plicit;
 
 use crate::check::monad::{TermTCM, TCM, TCS};
 use crate::syntax::abs::Abs;
 use crate::syntax::common::Ductive;
-use crate::syntax::core::{ConHead, Decl, Elim, Term};
-use std::hint::unreachable_unchecked;
-use voile_util::loc::Loc;
+use crate::syntax::core::{subst::*, ConHead, Decl, Elim, Term};
 
 pub fn abs_to_elim(tcs: TCS, abs: Abs) -> TCM<(Elim, TCS)> {
     use Abs::*;
@@ -36,7 +37,7 @@ pub fn eval(tcs: TCS, abs: Abs) -> TermTCM {
     match view.fun {
         Type(ident, level) => Ok((Term::universe(level).at(ident.loc), tcs)),
         // Clearly eliminated by `into_app_view`.
-        App(loc, f, a) => unsafe { unreachable_unchecked() },
+        App(..) => unsafe { unreachable_unchecked() },
         // Unlikely to desugar a thing like this, but I'm not sure.
         Proj(..) => unreachable!(),
         Cons(ident, ix) => {
@@ -61,6 +62,11 @@ pub fn eval(tcs: TCS, abs: Abs) -> TermTCM {
                 MetaSolution::Inlined => unreachable!(),
             };
             Ok((sol.at(ident.loc), tcs))
+        }
+        Var(loc, var) => {
+            let (ix, ty) = tcs.local_by_id(var);
+            debug_assert_eq!(ty.licit, Plicit::Ex);
+            Ok((Term::from_dbi(ix).at(loc.loc), tcs))
         }
         Def(ident, def) => {
             debug_assert!(tcs.sigma.len() > def.0);
