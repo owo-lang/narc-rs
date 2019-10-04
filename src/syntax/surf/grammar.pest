@@ -4,4 +4,34 @@
 // Author: ice1000
 //
 
+WHITESPACE = _{ WHITE_SPACE | ("//" ~ (!NEWLINE ~ ANY)*) }
+
+// Identifier
+ident_char =
+ _{ ASCII_ALPHA
+  | "_"
+  }
+ident_raw = _{ ident_char ~ ident_following* }
+ident_following =
+ _{ ident_char
+  | ASCII_DIGIT
+  | "'"
+  | "_"
+  | "\\"
+  }
+
+///Darkgrey
+ident = @{ ident_raw }
+
+//Placeholder
+expr = { "expr" }
+
+clause = { "clause" ~ ident ~ "=" ~ expr ~ ";" }
+definition = { "definition" ~ ident ~ ":" ~ expr ~ ";" }
+
+decl =
+ { definition
+ | clause
+ }
+
 file = { "Hello World!" }
