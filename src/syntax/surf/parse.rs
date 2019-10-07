@@ -36,6 +36,7 @@ fn clause(rules: Tok) -> ExprDecl {
     let mut inner: Tik = rules.into_inner();
     let ident = next_ident(&mut inner);
     let (copats, expr) = next_rule!(inner, clause_body);
+    end_of_rule(&mut inner);
     ExprDecl::Cls(ident, copats, expr.unwrap())
 }
 

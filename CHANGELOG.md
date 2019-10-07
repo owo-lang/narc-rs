@@ -14,6 +14,7 @@
 + Inference produces well-typed term as well (#23)
 + Application inference now supports projections (#25)
 + Unfolds data and codata applications (#27)
++ Initial parsing (#20, #31)
 
 # 0.0.3
 
