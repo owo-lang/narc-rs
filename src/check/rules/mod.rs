@@ -4,20 +4,18 @@ use crate::check::monad::{TermTCM, TCE, TCS};
 use crate::syntax::abs::Abs;
 use crate::syntax::core::{Bind, Closure, Term, Val};
 
-use self::eval::eval;
 use self::infer::*;
 use self::unify::subtype;
 use self::whnf::normalize;
 
 /// Type check a function clause.
 mod clause;
-/// Turning an abstract term into a core term.
-mod eval;
-/// Synthesize the type from an abstract term.
+/// Synthesize the type and its well-typed form from an abstract term.
 mod infer;
 /// Conversion check.
 mod unify;
 /// Find the weak-head-normal-form (normalize) of an expression.
+/// TODO: Unfolds declarations.
 mod whnf;
 
 pub fn check(tcs: TCS, abs: &Abs, against: &Val) -> TermTCM {
@@ -44,8 +42,8 @@ pub fn check(tcs: TCS, abs: &Abs, against: &Val) -> TermTCM {
 }
 
 pub fn check_fallback(tcs: TCS, expr: Abs, expected_type: &Val) -> TermTCM {
-    let (inferred, tcs) = infer(tcs, &expr)?;
-    let (whnf, tcs) = normalize(tcs, inferred.ast)?;
+    let (evaluated, inferred, tcs) = infer(tcs, &expr)?;
+    let (whnf, tcs) = normalize(tcs, inferred)?;
     let tcs = subtype(tcs, &whnf, expected_type).map_err(|e| e.wrap(expr.loc()))?;
-    eval(tcs, expr)
+    Ok((evaluated, tcs))
 }

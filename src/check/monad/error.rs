@@ -18,6 +18,7 @@ pub enum TCE {
     // === Not* === //
     NotHead(Abs),
     NotPi(Term, Loc),
+    NotCodata(Term, Loc),
 
     // === Meta* === //
     MetaRecursion(MI),
@@ -48,9 +49,8 @@ impl Display for TCE {
             }
             // TODO: Display
             TCE::NotHead(abs) => write!(f, "`{:?}` is not a head expression.", abs),
-            TCE::NotPi(term, loc) => {
-                write!(f, "`{}` is not a pi type expression (at {}).", term, loc)
-            }
+            TCE::NotPi(term, loc) => write!(f, "`{}` is not a pi type (at {}).", term, loc),
+            TCE::NotCodata(term, loc) => write!(f, "`{}` is not a codata type (at {}).", term, loc),
             TCE::MetaRecursion(mi) => {
                 write!(f, "Trying to solve a recursive meta of index {}.", mi)
             }

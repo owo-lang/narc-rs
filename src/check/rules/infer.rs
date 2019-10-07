@@ -1,33 +1,56 @@
+use std::iter::once;
+
 use voile_util::tags::Plicit;
 use voile_util::uid::{next_uid, DBI, GI};
 
-use crate::check::monad::{TermTCM, TCE, TCS};
-use crate::check::rules::check;
-use crate::check::rules::whnf::normalize;
+use crate::check::monad::{TermTCM, TCE, TCM, TCS};
 use crate::syntax::abs::Abs;
 use crate::syntax::core::subst::RedEx;
-use crate::syntax::core::{Bind, Decl, Elim, Term, Val};
+use crate::syntax::core::{Bind, Decl, Elim, Term, TermInfo, Val};
+
+use super::check;
+use super::whnf::normalize;
+
+pub type InferTCM = TCM<(TermInfo, Term, TCS)>;
 
 /// Infer the type of an expression.
-pub fn infer(tcs: TCS, abs: &Abs) -> TermTCM {
+pub fn infer(tcs: TCS, abs: &Abs) -> InferTCM {
     let abs = match abs {
-        Abs::Type(id, level) => return Ok((Term::universe(*level + 1).at(id.loc), tcs)),
+        Abs::Type(id, level) => {
+            let me = Term::universe(*level).at(id.loc);
+            return Ok((me, Term::universe(*level + 1), tcs));
+        }
         abs => abs.clone(),
     };
     let view = abs.into_app_view();
-    let (head, mut tcs) = infer_head(tcs, &view.fun)?;
-    let mut ty = head.ast;
+    let (head, mut ty, mut tcs) = infer_head(tcs, &view.fun)?;
+    let mut elims = Vec::with_capacity(view.args.len());
     for (loc, arg) in view.args {
-        let (param, clos) = match ty {
-            Term::Whnf(Val::Pi(param, clos)) => (param, clos),
-            e => return Err(TCE::NotPi(e, loc)),
+        let (mut ty_val, mut new_tcs) = normalize(tcs, ty)?;
+        let (param, clos) = loop {
+            let (param, clos) = match ty_val {
+                Val::Pi(param, clos) => (param, clos),
+                e => return Err(TCE::NotPi(Term::Whnf(e), loc)),
+            };
+            let (param_ty, loop_tcs) = normalize(new_tcs, *param.ty)?;
+            new_tcs = loop_tcs;
+            // In case this is an implicit argument
+            if param.licit == Plicit::Im {
+                let meta = new_tcs.fresh_meta();
+                elims.push(Elim::app(meta.clone()));
+                let (new_ty_val, loop_tcs) = normalize(new_tcs, clos.instantiate(meta))?;
+                ty_val = new_ty_val;
+                new_tcs = loop_tcs;
+            } else {
+                break (param_ty, clos);
+            }
         };
-        let (param, new_tcs) = normalize(tcs, *param.ty)?;
         let (arg, new_tcs) = check(new_tcs, &arg, &param)?;
-        ty = clos.instantiate(arg.ast);
+        ty = clos.instantiate(arg.ast.clone());
+        elims.push(Elim::app(arg.ast));
         tcs = new_tcs;
     }
-    Ok((ty.at(head.loc), tcs))
+    Ok((head.map_ast(|t| t.apply_elim(elims)), ty, tcs))
 }
 
 pub fn type_of_decl(tcs: TCS, decl: GI) -> TermTCM {
@@ -75,7 +98,7 @@ pub fn type_of_decl(tcs: TCS, decl: GI) -> TermTCM {
                 .cloned()
                 // Or maybe we shouldn't?
                 .map(Bind::into_implicit)
-                .chain(vec![Bind::new(Plicit::Ex, unsafe { next_uid() }, codata)].into_iter())
+                .chain(once(Bind::new(Plicit::Ex, unsafe { next_uid() }, codata)))
                 .collect();
             Ok((Term::pi_from_tele(tele, ty.clone()).at(*loc), tcs))
         }
@@ -83,14 +106,15 @@ pub fn type_of_decl(tcs: TCS, decl: GI) -> TermTCM {
     }
 }
 
-pub fn infer_head(tcs: TCS, abs: &Abs) -> TermTCM {
+pub fn infer_head(tcs: TCS, abs: &Abs) -> InferTCM {
     use Abs::*;
     match abs {
-        Proj(_, def) | Cons(_, def) | Def(_, def) => type_of_decl(tcs, *def),
+        Proj(id, def) | Cons(id, def) | Def(id, def) => type_of_decl(tcs, *def)
+            .map(|(ty, tcs)| (Term::simple_def(*def).at(id.loc), ty.ast, tcs)),
         Var(loc, var) => {
-            let (_ix, ty) = tcs.local_by_id(*var);
+            let (ix, ty) = tcs.local_by_id(*var);
             debug_assert_eq!(ty.licit, Plicit::Ex);
-            Ok((ty.ty.clone().at(loc.loc), tcs))
+            Ok((Term::from_dbi(ix).at(loc.loc), ty.ty.clone(), tcs))
         }
         e => Err(TCE::NotHead(e.clone())),
     }
