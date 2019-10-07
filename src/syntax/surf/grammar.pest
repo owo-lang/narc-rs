@@ -23,10 +23,43 @@ ident_following =
 ///Darkgrey
 ident = @{ ident_raw }
 
-//Placeholder
-expr = { "expr" }
+universe = @{ "Type" }
+arrow = { "->" }
+dot_projection = @{ "." ~ ident }
 
-clause = { "clause" ~ ident ~ "=" ~ expr ~ ";" }
+applied = { primary_expr | dot_projection }
+
+multi_param = { ident+ ~ ":" ~ expr }
+implicit = { "{" ~ multi_param ~ "}" }
+explicit = { "(" ~ multi_param ~ ")" }
+param =
+ { implicit
+ | explicit
+ | app_expr // unnamed parameter
+ }
+
+//Placeholder
+expr = { pi_expr }
+pi_expr = { (param ~ arrow)* ~ app_expr }
+app_expr = { primary_expr ~ applied }
+primary_expr =
+ { universe
+ | ident
+ | "(" ~ expr ~ ")"
+ }
+
+pattern =
+ { inaccessible_pattern
+ | constructor_pattern
+ | atomic_pattern
+ }
+
+atomic_pattern = { ident }
+constructor_pattern = { "(" ~ ident ~ pattern* ~ ")" }
+// Using the notation from Agda's thesis
+inaccessible_pattern = { "|_" ~ pattern ~ "_|" }
+
+clause = { "clause" ~ ident ~ pattern* ~ "=" ~ expr ~ ";" }
 definition = { "definition" ~ ident ~ ":" ~ expr ~ ";" }
 
 decl =
