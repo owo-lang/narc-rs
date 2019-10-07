@@ -22,6 +22,8 @@ pub enum TCE {
     NotHead(Abs),
     NotPi(Term, Loc),
     NotProj(Abs),
+    /// A projection is not a term.
+    NotTerm(String),
 
     // === Meta* === //
     MetaRecursion(MI),
@@ -59,6 +61,7 @@ impl Display for TCE {
             TCE::NotHead(abs) => write!(f, "`{:?}` is not a head (at {}).", abs, abs.loc()),
             TCE::NotPi(term, loc) => write!(f, "`{}` is not a pi type (at {}).", term, loc),
             TCE::NotProj(abs) => write!(f, "`{:?}` is not a projection (at {}).", abs, abs.loc()),
+            TCE::NotTerm(proj) => write!(f, "Cannot project `{}` on a datatype.", proj),
             TCE::MetaRecursion(mi) => {
                 write!(f, "Trying to solve a recursive meta of index {}.", mi)
             }

@@ -13,6 +13,7 @@
 + Inference now respect implicit parameters (#24)
 + Inference produces well-typed term as well (#23)
 + Application inference now supports projections (#25)
++ Unfolds data and codata applications (#27)
 
 # 0.0.3
 
