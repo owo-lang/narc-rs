@@ -10,6 +10,9 @@
 + Local context lookup by uid (#7)
 + `Val::App` is renamed to `Val::Var`
 + Fix evaluation for app (#12)
++ Inference now respect implicit parameters (#24)
++ Inference produces well-typed term as well (#23)
++ Application inference now supports projections (#25)
 
 # 0.0.3
 
