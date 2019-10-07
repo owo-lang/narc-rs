@@ -1,9 +1,8 @@
 use voile_util::loc::Ident;
 use voile_util::tags::Plicit;
-use voile_util::uid::UID;
 use voile_util::vec1::Vec1;
 
-use crate::syntax::pat::Copat;
+use crate::syntax::pat::{Copat, Pat};
 
 /// Surface syntax: Parameter.
 ///
@@ -34,8 +33,10 @@ pub enum Expr {
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum ExprDecl {
     Defn(Ident, Expr),
-    Cls(Ident, Vec<ExprPat>, Expr),
+    Cls(Ident, Vec<ExprCopat>, Expr),
 }
 
-/// Patterns in the abstract syntax.
-pub type ExprPat = Copat<UID, Expr>;
+/// In `ExprPat`, the `ConHead` is pseudo, please beware of this fact and
+/// do proper desugar to produce valid abstract syntax.
+pub type ExprCopat = Copat<Ident, Expr>;
+pub type ExprPat = Pat<Ident, Expr>;

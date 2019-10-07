@@ -28,3 +28,21 @@ pub enum Copat<Ix, Term> {
     /// Projection copatterns.
     Proj(String),
 }
+
+impl<Ix, Term> Copat<Ix, Term> {
+    pub fn absurd() -> Self {
+        Copat::App(Pat::Absurd)
+    }
+    pub fn reflexivity() -> Self {
+        Copat::App(Pat::Refl)
+    }
+    pub fn var(ix: Ix) -> Self {
+        Copat::App(Pat::Var(ix))
+    }
+    pub fn term(term: Term) -> Self {
+        Copat::App(Pat::Forced(term))
+    }
+    pub fn cons(is_forced: bool, cons: ConHead, pats: Vec<Pat<Ix, Term>>) -> Self {
+        Copat::App(Pat::Cons(is_forced, cons, pats))
+    }
+}

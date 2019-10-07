@@ -20,6 +20,20 @@ pub struct ConHead {
     pub fields: Vec<String>,
 }
 
+impl ConHead {
+    pub fn pseudo(name: String) -> Self {
+        Self::new(name, Ductive::In, vec![])
+    }
+
+    pub fn new(name: String, ductive: Ductive, fields: Vec<String>) -> Self {
+        Self {
+            name,
+            ductive,
+            fields,
+        }
+    }
+}
+
 /// Weak-head-normal-form terms, canonical values.
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum Val {

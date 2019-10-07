@@ -49,17 +49,19 @@ primary_expr =
  }
 
 pattern =
- { inaccessible_pattern
- | constructor_pattern
- | atomic_pattern
+ { inacc_pat
+ | cons_pat
+ | ident
  }
 
-atomic_pattern = { ident }
-constructor_pattern = { "(" ~ ident ~ pattern* ~ ")" }
+cons_pat = { "(" ~ ident ~ pattern* ~ ")" }
 // Using the notation from Agda's thesis
-inaccessible_pattern = { "|_" ~ pattern ~ "_|" }
+inacc_pat = { "|_" ~ expr ~ "_|" }
 
-clause = { "clause" ~ ident ~ pattern* ~ "=" ~ expr ~ ";" }
+copattern = { pattern | dot_projection }
+
+clause_body = { copattern* ~ "=" ~ expr }
+clause = { "clause" ~ ident ~ clause_body ~ ";" }
 definition = { "definition" ~ ident ~ ":" ~ expr ~ ";" }
 
 decl =
