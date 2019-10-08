@@ -12,7 +12,7 @@ pub enum Abs {
     Def(Ident, GI),
     Var(Ident, UID),
     Meta(Ident, MI),
-    App(Box<Self>, Box<Self>),
+    App(Box<Self>, Vec<Self>),
     Pi(Loc, Bind<Box<Self>>, Box<Self>),
     Type(Ident, Level),
     Cons(Ident, GI),
@@ -33,9 +33,7 @@ impl AppView {
     }
 
     pub fn into_abs(self) -> Abs {
-        self.args
-            .into_iter()
-            .fold(self.fun, |f, arg| Abs::app(f, arg))
+        Abs::app(self.fun, self.args)
     }
 }
 
@@ -43,17 +41,21 @@ impl Abs {
     /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.Syntax.Abstract.Views.html#appView).
     pub fn into_app_view(self) -> AppView {
         match self {
-            Abs::App(f, arg) => {
+            Abs::App(f, mut arg) => {
                 let mut view = f.into_app_view();
-                view.args.push(*arg);
+                view.args.append(&mut arg);
                 view
             }
             e => AppView::new(e, vec![]),
         }
     }
 
-    pub fn app(f: Self, arg: Self) -> Self {
-        Abs::App(Box::new(f), Box::new(arg))
+    pub fn simple_app(f: Self, arg: Self) -> Self {
+        Self::app(f, vec![arg])
+    }
+
+    pub fn app(f: Self, args: Vec<Self>) -> Self {
+        Abs::App(Box::new(f), args)
     }
 }
 
@@ -68,7 +70,8 @@ impl ToLoc for Abs {
             | Var(ident, ..)
             | Meta(ident, ..) => ident.loc,
             Pi(loc, ..) => *loc,
-            App(f, a) => f.loc() + a.loc(),
+            // TODO: improve by making `a` a `Vec1`.
+            App(f, a) => f.loc() + a.last().unwrap().loc(),
         }
     }
 }
