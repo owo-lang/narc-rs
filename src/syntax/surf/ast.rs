@@ -26,8 +26,22 @@ pub enum Expr {
     Meta(Ident),
     /// Dot-projection.
     Proj(Ident),
-    /// Application
+    /// Application, chained.
     App(Box<Vec1<Self>>),
+    /// Pi-type expression, where `a -> b -> c` is represented as `Pi(vec![a, b], c)`
+    /// instead of `Pi(a, Pi(b, c))`.
+    /// `a` and `b` here can introduce telescopes.
+    Pi(Vec<Param>, Box<Self>),
+}
+
+impl Expr {
+    pub fn pi(params: Vec<Param>, expr: Self) -> Self {
+        Expr::Pi(params, Box::new(expr))
+    }
+
+    pub fn app(applied: Self, arguments: Vec<Self>) -> Self {
+        Expr::App(Box::new(Vec1::new(applied, arguments)))
+    }
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]

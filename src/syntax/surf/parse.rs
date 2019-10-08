@@ -2,15 +2,33 @@ use pest_derive::Parser;
 
 use crate::syntax::core::ConHead;
 use crate::syntax::pat::{Copat, Pat};
-use crate::syntax::surf::{Expr, ExprCopat, ExprDecl, ExprPat};
+use crate::syntax::surf::{Expr, ExprCopat, ExprDecl, ExprPat, Param};
 use voile_util::loc::Ident;
 use voile_util::pest_util::{end_of_rule, strict_parse};
+use voile_util::tags::Plicit;
 
 #[derive(Parser)]
 #[grammar = "syntax/surf/grammar.pest"]
 struct NarcParser;
 
 tik_tok!();
+
+macro_rules! expr_parser {
+    ($name:ident, $smaller:ident, $cons:ident) => {
+        fn $name(rules: Tok) -> Expr {
+            let mut exprs: Vec<Expr> = Default::default();
+            for smaller in rules.into_inner() {
+                exprs.push($smaller(smaller));
+            }
+            let first = exprs.remove(0);
+            if exprs.is_empty() {
+                first
+            } else {
+                Expr::$cons(first, exprs)
+            }
+        }
+    };
+}
 
 pub fn parse_str_expr(input: &str) -> Result<Vec<ExprDecl>, String> {
     strict_parse::<NarcParser, _, _, _>(Rule::file, input, decls)
@@ -84,7 +102,67 @@ fn inacc_pat(rules: Tok) -> ExprPat {
 }
 
 fn expr(rules: Tok) -> Expr {
-    unimplemented!()
+    let mut inner: Tik = rules.into_inner();
+    let expr = next_rule!(inner, pi_expr);
+    end_of_rule(&mut inner);
+    expr
+}
+
+expr_parser!(app_expr, primary_expr, app);
+
+fn primary_expr(rules: Tok) -> Expr {
+    let mut inner: Tik = rules.into_inner();
+    let the_rule: Tok = inner.next().unwrap();
+    let expr = match the_rule.as_rule() {
+        Rule::ident => Expr::Var(ident(the_rule)),
+        Rule::meta => Expr::Meta(ident(the_rule)),
+        Rule::universe => unimplemented!(),
+        Rule::expr => expr(the_rule),
+        e => panic!("Unexpected rule: {:?} with token {}", e, the_rule.as_str()),
+    };
+    end_of_rule(&mut inner);
+    expr
+}
+
+many_prefix_parser!(pi_expr_internal, Param, param, app_expr, Expr);
+many_prefix_parser!(multi_param, Ident, ident, expr, Expr);
+
+fn one_param(rules: Tok, licit: Plicit) -> Param {
+    let mut inner: Tik = rules.into_inner();
+    let (names, expr) = next_rule!(inner, multi_param);
+    let ty = expr.unwrap();
+    end_of_rule(&mut inner);
+    Param { licit, names, ty }
+}
+
+fn pi_expr(rules: Tok) -> Expr {
+    let (params, ret) = pi_expr_internal(rules);
+    let ret = ret.unwrap();
+    if params.is_empty() {
+        ret
+    } else {
+        Expr::pi(params, ret)
+    }
+}
+
+fn param(rules: Tok) -> Param {
+    let mut inner: Tik = rules.into_inner();
+    let the_rule: Tok = inner.next().unwrap();
+    let param = match the_rule.as_rule() {
+        Rule::explicit => one_param(the_rule, Plicit::Ex),
+        Rule::implicit => one_param(the_rule, Plicit::Im),
+        rule_type => Param {
+            licit: Plicit::Ex,
+            names: Vec::with_capacity(0),
+            ty: match rule_type {
+                Rule::app_expr => app_expr(the_rule),
+                Rule::pi_expr => pi_expr(the_rule),
+                e => panic!("Unexpected rule: {:?} with token {}", e, the_rule.as_str()),
+            },
+        },
+    };
+    end_of_rule(&mut inner);
+    param
 }
 
 fn dot_projection(rules: Tok) -> Ident {

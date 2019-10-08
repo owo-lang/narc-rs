@@ -23,9 +23,12 @@ ident_following =
 ///Darkgrey
 ident = @{ ident_raw }
 
+///Orange
 universe = @{ "Type" }
-arrow = { "->" }
+arrow = _{ "->" }
 dot_projection = @{ "." ~ ident }
+///Red
+meta = @{ "_" }
 
 applied = { primary_expr | dot_projection }
 
@@ -44,6 +47,7 @@ pi_expr = { (param ~ arrow)* ~ app_expr }
 app_expr = { primary_expr ~ applied }
 primary_expr =
  { universe
+ | meta
  | ident
  | "(" ~ expr ~ ")"
  }
