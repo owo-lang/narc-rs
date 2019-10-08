@@ -22,6 +22,8 @@ pub struct Param {
 pub enum Expr {
     /// Variable reference
     Var(Ident),
+    /// Universe.
+    Type(Ident),
     /// Explicit meta variable.
     Meta(Ident),
     /// Dot-projection.

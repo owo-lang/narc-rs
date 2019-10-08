@@ -46,7 +46,7 @@ param =
 expr = { pi_expr }
 pi_expr = { (param ~ arrow)* ~ dollar_expr }
 dollar_expr = { app_expr ~ (dollar_op ~ app_expr)* }
-app_expr = { primary_expr ~ applied }
+app_expr = { primary_expr ~ applied* }
 primary_expr =
  { universe
  | meta
@@ -75,4 +75,4 @@ decl =
  | clause
  }
 
-file = { "Hello World!" }
+file = { WHITESPACE* ~ decl* ~ WHITESPACE* }

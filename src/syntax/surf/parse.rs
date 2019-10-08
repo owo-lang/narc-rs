@@ -30,7 +30,7 @@ macro_rules! expr_parser {
     };
 }
 
-pub fn parse_str_expr(input: &str) -> Result<Vec<ExprDecl>, String> {
+pub fn parse_str(input: &str) -> Result<Vec<ExprDecl>, String> {
     strict_parse::<NarcParser, _, _, _>(Rule::file, input, decls)
 }
 
@@ -109,7 +109,26 @@ fn expr(rules: Tok) -> Expr {
 }
 
 expr_parser!(dollar_expr, app_expr, app);
-expr_parser!(app_expr, primary_expr, app);
+
+fn app_expr(rules: Tok) -> Expr {
+    let mut inner: Tik = rules.into_inner();
+    let fun = next_rule!(inner, primary_expr);
+    let mut args = Vec::with_capacity(2);
+    for expr in inner {
+        args.push(applied(expr));
+    }
+    Expr::app(fun, args)
+}
+
+fn applied(rules: Tok) -> Expr {
+    let mut inner: Tik = rules.into_inner();
+    let the_rule: Tok = inner.next().unwrap();
+    match the_rule.as_rule() {
+        Rule::dot_projection => Expr::Proj(ident(the_rule)),
+        Rule::primary_expr => primary_expr(the_rule),
+        _ => unreachable!(),
+    }
+}
 
 fn primary_expr(rules: Tok) -> Expr {
     let mut inner: Tik = rules.into_inner();
@@ -117,7 +136,7 @@ fn primary_expr(rules: Tok) -> Expr {
     let expr = match the_rule.as_rule() {
         Rule::ident => Expr::Var(ident(the_rule)),
         Rule::meta => Expr::Meta(ident(the_rule)),
-        Rule::universe => unimplemented!(),
+        Rule::universe => Expr::Type(ident(the_rule)),
         Rule::expr => expr(the_rule),
         e => panic!("Unexpected rule: {:?} with token {}", e, the_rule.as_str()),
     };
