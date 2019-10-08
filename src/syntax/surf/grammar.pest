@@ -29,6 +29,7 @@ arrow = _{ "->" }
 dot_projection = @{ "." ~ ident }
 ///Red
 meta = @{ "_" }
+dollar_op = _{ "$" }
 
 applied = { primary_expr | dot_projection }
 
@@ -38,12 +39,13 @@ explicit = { "(" ~ multi_param ~ ")" }
 param =
  { implicit
  | explicit
- | app_expr // unnamed parameter
+ | dollar_expr // unnamed parameter
  }
 
 //Placeholder
 expr = { pi_expr }
-pi_expr = { (param ~ arrow)* ~ app_expr }
+pi_expr = { (param ~ arrow)* ~ dollar_expr }
+dollar_expr = { app_expr ~ (dollar_op ~ app_expr)* }
 app_expr = { primary_expr ~ applied }
 primary_expr =
  { universe

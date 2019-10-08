@@ -108,6 +108,7 @@ fn expr(rules: Tok) -> Expr {
     expr
 }
 
+expr_parser!(dollar_expr, app_expr, app);
 expr_parser!(app_expr, primary_expr, app);
 
 fn primary_expr(rules: Tok) -> Expr {
@@ -124,7 +125,7 @@ fn primary_expr(rules: Tok) -> Expr {
     expr
 }
 
-many_prefix_parser!(pi_expr_internal, Param, param, app_expr, Expr);
+many_prefix_parser!(pi_expr_internal, Param, param, dollar_expr, Expr);
 many_prefix_parser!(multi_param, Ident, ident, expr, Expr);
 
 fn one_param(rules: Tok, licit: Plicit) -> Param {
@@ -155,7 +156,7 @@ fn param(rules: Tok) -> Param {
             licit: Plicit::Ex,
             names: Vec::with_capacity(0),
             ty: match rule_type {
-                Rule::app_expr => app_expr(the_rule),
+                Rule::dollar_expr => dollar_expr(the_rule),
                 Rule::pi_expr => pi_expr(the_rule),
                 e => panic!("Unexpected rule: {:?} with token {}", e, the_rule.as_str()),
             },
