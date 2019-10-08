@@ -2,6 +2,7 @@ use voile_util::level::Level;
 use voile_util::loc::{Ident, Loc, ToLoc};
 use voile_util::meta::MI;
 use voile_util::uid::{GI, UID};
+use voile_util::vec1::Vec1;
 
 use crate::syntax::common;
 use crate::syntax::pat::Copat;
@@ -12,7 +13,7 @@ pub enum Abs {
     Def(Ident, GI),
     Var(Ident, UID),
     Meta(Ident, MI),
-    App(Box<Self>, Vec<Self>),
+    App(Box<Self>, Box<Vec1<Self>>),
     Pi(Loc, Bind<Box<Self>>, Box<Self>),
     Type(Ident, Level),
     Cons(Ident, GI),
@@ -32,8 +33,13 @@ impl AppView {
         Self { fun, args }
     }
 
-    pub fn into_abs(self) -> Abs {
-        Abs::app(self.fun, self.args)
+    pub fn into_abs(mut self) -> Abs {
+        if self.args.is_empty() {
+            self.fun
+        } else {
+            let head = self.args.remove(0);
+            Abs::app(self.fun, Vec1::new(head, self.args))
+        }
     }
 }
 
@@ -41,9 +47,9 @@ impl Abs {
     /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.Syntax.Abstract.Views.html#appView).
     pub fn into_app_view(self) -> AppView {
         match self {
-            Abs::App(f, mut arg) => {
+            Abs::App(f, arg) => {
                 let mut view = f.into_app_view();
-                view.args.append(&mut arg);
+                arg.append_self_into(&mut view.args);
                 view
             }
             e => AppView::new(e, vec![]),
@@ -51,11 +57,11 @@ impl Abs {
     }
 
     pub fn simple_app(f: Self, arg: Self) -> Self {
-        Self::app(f, vec![arg])
+        Self::app(f, From::from(arg))
     }
 
-    pub fn app(f: Self, args: Vec<Self>) -> Self {
-        Abs::App(Box::new(f), args)
+    pub fn app(f: Self, args: Vec1<Self>) -> Self {
+        Abs::App(Box::new(f), Box::new(args))
     }
 }
 
@@ -70,8 +76,7 @@ impl ToLoc for Abs {
             | Var(ident, ..)
             | Meta(ident, ..) => ident.loc,
             Pi(loc, ..) => *loc,
-            // TODO: improve by making `a` a `Vec1`.
-            App(f, a) => f.loc() + a.last().unwrap().loc(),
+            App(f, a) => f.loc() + a.tail().loc(),
         }
     }
 }
