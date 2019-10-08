@@ -1,6 +1,7 @@
 use std::iter::once;
 
 use either::Either::{Left, Right};
+use voile_util::loc::ToLoc;
 use voile_util::tags::{Plicit, VarRec};
 use voile_util::uid::{next_uid, DBI, GI};
 
@@ -26,13 +27,13 @@ pub fn infer(tcs: TCS, abs: &Abs) -> InferTCM {
     let view = abs.into_app_view();
     let (head, mut ty, mut tcs) = infer_head(tcs, &view.fun)?;
     let mut elims = Vec::with_capacity(view.args.len());
-    for (loc, arg) in view.args {
+    for arg in view.args {
         let (mut ty_val, mut new_tcs) = normalize(tcs, ty)?;
         match loop {
             let (param, clos) = match ty_val {
                 Val::Pi(param, clos) => (param, clos),
                 Val::Data(VarRec::Record, codata_def, elims) => break Right((codata_def, elims)),
-                e => return Err(TCE::NotPi(Term::Whnf(e), loc)),
+                e => return Err(TCE::NotPi(Term::Whnf(e), arg.loc())),
             };
             let (param_ty, loop_tcs) = normalize(new_tcs, *param.ty)?;
             new_tcs = loop_tcs;
