@@ -8,7 +8,6 @@ use crate::syntax::abs::Abs;
 use crate::syntax::core::{Elim, Term};
 
 /// Type-Checking Error.
-#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum TCE {
     Textual(String),
     Wrapped(Box<Self>, Loc),

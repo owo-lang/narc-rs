@@ -11,6 +11,6 @@ mod error;
 /// Desugar monad (state and monad-result).
 mod monad;
 
-pub fn desugar_main(decls: Vec<ExprDecl>) -> Result<DesugarState, DesugarErr> {
+pub fn desugar_main(decls: Vec<ExprDecl>) -> DesugarM {
     desugar_decls(DesugarState::with_capacity(decls.len()), decls)
 }
