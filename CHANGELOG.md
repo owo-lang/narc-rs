@@ -14,7 +14,8 @@
 + Inference produces well-typed term as well (#23)
 + Application inference now supports projections (#25)
 + Unfolds data and codata applications (#27)
-+ Initial parsing (#20, #31)
++ Parsing (expr parsing and file parsing) (#20, #31)
++ `Abs::App` is now chained (#33)
 
 # 0.0.3
 
