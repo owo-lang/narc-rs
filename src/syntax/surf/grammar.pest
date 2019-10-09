@@ -76,9 +76,10 @@ codata_body = { param* ~ "{" ~ projections ~ "}" }
 data = { "data" ~ ident ~ data_body ~ ";" }
 codata = { "codata" ~ ident ~ codata_body ~ ";" }
 
-constructor = { "constructor" ~ defined_op }
-projection = { "projection" ~ defined_op }
-defined_op = _{ ident ~ (":" ~ param+)? ~ ";" }
+// Constructor can have no parameters
+constructor = { "constructor" ~ ident ~ (":" ~ param+)? ~ ";" }
+// But your fields should always have parameters
+projection = { "projection" ~ ident ~ ":" ~ param+ ~ ";" }
 
 decl =
  { definition

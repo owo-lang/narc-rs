@@ -36,6 +36,10 @@ pub fn parse_str(input: &str) -> Result<Vec<ExprDecl>, String> {
     strict_parse::<NarcParser, _, _, _>(Rule::file, input, decls)
 }
 
+pub fn parse_str_expr(input: &str) -> Result<Expr, String> {
+    strict_parse::<NarcParser, _, _, _>(Rule::expr, input, expr)
+}
+
 fn decls(the_rule: Tok) -> Vec<ExprDecl> {
     the_rule.into_inner().into_iter().map(decl).collect()
 }
