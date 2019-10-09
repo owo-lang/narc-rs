@@ -71,9 +71,16 @@ clause_body = { copattern* ~ "=" ~ expr }
 clause = { "clause" ~ ident ~ clause_body ~ ";" }
 definition = { "definition" ~ ident ~ ":" ~ expr ~ ";" }
 
+constructors = { constructor* }
+data_body = { param* ~ "{" ~ constructors ~ "}" }
+data = { "data" ~ ident ~ data_body ~ ";" }
+
+constructor = { "constructor" ~ ident ~ (":" ~ param+)? ~ ";" }
+
 decl =
  { definition
  | clause
+ | data
  }
 
 file = { WHITESPACE* ~ decl* ~ WHITESPACE* }
