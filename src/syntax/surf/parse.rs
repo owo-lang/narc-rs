@@ -82,7 +82,7 @@ fn pattern(rules: Tok) -> ExprPat {
     match the_rule.as_rule() {
         Rule::inacc_pat => inacc_pat(the_rule),
         Rule::cons_pat => cons_pat(the_rule),
-        Rule::ident => Pat::Var(next_ident(&mut the_rule.into_inner())),
+        Rule::ident => Pat::Var(ident(the_rule)),
         _ => unreachable!(),
     }
 }
@@ -117,14 +117,18 @@ fn app_expr(rules: Tok) -> Expr {
     for expr in inner {
         args.push(applied(expr));
     }
-    Expr::app(fun, args)
+    if args.is_empty() {
+        fun
+    } else {
+        Expr::app(fun, args)
+    }
 }
 
 fn applied(rules: Tok) -> Expr {
     let mut inner: Tik = rules.into_inner();
     let the_rule: Tok = inner.next().unwrap();
     match the_rule.as_rule() {
-        Rule::dot_projection => Expr::Proj(ident(the_rule)),
+        Rule::dot_projection => Expr::Proj(dot_projection(the_rule)),
         Rule::primary_expr => primary_expr(the_rule),
         _ => unreachable!(),
     }
@@ -135,7 +139,7 @@ fn primary_expr(rules: Tok) -> Expr {
     let the_rule: Tok = inner.next().unwrap();
     let expr = match the_rule.as_rule() {
         Rule::ident => Expr::Var(ident(the_rule)),
-        Rule::meta => Expr::Meta(ident(the_rule)),
+        Rule::meta => Expr::Meta(meta(the_rule)),
         Rule::universe => Expr::Type(ident(the_rule)),
         Rule::expr => expr(the_rule),
         e => panic!("Unexpected rule: {:?} with token {}", e, the_rule.as_str()),
@@ -186,6 +190,14 @@ fn param(rules: Tok) -> Param {
 }
 
 fn dot_projection(rules: Tok) -> Ident {
+    parse_ident(rules)
+}
+
+fn meta(rules: Tok) -> Ident {
+    parse_ident(rules)
+}
+
+fn parse_ident(rules: Tok) -> Ident {
     let mut inner: Tik = rules.into_inner();
     let ident = next_ident(&mut inner);
     end_of_rule(&mut inner);

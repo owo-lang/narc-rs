@@ -9,14 +9,15 @@ WHITESPACE = _{ WHITE_SPACE | ("//" ~ (!NEWLINE ~ ANY)*) }
 // Identifier
 ident_char =
  _{ ASCII_ALPHA
-  | "_"
   }
 ident_raw = _{ ident_char ~ ident_following* }
 ident_following =
  _{ ident_char
   | ASCII_DIGIT
   | "'"
-  | "_"
+  | "-"
+  | "+"
+  | "//"
   | "\\"
   }
 
@@ -26,9 +27,9 @@ ident = @{ ident_raw }
 ///Orange
 universe = @{ "Type" }
 arrow = _{ "->" }
-dot_projection = @{ "." ~ ident }
+dot_projection = { "." ~ ident }
 ///Red
-meta = @{ "_" }
+meta = { "_" ~ ident }
 dollar_op = _{ "$" }
 
 applied = { primary_expr | dot_projection }
