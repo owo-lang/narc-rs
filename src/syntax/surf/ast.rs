@@ -50,6 +50,23 @@ impl Expr {
 pub enum ExprDecl {
     Defn(Ident, Expr),
     Cls(Ident, Vec<ExprCopat>, Expr),
+    Data(NamedTele, Vec<ExprCons>),
+    Codata(NamedTele, Vec<ExprProj>),
+}
+
+pub type ExprCons = NamedTele;
+pub type ExprProj = NamedTele;
+
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub struct NamedTele {
+    name: Ident,
+    tele: Vec<Param>,
+}
+
+impl NamedTele {
+    pub fn new(name: Ident, tele: Vec<Param>) -> Self {
+        Self { name, tele }
+    }
 }
 
 /// In `ExprPat`, the `ConHead` is pseudo, please beware of this fact and

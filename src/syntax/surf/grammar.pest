@@ -7,9 +7,7 @@
 WHITESPACE = _{ WHITE_SPACE | ("//" ~ (!NEWLINE ~ ANY)*) }
 
 // Identifier
-ident_char =
- _{ ASCII_ALPHA
-  }
+ident_char = _{ ASCII_ALPHA }
 ident_raw = _{ ident_char ~ ident_following* }
 ident_following =
  _{ ident_char
@@ -17,7 +15,7 @@ ident_following =
   | "'"
   | "-"
   | "+"
-  | "//"
+  | ("/" ~ !"/")
   | "\\"
   }
 
@@ -72,15 +70,21 @@ clause = { "clause" ~ ident ~ clause_body ~ ";" }
 definition = { "definition" ~ ident ~ ":" ~ expr ~ ";" }
 
 constructors = { constructor* }
+projections = { projection* }
 data_body = { param* ~ "{" ~ constructors ~ "}" }
+codata_body = { param* ~ "{" ~ projections ~ "}" }
 data = { "data" ~ ident ~ data_body ~ ";" }
+codata = { "codata" ~ ident ~ codata_body ~ ";" }
 
-constructor = { "constructor" ~ ident ~ (":" ~ param+)? ~ ";" }
+constructor = { "constructor" ~ defined_op }
+projection = { "projection" ~ defined_op }
+defined_op = _{ ident ~ (":" ~ param+)? ~ ";" }
 
 decl =
  { definition
  | clause
  | data
+ | codata
  }
 
 file = { WHITESPACE* ~ decl* ~ WHITESPACE* }

@@ -2,7 +2,9 @@ use pest_derive::Parser;
 
 use crate::syntax::core::ConHead;
 use crate::syntax::pat::{Copat, Pat};
-use crate::syntax::surf::{Expr, ExprCopat, ExprDecl, ExprPat, Param};
+use crate::syntax::surf::{
+    Expr, ExprCons, ExprCopat, ExprDecl, ExprPat, ExprProj, NamedTele, Param,
+};
 use voile_util::loc::Ident;
 use voile_util::pest_util::{end_of_rule, strict_parse};
 use voile_util::tags::Plicit;
@@ -44,6 +46,8 @@ fn decl(rules: Tok) -> ExprDecl {
     match the_rule.as_rule() {
         Rule::definition => definition(the_rule),
         Rule::clause => clause(the_rule),
+        Rule::data => data(the_rule),
+        Rule::codata => codata(the_rule),
         _ => unreachable!(),
     }
 }
@@ -187,6 +191,41 @@ fn param(rules: Tok) -> Param {
     };
     end_of_rule(&mut inner);
     param
+}
+
+fn constructors(tik: Tok) -> Vec<ExprCons> {
+    constructors_or_projections(tik)
+}
+fn projections(tik: Tok) -> Vec<ExprProj> {
+    constructors_or_projections(tik)
+}
+many_prefix_parser!(data_body, Param, param, constructors, Vec<ExprCons>);
+many_prefix_parser!(codata_body, Param, param, projections, Vec<ExprProj>);
+
+fn data(rules: Tok) -> ExprDecl {
+    let mut inner: Tik = rules.into_inner();
+    let ident = next_ident(&mut inner);
+    let (tele, body) = next_rule!(inner, data_body);
+    end_of_rule(&mut inner);
+    ExprDecl::Data(NamedTele::new(ident, tele), body.unwrap())
+}
+
+fn codata(rules: Tok) -> ExprDecl {
+    let mut inner: Tik = rules.into_inner();
+    let ident = next_ident(&mut inner);
+    let (tele, body) = next_rule!(inner, codata_body);
+    end_of_rule(&mut inner);
+    ExprDecl::Codata(NamedTele::new(ident, tele), body.unwrap())
+}
+
+fn constructors_or_projections(rules: Tok) -> Vec<NamedTele> {
+    rules.into_inner().into_iter().map(cons_or_proj).collect()
+}
+
+fn cons_or_proj(rules: Tok) -> NamedTele {
+    let mut inner: Tik = rules.into_inner();
+    let ident = next_ident(&mut inner);
+    NamedTele::new(ident, inner.into_iter().map(param).collect())
 }
 
 fn dot_projection(rules: Tok) -> Ident {

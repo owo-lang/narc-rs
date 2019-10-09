@@ -5,5 +5,7 @@ const FAILURE_MSG: &'static str = "\u{1F528}";
 
 fn main() {
     let args = args::pre();
+    println!("{}", FAILURE_MSG);
+    println!("{}", SUCCESS_MSG);
     drop(args);
 }
