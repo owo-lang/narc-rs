@@ -28,6 +28,7 @@ For language description, please head to the [docs.rs][doc-rs] page.
 
 + [Original Paper][paper] that Narc is based on
 + [Docs.rs][doc-rs] documentation
++ [IntelliJ Plugin][plugin], which can export your code as clickable HTML
 + [Change Log](CHANGELOG.md), useful resource for tracking language evolution
 
 ## Install
@@ -50,3 +51,11 @@ You can also start a REPL:
 ```bash
 narc -i
 ```
+
+## Progress
+
++ [X] Basic dependent type (minitt/voile things)
++ [ ] Data type and codata types
++ [ ] Definition and clauses checking
++ [ ] Universe level support
++ [ ] Implicit arguments
