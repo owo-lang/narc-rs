@@ -49,6 +49,12 @@ pub enum AbsDecl {
     },
 }
 
+impl AbsDecl {
+    pub fn defn(source: Loc, name: Ident, ty: Abs) -> Self {
+        AbsDecl::Defn { source, name, ty }
+    }
+}
+
 impl ToLoc for AbsDecl {
     fn loc(&self) -> Loc {
         use AbsDecl::*;

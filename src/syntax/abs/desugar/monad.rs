@@ -5,7 +5,7 @@ use crate::syntax::abs::AbsDecl;
 use super::DesugarErr;
 
 /// Desugar Monad.
-pub type DesugarM = Result<DesugarState, DesugarErr>;
+pub type DesugarM<State = DesugarState> = Result<State, DesugarErr>;
 
 #[derive(Debug, Clone, Default)]
 pub struct DesugarState {

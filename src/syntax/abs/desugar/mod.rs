@@ -2,12 +2,15 @@ use crate::syntax::surf::ExprDecl;
 
 use self::decls::*;
 use self::error::*;
+use self::exprs::*;
 use self::monad::*;
 
 /// Desugar declarations.
 mod decls;
 /// Desugar error.
 mod error;
+/// Desugar expressions.
+mod exprs;
 /// Desugar monad (state and monad-result).
 mod monad;
 

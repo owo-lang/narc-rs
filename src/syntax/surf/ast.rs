@@ -59,8 +59,8 @@ pub type ExprProj = NamedTele;
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct NamedTele {
-    name: Ident,
-    tele: Vec<Param>,
+    pub name: Ident,
+    pub tele: Vec<Param>,
 }
 
 impl NamedTele {
