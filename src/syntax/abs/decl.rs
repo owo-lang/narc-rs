@@ -53,6 +53,18 @@ impl AbsDecl {
     pub fn defn(source: Loc, name: Ident, ty: Abs) -> Self {
         AbsDecl::Defn { source, name, ty }
     }
+
+    pub fn decl_name(&self) -> &Ident {
+        use AbsDecl::*;
+        match self {
+            Data { name, .. }
+            | Cons { name, .. }
+            | Proj { name, .. }
+            | Defn { name, .. }
+            | Codata { name, .. } => name,
+            Clause { info, .. } => &info.name,
+        }
+    }
 }
 
 impl ToLoc for AbsDecl {
