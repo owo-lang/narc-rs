@@ -3,6 +3,7 @@ use voile_util::meta::MI;
 use crate::syntax::abs::AbsDecl;
 
 use super::DesugarErr;
+use voile_util::uid::GI;
 
 /// Desugar Monad.
 pub type DesugarM<State = DesugarState> = Result<State, DesugarErr>;
@@ -21,11 +22,16 @@ impl DesugarState {
         }
     }
 
-    pub fn lookup_decls(&self, filter: impl Fn(&AbsDecl) -> bool) -> Option<&AbsDecl> {
-        self.decls.iter().find(|x| filter(*x))
+    pub fn decl_len(&self) -> GI {
+        GI(self.decls.len())
     }
 
-    pub fn lookup_by_name(&self, name: &str) -> Option<&AbsDecl> {
+    pub fn lookup_decls(&self, filter: impl Fn(&AbsDecl) -> bool) -> Option<(GI, &AbsDecl)> {
+        let mut iter = self.decls.iter().enumerate();
+        iter.find(|(_, x)| filter(*x)).map(|(ix, d)| (GI(ix), d))
+    }
+
+    pub fn lookup_by_name(&self, name: &str) -> Option<(GI, &AbsDecl)> {
         self.lookup_decls(|decl| name == &decl.decl_name().text)
     }
 
