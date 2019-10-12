@@ -45,4 +45,11 @@ impl<Ix, Term> Copat<Ix, Term> {
     pub fn cons(is_forced: bool, cons: ConHead, pats: Vec<Pat<Ix, Term>>) -> Self {
         Copat::App(Pat::Cons(is_forced, cons, pats))
     }
+
+    pub fn map_app<Ix2, Term2>(self, f: impl FnOnce(Pat<Ix, Term>) -> Pat<Ix2, Term2>) -> Self {
+        match self {
+            Copat::App(app) => Copat::App(f(app)),
+            Copat::Proj(field) => Copat::Proj(field),
+        }
+    }
 }

@@ -79,6 +79,7 @@ cache:
   - C:\Users\appveyor\.cargo
   - C:\Users\appveyor\.multirust
   - C:\Users\appveyor\.rustup
+  - C:\projects\narc-rs\target\release
 
 artifacts:
   - name: voilec-%channel%-%target%.exe
