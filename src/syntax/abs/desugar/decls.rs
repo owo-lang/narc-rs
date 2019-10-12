@@ -1,4 +1,4 @@
-use voile_util::loc::{Ident, Labelled, ToLoc};
+use voile_util::loc::{Ident, ToLoc};
 use voile_util::tags::Plicit;
 use voile_util::uid::{next_uid, GI};
 
@@ -7,6 +7,7 @@ use crate::syntax::pat::{Copat, Pat};
 use crate::syntax::surf::{Expr, ExprCopat, ExprDecl, ExprPat, NamedTele};
 
 use super::{desugar_expr, DesugarErr, DesugarM, DesugarState};
+use crate::syntax::common::Ductive;
 
 pub fn desugar_decls(state: DesugarState, decls: Vec<ExprDecl>) -> DesugarM {
     decls.into_iter().try_fold(state, desugar_decl)
@@ -28,14 +29,11 @@ pub fn desugar_telescope(
             state.local.insert(name.text, uid);
             tele.push(Bind::new(licit, uid, ty));
         };
+        let licit = param.licit;
         match param.names.len() {
-            0 => tele.push(Bind::new(param.licit, unsafe { next_uid() }, ty)),
-            1 => intros(param.names.remove(0), param.licit, ty),
-            _ => {
-                for name in param.names {
-                    intros(name, param.licit, ty.clone())
-                }
-            }
+            0 => tele.push(Bind::new(licit, unsafe { next_uid() }, ty)),
+            1 => intros(param.names.remove(0), licit, ty),
+            _ => (param.names.into_iter()).for_each(|name| intros(name, licit, ty.clone())),
         }
     }
     Ok((ident, tele, state))
@@ -55,7 +53,19 @@ pub fn desugar_pattern(state: DesugarState, pat: ExprPat) -> DesugarM<(AbsPat, D
                 .lookup_by_name(&head.name.text)
                 .ok_or_else(|| DesugarErr::UnresolvedReference(head.name.clone()))?;
             head.cons_ix = head_ix;
-            unimplemented!()
+            match cons {
+                AbsDecl::Cons { .. } => head.ductive = Ductive::In,
+                // TODO: coinductive cons?
+                _ => return Err(DesugarErr::NotCons(head.name)),
+            };
+            let mut abs_pats = Vec::with_capacity(params.len());
+            let mut state = state;
+            for pat in params {
+                let (pat, st) = desugar_pattern(state, pat)?;
+                state = st;
+                abs_pats.push(pat);
+            }
+            Ok((Pat::Cons(is_forced, head, abs_pats), state))
         }
         Pat::Forced(term) => {
             let (abs, st) = desugar_expr(state, term)?;
