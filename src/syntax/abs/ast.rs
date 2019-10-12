@@ -76,7 +76,7 @@ impl ToLoc for Abs {
             | Var(ident, ..)
             | Meta(ident, ..) => ident.loc,
             Pi(loc, ..) => *loc,
-            App(f, a) => f.loc() + a.tail().loc(),
+            App(f, a) => f.loc() + a.last().loc(),
         }
     }
 }
