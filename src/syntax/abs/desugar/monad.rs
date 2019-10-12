@@ -1,9 +1,10 @@
 use voile_util::meta::MI;
+use voile_util::uid::{GI, UID};
 
 use crate::syntax::abs::AbsDecl;
 
 use super::DesugarErr;
-use voile_util::uid::GI;
+use voile_util::loc::Labelled;
 
 /// Desugar Monad.
 pub type DesugarM<State = DesugarState> = Result<State, DesugarErr>;
@@ -11,6 +12,7 @@ pub type DesugarM<State = DesugarState> = Result<State, DesugarErr>;
 #[derive(Debug, Clone, Default)]
 pub struct DesugarState {
     pub decls: Vec<AbsDecl>,
+    pub local: Vec<Labelled<UID>>,
     pub meta_count: MI,
 }
 
@@ -18,6 +20,7 @@ impl DesugarState {
     pub fn with_capacity(decl_possible_size: usize) -> Self {
         Self {
             meta_count: Default::default(),
+            local: Vec::with_capacity(10),
             decls: Vec::with_capacity(decl_possible_size),
         }
     }
@@ -29,6 +32,14 @@ impl DesugarState {
     pub fn lookup_decls(&self, filter: impl Fn(&AbsDecl) -> bool) -> Option<(GI, &AbsDecl)> {
         let mut iter = self.decls.iter().enumerate();
         iter.find(|(_, x)| filter(*x)).map(|(ix, d)| (GI(ix), d))
+    }
+
+    pub fn ensure_local_emptiness(&self) {
+        debug_assert!(self.local.is_empty())
+    }
+
+    pub fn lookup_local(&self, filter: impl Fn(&str) -> bool) -> Option<&Labelled<UID>> {
+        self.local.iter().find(|x| filter(&x.label.text))
     }
 
     pub fn lookup_by_name(&self, name: &str) -> Option<(GI, &AbsDecl)> {

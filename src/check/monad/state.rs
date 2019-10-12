@@ -17,6 +17,11 @@ pub struct TCS {
 }
 
 impl TCS {
+    pub fn reserve_local_variables(&mut self, additional: usize) {
+        self.gamma.reserve(additional);
+        self.sigma.reserve(additional);
+    }
+
     /// Create a new valid but unsolved meta variable,
     /// used for generating fresh metas during elaboration.
     pub fn fresh_meta(&mut self) -> Term {
