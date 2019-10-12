@@ -46,7 +46,10 @@ impl<Ix, Term> Copat<Ix, Term> {
         Copat::App(Pat::Cons(is_forced, cons, pats))
     }
 
-    pub fn map_app<Ix2, Term2>(self, f: impl FnOnce(Pat<Ix, Term>) -> Pat<Ix2, Term2>) -> Self {
+    pub fn map_app<Ix2, Term2>(
+        self,
+        f: impl FnOnce(Pat<Ix, Term>) -> Pat<Ix2, Term2>,
+    ) -> Copat<Ix2, Term2> {
         match self {
             Copat::App(app) => Copat::App(f(app)),
             Copat::Proj(field) => Copat::Proj(field),

@@ -64,7 +64,7 @@ impl Display for Closure {
 
 impl Display for ConHead {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        self.name.fmt(f)
+        self.name.text.fmt(f)
     }
 }
 

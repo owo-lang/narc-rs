@@ -41,6 +41,30 @@ pub fn desugar_telescope(
     Ok((ident, tele, state))
 }
 
+pub fn desugar_pattern(state: DesugarState, pat: ExprPat) -> DesugarM<(AbsPat, DesugarState)> {
+    match pat {
+        Pat::Var(name) => {
+            let mut st = state;
+            let uid = unsafe { next_uid() };
+            st.local.insert(name.text, uid);
+            Ok((Pat::Var(uid), st))
+        }
+        // The `head` is pseudo (see `surf::parse`), only `head.name` is real.
+        Pat::Cons(is_forced, mut head, params) => {
+            let (head_ix, cons) = state
+                .lookup_by_name(&head.name.text)
+                .ok_or_else(|| DesugarErr::UnresolvedReference(head.name.clone()))?;
+            unimplemented!()
+        }
+        Pat::Forced(term) => {
+            let (abs, st) = desugar_expr(state, term)?;
+            Ok((Pat::Forced(abs), st))
+        }
+        Pat::Refl => Ok((Pat::Refl, state)),
+        Pat::Absurd => Ok((Pat::Absurd, state)),
+    }
+}
+
 pub fn desugar_clause(
     mut state: DesugarState,
     defn_ix: GI,
@@ -48,18 +72,17 @@ pub fn desugar_clause(
     pats: Vec<ExprCopat>,
     body: Expr,
 ) -> DesugarM {
-    fn vis_pat(pat: ExprPat) -> AbsPat {
-        match pat {
-            Pat::Var(name) => unimplemented!(),
-            Pat::Refl => Pat::Refl,
-            Pat::Absurd => Pat::Absurd,
-            Pat::Cons(_, _, _) => unimplemented!(),
-            Pat::Forced(_) => unimplemented!(),
-        }
-    }
     let mut abs_pats = Vec::with_capacity(pats.len());
-    for pat in pats {
-        abs_pats.push(pat.map_app(vis_pat));
+    for copat in pats {
+        let pat = match copat {
+            Copat::App(app) => {
+                let (pat, st) = desugar_pattern(state, app)?;
+                state = st;
+                Copat::App(pat)
+            }
+            Copat::Proj(s) => Copat::Proj(s),
+        };
+        abs_pats.push(pat);
     }
     Ok(state)
 }

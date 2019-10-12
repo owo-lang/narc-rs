@@ -99,7 +99,7 @@ fn cons_pat(rules: Tok) -> ExprPat {
     let mut inner: Tik = rules.into_inner();
     let ident = next_ident(&mut inner);
     let pats = inner.into_iter().map(pattern).collect();
-    Pat::Cons(false, ConHead::pseudo(ident.text), pats)
+    Pat::Cons(false, ConHead::pseudo(ident), pats)
 }
 
 fn inacc_pat(rules: Tok) -> ExprPat {

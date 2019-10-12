@@ -1,4 +1,5 @@
 use voile_util::level::Level;
+use voile_util::loc::Ident;
 use voile_util::meta::MI;
 use voile_util::tags::VarRec;
 use voile_util::uid::{DBI, GI, UID};
@@ -12,7 +13,7 @@ use super::subst::{RedEx, Subst};
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct ConHead {
     /// Constructor name.
-    pub name: String,
+    pub name: Ident,
     /// Records might be coinductive.
     pub ductive: Ductive,
     /// Field names.
@@ -21,11 +22,11 @@ pub struct ConHead {
 }
 
 impl ConHead {
-    pub fn pseudo(name: String) -> Self {
+    pub fn pseudo(name: Ident) -> Self {
         Self::new(name, Ductive::In, vec![])
     }
 
-    pub fn new(name: String, ductive: Ductive, fields: Vec<String>) -> Self {
+    pub fn new(name: Ident, ductive: Ductive, fields: Vec<String>) -> Self {
         Self {
             name,
             ductive,
