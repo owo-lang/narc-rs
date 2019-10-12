@@ -24,7 +24,7 @@ pub fn desugar_telescope(
         state = new_state;
         let mut intros = |name: Ident, licit: Plicit, ty: Abs| {
             let uid = unsafe { next_uid() };
-            state.local.push(Labelled::new(name, uid));
+            state.local.insert(name.text, uid);
             tele.push(Bind::new(licit, uid, ty));
         };
         match param.names.len() {

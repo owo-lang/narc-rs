@@ -1,10 +1,11 @@
+use std::collections::BTreeMap;
+
 use voile_util::meta::MI;
 use voile_util::uid::{GI, UID};
 
 use crate::syntax::abs::AbsDecl;
 
 use super::DesugarErr;
-use voile_util::loc::Labelled;
 
 /// Desugar Monad.
 pub type DesugarM<State = DesugarState> = Result<State, DesugarErr>;
@@ -12,7 +13,7 @@ pub type DesugarM<State = DesugarState> = Result<State, DesugarErr>;
 #[derive(Debug, Clone, Default)]
 pub struct DesugarState {
     pub decls: Vec<AbsDecl>,
-    pub local: Vec<Labelled<UID>>,
+    pub local: BTreeMap<String, UID>,
     pub meta_count: MI,
 }
 
@@ -20,7 +21,7 @@ impl DesugarState {
     pub fn with_capacity(decl_possible_size: usize) -> Self {
         Self {
             meta_count: Default::default(),
-            local: Vec::with_capacity(10),
+            local: Default::default(),
             decls: Vec::with_capacity(decl_possible_size),
         }
     }
@@ -38,8 +39,8 @@ impl DesugarState {
         debug_assert!(self.local.is_empty())
     }
 
-    pub fn lookup_local(&self, filter: impl Fn(&str) -> bool) -> Option<&Labelled<UID>> {
-        self.local.iter().find(|x| filter(&x.label.text))
+    pub fn lookup_local(&self, name: &str) -> Option<UID> {
+        self.local.get(name).copied()
     }
 
     pub fn lookup_by_name(&self, name: &str) -> Option<(GI, &AbsDecl)> {
