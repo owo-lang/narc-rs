@@ -2,8 +2,9 @@ use voile_util::loc::{Ident, Labelled, ToLoc};
 use voile_util::tags::Plicit;
 use voile_util::uid::{next_uid, GI};
 
-use crate::syntax::abs::{Abs, AbsDecl, AbsTele, Bind};
-use crate::syntax::surf::{Expr, ExprCopat, ExprDecl, NamedTele};
+use crate::syntax::abs::{Abs, AbsDecl, AbsPat, AbsTele, Bind};
+use crate::syntax::pat::{Copat, Pat};
+use crate::syntax::surf::{Expr, ExprCopat, ExprDecl, ExprPat, NamedTele};
 
 use super::{desugar_expr, DesugarErr, DesugarM, DesugarState};
 
@@ -41,13 +42,26 @@ pub fn desugar_telescope(
 }
 
 pub fn desugar_clause(
-    state: DesugarState,
+    mut state: DesugarState,
     defn_ix: GI,
     name: Ident,
     pats: Vec<ExprCopat>,
     body: Expr,
 ) -> DesugarM {
-    unimplemented!()
+    fn vis_pat(pat: ExprPat) -> AbsPat {
+        match pat {
+            Pat::Var(name) => unimplemented!(),
+            Pat::Refl => Pat::Refl,
+            Pat::Absurd => Pat::Absurd,
+            Pat::Cons(_, _, _) => unimplemented!(),
+            Pat::Forced(_) => unimplemented!(),
+        }
+    }
+    let mut abs_pats = Vec::with_capacity(pats.len());
+    for pat in pats {
+        abs_pats.push(pat.map_app(vis_pat));
+    }
+    Ok(state)
 }
 
 pub fn desugar_decl(state: DesugarState, decl: ExprDecl) -> DesugarM {

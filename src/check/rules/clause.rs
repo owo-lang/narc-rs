@@ -1,5 +1,5 @@
 use crate::check::monad::{TCM, TCS};
-use crate::syntax::abs::{AbsClause, AbsPat, ProblemEq};
+use crate::syntax::abs::{AbsClause, AbsCopat, ProblemEq};
 use crate::syntax::core::{Clause, Pat, Tele, Term, Val};
 
 /// User patterns we still have to split on.
@@ -9,7 +9,7 @@ pub struct Problem {
     /// User patterns.
     eqs: Vec<ProblemEq>,
     /// List of user patterns which could not yet be typed.
-    rest_pats: Vec<AbsPat>,
+    rest_pats: Vec<AbsCopat>,
 }
 
 /// State worked on during lhs checking.

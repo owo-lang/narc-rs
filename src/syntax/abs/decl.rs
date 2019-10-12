@@ -3,7 +3,8 @@ use voile_util::loc::{Ident, Labelled, Loc, ToLoc};
 
 use crate::syntax::core::Term;
 
-use super::{Abs, AbsPat, AbsTele};
+use super::{Abs, AbsCopat, AbsTele};
+use voile_util::uid::GI;
 
 /// Declaration.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/Agda-Syntax-Abstract.html#t:Declaration).
@@ -86,7 +87,7 @@ impl ToLoc for AbsDecl {
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.Syntax.Abstract.html#ProblemEq).
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct ProblemEq {
-    in_pat: AbsPat,
+    in_pat: AbsCopat,
     inst: Term,
     ty: Term,
 }
@@ -98,7 +99,9 @@ pub struct AbsClause {
     /// Name of the function we're adding clause to.
     name: Ident,
     /// Lhs.
-    patterns: Vec<AbsPat>,
+    patterns: Vec<AbsCopat>,
+    /// Index of the type signature definition.
+    definition: GI,
     /// Rhs.
     body: Abs,
 }

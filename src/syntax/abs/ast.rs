@@ -5,7 +5,7 @@ use voile_util::uid::{GI, UID};
 use voile_util::vec1::Vec1;
 
 use crate::syntax::common;
-use crate::syntax::pat::Copat;
+use crate::syntax::pat::*;
 
 /// The abstract syntax.
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -88,4 +88,5 @@ pub type Bind<T = Abs> = common::Bind<T>;
 pub type AbsTele = Vec<Bind>;
 
 /// Patterns in the abstract syntax.
-pub type AbsPat = Copat<UID, Abs>;
+pub type AbsCopat = Copat<UID, Abs>;
+pub type AbsPat = Pat<UID, Abs>;
