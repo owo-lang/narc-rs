@@ -2,7 +2,7 @@ use voile_util::loc::{Ident, Labelled, ToLoc};
 use voile_util::tags::Plicit;
 use voile_util::uid::{next_uid, GI};
 
-use crate::syntax::abs::{Abs, AbsDecl, AbsPat, AbsTele, Bind};
+use crate::syntax::abs::{Abs, AbsClause, AbsDecl, AbsPat, AbsTele, Bind};
 use crate::syntax::pat::{Copat, Pat};
 use crate::syntax::surf::{Expr, ExprCopat, ExprDecl, ExprPat, NamedTele};
 
@@ -54,6 +54,7 @@ pub fn desugar_pattern(state: DesugarState, pat: ExprPat) -> DesugarM<(AbsPat, D
             let (head_ix, cons) = state
                 .lookup_by_name(&head.name.text)
                 .ok_or_else(|| DesugarErr::UnresolvedReference(head.name.clone()))?;
+            head.cons_ix = head_ix;
             unimplemented!()
         }
         Pat::Forced(term) => {
@@ -84,6 +85,16 @@ pub fn desugar_clause(
         };
         abs_pats.push(pat);
     }
+    // Now `state` has been filled with local variable bindings!
+    let (body, mut state) = desugar_expr(state, body)?;
+    let loc = name.loc + body.loc();
+    let info = AbsClause {
+        name,
+        patterns: abs_pats,
+        definition: defn_ix,
+        body,
+    };
+    state.decls.push(AbsDecl::clause(loc, info));
     Ok(state)
 }
 

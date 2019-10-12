@@ -14,6 +14,8 @@ use super::subst::{RedEx, Subst};
 pub struct ConHead {
     /// Constructor name.
     pub name: Ident,
+    /// Index of the constructor.
+    pub cons_ix: GI,
     /// Records might be coinductive.
     pub ductive: Ductive,
     /// Field names.
@@ -23,12 +25,13 @@ pub struct ConHead {
 
 impl ConHead {
     pub fn pseudo(name: Ident) -> Self {
-        Self::new(name, Ductive::In, vec![])
+        Self::new(name, Default::default(), Ductive::In, vec![])
     }
 
-    pub fn new(name: Ident, ductive: Ductive, fields: Vec<String>) -> Self {
+    pub fn new(name: Ident, ix: GI, ductive: Ductive, fields: Vec<String>) -> Self {
         Self {
             name,
+            cons_ix: ix,
             ductive,
             fields,
         }

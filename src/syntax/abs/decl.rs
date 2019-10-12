@@ -55,6 +55,10 @@ impl AbsDecl {
         AbsDecl::Defn { source, name, ty }
     }
 
+    pub fn clause(source: Loc, info: AbsClause) -> Self {
+        AbsDecl::Clause { source, info }
+    }
+
     pub fn decl_name(&self) -> &Ident {
         use AbsDecl::*;
         match self {
@@ -97,13 +101,13 @@ pub struct ProblemEq {
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct AbsClause {
     /// Name of the function we're adding clause to.
-    name: Ident,
+    pub name: Ident,
     /// Lhs.
-    patterns: Vec<AbsCopat>,
+    pub patterns: Vec<AbsCopat>,
     /// Index of the type signature definition.
-    definition: GI,
+    pub definition: GI,
     /// Rhs.
-    body: Abs,
+    pub body: Abs,
 }
 
 /// Constructors.
