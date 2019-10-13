@@ -22,7 +22,7 @@ pub enum AbsDecl {
     Cons {
         source: Loc,
         name: Ident,
-        params: AbsTele,
+        tele: AbsTele,
         /// Corresponding datatype's index.
         data_ix: GI,
     },
@@ -52,6 +52,15 @@ pub enum AbsDecl {
 impl AbsDecl {
     pub fn defn(source: Loc, name: Ident, ty: Abs) -> Self {
         AbsDecl::Defn { source, name, ty }
+    }
+
+    pub fn cons(source: Loc, name: Ident, tele: AbsTele, data_index: GI) -> Self {
+        AbsDecl::Cons {
+            source,
+            name,
+            tele,
+            data_ix: data_index,
+        }
     }
 
     pub fn data(source: Loc, name: Ident, level: Level, tele: AbsTele, conses: Vec<GI>) -> Self {

@@ -26,7 +26,7 @@ pub fn desugar_telescope(
 }
 
 /// Note: this function will not clear the local scope.
-pub fn desugar_params(mut state: DesugarState, params: Vec<Param>) -> DeclM<Vec<Bind>> {
+pub fn desugar_params(mut state: DesugarState, params: Vec<Param>) -> DeclM<AbsTele> {
     // The capacity is really guessed. Who knows?
     let mut tele = AbsTele::with_capacity(params.len() + 2);
     for mut param in params {
@@ -157,7 +157,15 @@ pub fn desugar_decl(state: DesugarState, decl: ExprDecl) -> DesugarM {
             let data = AbsDecl::data(loc, name, Default::default(), tele, cons_ices);
             state.decls.push(data);
             for cons in conses {
-                unimplemented!()
+                let (binds, new_st) = desugar_params(state, cons.tele)?;
+                state = new_st;
+                let name = cons.name;
+                let loc = match binds.first() {
+                    None => name.loc,
+                    Some(a) => name.loc + a.ty.loc(),
+                };
+                let cons = AbsDecl::cons(loc, name, binds, GI(data_ix));
+                state.decls.push(cons);
             }
             Ok(state)
         }
