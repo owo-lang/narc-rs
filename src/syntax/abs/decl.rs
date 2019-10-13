@@ -2,8 +2,6 @@ use voile_util::level::Level;
 use voile_util::loc::{Ident, Loc, ToLoc};
 use voile_util::uid::GI;
 
-use crate::syntax::core::Term;
-
 use super::{Abs, AbsCopat, AbsTele};
 
 /// Declaration.
@@ -129,16 +127,6 @@ impl ToLoc for AbsDecl {
             | Codata { source, .. } => *source,
         }
     }
-}
-
-/// A user pattern and a core term that they should equal
-/// after splitting is complete.
-/// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.Syntax.Abstract.html#ProblemEq).
-#[derive(Debug, PartialEq, Eq, Clone)]
-pub struct ProblemEq {
-    in_pat: AbsCopat,
-    inst: Term,
-    ty: Term,
 }
 
 /// Clause information in abstract syntax.

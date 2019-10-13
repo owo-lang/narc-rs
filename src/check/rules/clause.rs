@@ -1,6 +1,17 @@
 use crate::check::monad::{TCM, TCS};
-use crate::syntax::abs::{AbsClause, AbsCopat, ProblemEq};
+use crate::syntax::abs::{AbsClause, AbsCopat};
 use crate::syntax::core::{Clause, Pat, Tele, Term, Val};
+
+/// A user pattern and a core term that they should equal
+/// after splitting is complete.
+/// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.Syntax.Abstract.html#ProblemEq).
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub struct ProblemEq {
+    /// The pattern causes this problem.
+    in_pat: AbsCopat,
+    inst: Term,
+    ty: Term,
+}
 
 /// User patterns we still have to split on.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.LHS.Problem.html#Problem).
