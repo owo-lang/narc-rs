@@ -1,13 +1,13 @@
 use pest_derive::Parser;
+use voile_util::loc::Ident;
+use voile_util::pest_util::{end_of_rule, strict_parse};
+use voile_util::tags::Plicit;
 
 use crate::syntax::core::ConHead;
 use crate::syntax::pat::{Copat, Pat};
 use crate::syntax::surf::{
     Expr, ExprCons, ExprCopat, ExprDecl, ExprPat, ExprProj, NamedTele, Param,
 };
-use voile_util::loc::Ident;
-use voile_util::pest_util::{end_of_rule, strict_parse};
-use voile_util::tags::Plicit;
 
 #[derive(Parser)]
 #[grammar = "syntax/surf/grammar.pest"]
@@ -116,7 +116,7 @@ fn expr(rules: Tok) -> Expr {
     expr
 }
 
-expr_parser!(dollar_expr, app_expr, app);
+expr_parser!(dollar_expr, app_expr, app_smart);
 
 fn app_expr(rules: Tok) -> Expr {
     let mut inner: Tik = rules.into_inner();
@@ -125,11 +125,7 @@ fn app_expr(rules: Tok) -> Expr {
     for expr in inner {
         args.push(applied(expr));
     }
-    if args.is_empty() {
-        fun
-    } else {
-        Expr::app(fun, args)
-    }
+    Expr::app_smart(fun, args)
 }
 
 fn applied(rules: Tok) -> Expr {

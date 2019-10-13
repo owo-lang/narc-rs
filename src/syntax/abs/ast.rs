@@ -63,6 +63,18 @@ impl Abs {
     pub fn app(f: Self, args: Vec1<Self>) -> Self {
         Abs::App(Box::new(f), Box::new(args))
     }
+
+    pub fn universe(id: Ident) -> Self {
+        Abs::universe_at(id, Default::default())
+    }
+
+    pub fn meta(id: Ident, mi: MI) -> Self {
+        Abs::Meta(id, mi)
+    }
+
+    pub fn universe_at(id: Ident, level: Level) -> Self {
+        Abs::Type(id, level)
+    }
 }
 
 impl ToLoc for Abs {
