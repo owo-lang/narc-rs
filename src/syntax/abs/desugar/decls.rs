@@ -172,7 +172,19 @@ pub fn desugar_decl(state: DesugarState, decl: ExprDecl) -> DesugarM {
         Codata(signature, fields) => {
             let (name, tele, mut state) = desugar_telescope(state, signature)?;
             state.decls.reserve(fields.len());
-            unimplemented!()
+            let loc = match tele.last() {
+                None => name.loc,
+                Some(loc) => name.loc + loc.ty.loc(),
+            };
+            let codata_ix = state.decls.len();
+            let fields_ices = ops_range(codata_ix + 1, fields.len());
+            // TODO: self reference?
+            let codata = AbsDecl::codata(loc, name, None, Default::default(), tele, fields_ices);
+            state.decls.push(codata);
+            for field in fields {
+                unimplemented!()
+            }
+            Ok(state)
         }
     }
 }

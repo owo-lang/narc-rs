@@ -63,6 +63,15 @@ impl AbsDecl {
         }
     }
 
+    pub fn field(source: Loc, name: Ident, proj_ty: Abs, codata_index: GI) -> Self {
+        AbsDecl::Proj {
+            source,
+            name,
+            ty: proj_ty,
+            codata_ix: codata_index,
+        }
+    }
+
     pub fn data(source: Loc, name: Ident, level: Level, tele: AbsTele, conses: Vec<GI>) -> Self {
         AbsDecl::Data {
             source,
