@@ -3,11 +3,13 @@ use voile_util::tags::Plicit;
 use voile_util::uid::{next_uid, GI};
 
 use crate::syntax::abs::{Abs, AbsClause, AbsDecl, AbsPat, AbsTele, Bind};
+use crate::syntax::common::Ductive;
 use crate::syntax::pat::{Copat, Pat};
-use crate::syntax::surf::{Expr, ExprCopat, ExprDecl, ExprPat, NamedTele};
+use crate::syntax::surf::{Expr, ExprCopat, ExprDecl, ExprPat, NamedTele, Param};
 
 use super::{desugar_expr, DesugarErr, DesugarM, DesugarState};
-use crate::syntax::common::Ductive;
+
+type DeclM<T> = DesugarM<(T, DesugarState)>;
 
 pub fn desugar_decls(state: DesugarState, decls: Vec<ExprDecl>) -> DesugarM {
     decls.into_iter().try_fold(state, desugar_decl)
@@ -15,13 +17,19 @@ pub fn desugar_decls(state: DesugarState, decls: Vec<ExprDecl>) -> DesugarM {
 
 /// Note: this function will not clear the local scope.
 pub fn desugar_telescope(
-    mut state: DesugarState,
+    state: DesugarState,
     signature: NamedTele,
 ) -> DesugarM<(Ident, AbsTele, DesugarState)> {
     let ident = signature.name;
+    let (tele, state) = desugar_params(state, signature.tele)?;
+    Ok((ident, tele, state))
+}
+
+/// Note: this function will not clear the local scope.
+pub fn desugar_params(mut state: DesugarState, params: Vec<Param>) -> DeclM<Vec<Bind>> {
     // The capacity is really guessed. Who knows?
-    let mut tele = AbsTele::with_capacity(signature.tele.len() + 2);
-    for mut param in signature.tele {
+    let mut tele = AbsTele::with_capacity(params.len() + 2);
+    for mut param in params {
         let (ty, new_state) = desugar_expr(state, param.ty)?;
         state = new_state;
         let mut intros = |name: Ident, licit: Plicit, ty: Abs| {
@@ -36,10 +44,21 @@ pub fn desugar_telescope(
             _ => (param.names.into_iter()).for_each(|name| intros(name, licit, ty.clone())),
         }
     }
-    Ok((ident, tele, state))
+    Ok((tele, state))
 }
 
-pub fn desugar_pattern(state: DesugarState, pat: ExprPat) -> DesugarM<(AbsPat, DesugarState)> {
+pub fn desugar_patterns(state: DesugarState, pats: Vec<ExprPat>) -> DeclM<Vec<AbsPat>> {
+    let mut abs_pats = Vec::with_capacity(pats.len());
+    let mut state = state;
+    for pat in pats {
+        let (pat, st) = desugar_pattern(state, pat)?;
+        state = st;
+        abs_pats.push(pat);
+    }
+    Ok((abs_pats, state))
+}
+
+pub fn desugar_pattern(state: DesugarState, pat: ExprPat) -> DeclM<AbsPat> {
     match pat {
         Pat::Var(name) => {
             let mut st = state;
@@ -58,13 +77,7 @@ pub fn desugar_pattern(state: DesugarState, pat: ExprPat) -> DesugarM<(AbsPat, D
                 // TODO: coinductive cons?
                 _ => return Err(DesugarErr::NotCons(head.name)),
             };
-            let mut abs_pats = Vec::with_capacity(params.len());
-            let mut state = state;
-            for pat in params {
-                let (pat, st) = desugar_pattern(state, pat)?;
-                state = st;
-                abs_pats.push(pat);
-            }
+            let (abs_pats, state) = desugar_patterns(state, params)?;
             Ok((Pat::Cons(is_forced, head, abs_pats), state))
         }
         Pat::Forced(term) => {

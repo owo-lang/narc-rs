@@ -33,12 +33,21 @@ pub enum Expr {
     /// Pi-type expression, where `a -> b -> c` is represented as `Pi(vec![a, b], c)`
     /// instead of `Pi(a, Pi(b, c))`.
     /// `a` and `b` here can introduce telescopes.
-    Pi(Vec<Param>, Box<Self>),
+    Pi(Box<Vec1<Param>>, Box<Self>),
 }
 
 impl Expr {
-    pub fn pi(params: Vec<Param>, expr: Self) -> Self {
-        Expr::Pi(params, Box::new(expr))
+    pub fn pi(params: Vec1<Param>, expr: Self) -> Self {
+        Expr::Pi(Box::new(params), Box::new(expr))
+    }
+
+    pub fn pi_smart(mut params: Vec<Param>, expr: Self) -> Self {
+        if params.is_empty() {
+            expr
+        } else {
+            let hd = params.remove(0);
+            Self::pi(Vec1::new(hd, params), expr)
+        }
     }
 
     pub fn app(applied: Self, arguments: Vec1<Self>) -> Self {
@@ -50,7 +59,7 @@ impl Expr {
             fun
         } else {
             let hd = args.remove(0);
-            Expr::app(fun, Vec1::new(hd, args))
+            Self::app(fun, Vec1::new(hd, args))
         }
     }
 }

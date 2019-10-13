@@ -165,12 +165,7 @@ fn one_param(rules: Tok, licit: Plicit) -> Param {
 
 fn pi_expr(rules: Tok) -> Expr {
     let (params, ret) = pi_expr_internal(rules);
-    let ret = ret.unwrap();
-    if params.is_empty() {
-        ret
-    } else {
-        Expr::pi(params, ret)
-    }
+    Expr::pi_smart(params, ret.unwrap())
 }
 
 fn param(rules: Tok) -> Param {

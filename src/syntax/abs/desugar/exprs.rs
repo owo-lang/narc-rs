@@ -1,9 +1,9 @@
-use voile_util::vec1::Vec1;
+use voile_util::loc::ToLoc;
 
 use crate::syntax::abs::{Abs, AbsDecl};
 use crate::syntax::surf::Expr;
 
-use super::{DesugarErr, DesugarM, DesugarState};
+use super::{desugar_params, DesugarErr, DesugarM, DesugarState};
 
 pub fn desugar_expr(state: DesugarState, expr: Expr) -> DesugarM<(Abs, DesugarState)> {
     match expr {
@@ -40,15 +40,17 @@ pub fn desugar_expr(state: DesugarState, expr: Expr) -> DesugarM<(Abs, DesugarSt
         }
         Expr::App(head, tail) => {
             let (head, state) = desugar_expr(state, *head)?;
-            let init = (state, Vec::with_capacity(tail.len()));
-            let (state, mut tail) = tail.try_fold(init, |(st, mut v), e| {
-                let (e, st) = desugar_expr(st, e)?;
-                v.push(e);
-                Ok((st, v))
-            })?;
-            let tail_head = tail.remove(0);
-            Ok((Abs::app(head, Vec1::new(tail_head, tail)), state))
+            let (state, args) = tail.try_scan(state, desugar_expr)?;
+            Ok((Abs::app(head, args), state))
         }
-        Expr::Pi(_, _) => unimplemented!(),
+        Expr::Pi(params, ret) => {
+            let (tele, state) = desugar_params(state, params.into_vec())?;
+            let (ret, state) = desugar_expr(state, *ret)?;
+            let pi = tele.into_iter().rfold(ret, |ret, bind| {
+                let loc = bind.ty.loc() + ret.loc();
+                Abs::Pi(loc, bind.boxed(), Box::new(ret))
+            });
+            Ok((pi, state))
+        }
     }
 }
