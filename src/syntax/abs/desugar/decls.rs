@@ -182,7 +182,12 @@ pub fn desugar_decl(state: DesugarState, decl: ExprDecl) -> DesugarM {
             let codata = AbsDecl::codata(loc, name, None, Default::default(), tele, fields_ices);
             state.decls.push(codata);
             for field in fields {
-                unimplemented!()
+                let (abs, new_st) = desugar_expr(state, field.expr)?;
+                state = new_st;
+                let name = field.label;
+                let loc = name.loc + abs.loc();
+                let proj = AbsDecl::field(loc, name, abs, GI(codata_ix));
+                state.decls.push(proj);
             }
             Ok(state)
         }

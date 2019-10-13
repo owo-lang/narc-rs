@@ -16,7 +16,7 @@
 + Unfolds data and codata applications (#27)
 + Parsing (expr parsing and file parsing) (#20, #31)
 + `Abs::App` is now chained (#33)
-+ Desugar surface into abstract, scope check (#36, #42)
++ Desugar surface into abstract, scope check (#36, #42, #43)
 
 # 0.0.3
 
