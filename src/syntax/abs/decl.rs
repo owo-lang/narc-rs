@@ -1,10 +1,10 @@
 use voile_util::level::Level;
-use voile_util::loc::{Ident, Labelled, Loc, ToLoc};
+use voile_util::loc::{Ident, Loc, ToLoc};
+use voile_util::uid::GI;
 
 use crate::syntax::core::Term;
 
 use super::{Abs, AbsCopat, AbsTele};
-use voile_util::uid::GI;
 
 /// Declaration.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/Agda-Syntax-Abstract.html#t:Declaration).
@@ -15,26 +15,24 @@ pub enum AbsDecl {
         source: Loc,
         name: Ident,
         level: Level,
+        tele: AbsTele,
+        conses: Vec<GI>,
     },
     /// Datatype constructors.
     Cons {
         source: Loc,
         name: Ident,
         params: AbsTele,
-        /// Corresponding datatype's name.
-        data_name: Ident,
-        /// Arguments applied to the datatype.
-        data_tele: AbsTele,
+        /// Corresponding datatype's index.
+        data_ix: GI,
     },
     /// Coinductive record projections.
     Proj {
         source: Loc,
         name: Ident,
         ty: Abs,
-        /// Corresponding coinductive record's name
-        codata_name: Ident,
-        /// Arguments applied to the record.
-        codata_tele: AbsTele,
+        /// Corresponding coinductive record's index.
+        codata_ix: GI,
     },
     /// Function signature definition.
     Defn { source: Loc, name: Ident, ty: Abs },
@@ -43,16 +41,45 @@ pub enum AbsDecl {
     /// Coinductive records.
     Codata {
         source: Loc,
-        self_ref: Ident,
+        self_ref: Option<Ident>,
         name: Ident,
-        fields: Vec<Field>,
+        fields: Vec<GI>,
         level: Level,
+        tele: AbsTele,
     },
 }
 
 impl AbsDecl {
     pub fn defn(source: Loc, name: Ident, ty: Abs) -> Self {
         AbsDecl::Defn { source, name, ty }
+    }
+
+    pub fn data(source: Loc, name: Ident, level: Level, tele: AbsTele, conses: Vec<GI>) -> Self {
+        AbsDecl::Data {
+            source,
+            name,
+            level,
+            tele,
+            conses,
+        }
+    }
+
+    pub fn codata(
+        source: Loc,
+        name: Ident,
+        me: Option<Ident>,
+        level: Level,
+        tele: AbsTele,
+        fields: Vec<GI>,
+    ) -> Self {
+        AbsDecl::Codata {
+            source,
+            name,
+            self_ref: me,
+            level,
+            tele,
+            fields,
+        }
     }
 
     pub fn clause(source: Loc, info: AbsClause) -> Self {
@@ -109,13 +136,3 @@ pub struct AbsClause {
     /// Rhs.
     pub body: Abs,
 }
-
-/// Constructors.
-/// This definition follows the paper version instead
-/// of the one in Agda's implementation.
-pub type Constructor = Labelled<AbsTele>;
-
-/// Fields.
-/// This definition follows the paper version instead
-/// of the one in Agda's implementation.
-pub type Field = Labelled<AbsTele>;

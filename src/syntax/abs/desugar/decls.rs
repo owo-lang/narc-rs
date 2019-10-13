@@ -148,7 +148,18 @@ pub fn desugar_decl(state: DesugarState, decl: ExprDecl) -> DesugarM {
         Data(signature, conses) => {
             let (name, tele, mut state) = desugar_telescope(state, signature)?;
             state.decls.reserve(conses.len());
-            unimplemented!()
+            let loc = match tele.last() {
+                None => name.loc,
+                Some(loc) => name.loc + loc.ty.loc(),
+            };
+            let data_ix = state.decls.len();
+            let cons_ices = ops_range(data_ix + 1, conses.len());
+            let data = AbsDecl::data(loc, name, Default::default(), tele, cons_ices);
+            state.decls.push(data);
+            for cons in conses {
+                unimplemented!()
+            }
+            Ok(state)
         }
         Codata(signature, fields) => {
             let (name, tele, mut state) = desugar_telescope(state, signature)?;
@@ -156,4 +167,9 @@ pub fn desugar_decl(state: DesugarState, decl: ExprDecl) -> DesugarM {
             unimplemented!()
         }
     }
+}
+
+fn ops_range(start: usize, duration: usize) -> Vec<GI> {
+    let cons_ices: Vec<_> = (start..start + duration).collect();
+    cons_ices.into_iter().map(GI).collect()
 }
