@@ -39,7 +39,7 @@ fn codata_parse() {
     success!("codata unit2 { projection tt : unit; };");
     success!("codata test tele {};");
     success!("codata test tele { projection tt : tele; };");
-    success!("codata test (x : tele) { projection tt : (y : x); };");
+    success!("codata test (x : tele) { projection tt : (y : x) -> y; };");
 }
 
 #[test]

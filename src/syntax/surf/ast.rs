@@ -1,4 +1,4 @@
-use voile_util::loc::Ident;
+use voile_util::loc::{Ident, Labelled};
 use voile_util::tags::Plicit;
 use voile_util::vec1::Vec1;
 
@@ -73,7 +73,7 @@ pub enum ExprDecl {
 }
 
 pub type ExprCons = NamedTele;
-pub type ExprProj = NamedTele;
+pub type ExprProj = Labelled<Expr>;
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct NamedTele {

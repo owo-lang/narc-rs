@@ -188,12 +188,6 @@ fn param(rules: Tok) -> Param {
     param
 }
 
-fn constructors(tik: Tok) -> Vec<ExprCons> {
-    constructors_or_projections(tik)
-}
-fn projections(tik: Tok) -> Vec<ExprProj> {
-    constructors_or_projections(tik)
-}
 many_prefix_parser!(data_body, Param, param, constructors, Vec<ExprCons>);
 many_prefix_parser!(codata_body, Param, param, projections, Vec<ExprProj>);
 
@@ -213,14 +207,25 @@ fn codata(rules: Tok) -> ExprDecl {
     ExprDecl::Codata(NamedTele::new(ident, tele), body.unwrap())
 }
 
-fn constructors_or_projections(rules: Tok) -> Vec<NamedTele> {
-    rules.into_inner().into_iter().map(cons_or_proj).collect()
+fn constructors(rules: Tok) -> Vec<ExprCons> {
+    rules.into_inner().into_iter().map(constructor).collect()
 }
 
-fn cons_or_proj(rules: Tok) -> NamedTele {
+fn constructor(rules: Tok) -> ExprCons {
     let mut inner: Tik = rules.into_inner();
     let ident = next_ident(&mut inner);
     NamedTele::new(ident, inner.into_iter().map(param).collect())
+}
+
+fn projections(rules: Tok) -> Vec<ExprProj> {
+    rules.into_inner().into_iter().map(projection).collect()
+}
+
+fn projection(rules: Tok) -> ExprProj {
+    let mut inner: Tik = rules.into_inner();
+    let ident = next_ident(&mut inner);
+    let expr = next_rule!(inner, expr);
+    ExprProj::new(ident, expr)
 }
 
 fn dot_projection(rules: Tok) -> Ident {
