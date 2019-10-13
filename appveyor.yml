@@ -86,5 +86,5 @@ artifacts:
     path: target\release\narc.exe
 
 test_script:
-  - cargo build --release --bin narc --all-features
-  - cargo test --verbose --all-features %cargoflags%
+  - cargo build --verbose --release --bin narc --all-features
+  - cargo test --verbose --release --all-features %cargoflags%
