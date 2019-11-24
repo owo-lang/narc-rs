@@ -12,7 +12,7 @@ repository = "https://github.com/owo-lang/narc-rs"
 
 [badges]
 # appveyor = { repository = "owo-lang/narc-rs", service = "github" }
-circle-ci = { repository = "owo-lang/narc-rs", branch = "master" }
+# circle-ci = { repository = "owo-lang/narc-rs", branch = "master" }
 maintenance = { status = "actively-developed" }
 
 [package.metadata.docs.rs]

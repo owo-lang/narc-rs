@@ -4,18 +4,18 @@
 [![Crates.io](https://img.shields.io/crates/v/nar.svg)][lib-rs]
 [![Crates.io](https://img.shields.io/crates/l/nar.svg)][crates]
 [![docs.rs](https://docs.rs/nar/badge.svg)][doc-rs]
-[![cc-svg]][cc-url]
+[![Actions Status][ga-svg]][ga-url]
 [![dep-svg]][dep-rs]
 
  [crates]: https://crates.io/crates/nar/
  [lib-rs]: https://lib.rs/nar/
- [cc-svg]: https://circleci.com/gh/owo-lang/narc-rs/tree/master.svg?style=svg
- [cc-url]: https://circleci.com/gh/owo-lang/narc-rs/tree/master
  [doc-rs]: https://docs.rs/nar
  [dep-rs]: https://deps.rs/repo/github/owo-lang/narc-rs
  [dep-svg]: https://deps.rs/repo/github/owo-lang/narc-rs/status.svg
  [plugin]: https://github.com/owo-lang/intellij-dtlc/
  [paper]: https://dl.acm.org/citation.cfm?id=3236770
+ [ga-svg]: https://github.com/owo-lang/narc-rs/workflows/build/badge.svg
+ [ga-url]: https://github.com/owo-lang/narc-rs/actions
 
 Narc is a dependently-typed programming language with Agda style dependent pattern matching.
 It's called "Narc", but a rust crate `narc` has already been registered,
