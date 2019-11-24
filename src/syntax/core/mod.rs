@@ -10,8 +10,13 @@ pub use self::pretty::*;
 /// Core language syntax definitions.
 mod ast;
 /// Constructor functions.
+///
+/// To avoid too much `Box::new` invocations.
 mod ast_cons;
 /// Ast traversal functions.
+///
+/// I don't think these functions should be used much, though.
+/// We should use pattern matching instead.
 mod ast_fold;
 /// Checked declarations.
 mod decl;
