@@ -5,7 +5,6 @@
 [![Crates.io](https://img.shields.io/crates/l/nar.svg)][crates]
 [![docs.rs](https://docs.rs/nar/badge.svg)][doc-rs]
 [![cc-svg]][cc-url]
-[![Build status](https://ci.appveyor.com/api/projects/status/wu6vpjhn094gd93g/branch/master?svg=true)][av-url]
 [![dep-svg]][dep-rs]
 
  [crates]: https://crates.io/crates/nar/
@@ -16,7 +15,6 @@
  [dep-rs]: https://deps.rs/repo/github/owo-lang/narc-rs
  [dep-svg]: https://deps.rs/repo/github/owo-lang/narc-rs/status.svg
  [plugin]: https://github.com/owo-lang/intellij-dtlc/
- [av-url]: https://ci.appveyor.com/project/ice1000/narc-rs/branch/master
  [paper]: https://dl.acm.org/citation.cfm?id=3236770
 
 Narc is a dependently-typed programming language with Agda style dependent pattern matching.
@@ -29,7 +27,7 @@ For language description, please head to the [docs.rs][doc-rs] page.
 + [Original Paper][paper] that Narc is based on
 + [Docs.rs][doc-rs] documentation
 + [IntelliJ Plugin][plugin], which can export your code as clickable HTML
-+ [Change Log](CHANGELOG.md), useful resource for tracking language evolution
++ [Change Log](../CHANGELOG.md), useful resource for tracking language evolution
 
 ## Install
 
