@@ -1,5 +1,5 @@
 use crate::check::monad::{TCM, TCS};
-use crate::check::rules::check;
+use crate::check::rules::term::check;
 use crate::syntax::abs::{AbsConsInfo, AbsDataInfo, AbsTele};
 use crate::syntax::core::{ConsInfo, DataInfo, Val};
 

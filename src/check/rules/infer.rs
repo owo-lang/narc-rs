@@ -10,7 +10,7 @@ use crate::syntax::abs::Abs;
 use crate::syntax::core::subst::RedEx;
 use crate::syntax::core::{Bind, CodataInfo, DataInfo, Decl, Elim, Term, TermInfo, Val};
 
-use super::check;
+use super::term::check;
 use super::whnf::normalize;
 
 pub type InferTCM = TCM<(TermInfo, Term, TCS)>;
