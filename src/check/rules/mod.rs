@@ -10,7 +10,7 @@ use self::whnf::normalize;
 
 /// Type check a function clause.
 mod clause;
-/// Type check data type declarations.
+/// Type check data type & constructor declarations.
 mod data;
 /// Synthesize the type and its well-typed form from an abstract term.
 mod infer;

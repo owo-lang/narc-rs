@@ -4,6 +4,7 @@
 
 + Migrate from CircleCI + AppVeyor to GitHub Actions
 + Check datatype declaration (#15)
++ Check constructor declaration (#17)
 
 # 0.0.4
 
