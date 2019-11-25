@@ -1,12 +1,12 @@
 use crate::check::monad::{TCM, TCS};
 use crate::check::rules::check;
 use crate::syntax::abs::{AbsConsInfo, AbsDataInfo, AbsTele};
-use crate::syntax::core::{ConsInfo, DataInfo, Term, TYPE_OMEGA};
+use crate::syntax::core::{ConsInfo, DataInfo, Val};
 
 /// The checked tele is put into the returned `tcs.gamma`.
-pub fn check_tele(mut tcs: TCS, tele: AbsTele) -> TCM {
+pub fn check_tele(mut tcs: TCS, tele: AbsTele, ty: &Val) -> TCM {
     for bind in tele {
-        let (checked, new_tcs) = check(tcs, &bind.ty, &TYPE_OMEGA)?;
+        let (checked, new_tcs) = check(tcs, &bind.ty, ty)?;
         tcs = new_tcs;
         let bind = bind.map_term(|_| checked.ast);
         tcs.gamma.push(bind);
@@ -14,9 +14,9 @@ pub fn check_tele(mut tcs: TCS, tele: AbsTele) -> TCM {
     Ok(tcs)
 }
 
-pub fn check_cons(tcs: TCS, cons: AbsConsInfo) -> TCM<(TCS, ConsInfo)> {
+pub fn check_cons(tcs: TCS, cons: AbsConsInfo, ty: &Val) -> TCM<(TCS, ConsInfo)> {
     let param_len = tcs.gamma.len();
-    let mut tcs = check_tele(tcs, cons.tele)?;
+    let mut tcs = check_tele(tcs, cons.tele, ty)?;
     let info = ConsInfo {
         loc: cons.source,
         name: cons.name.text,
@@ -31,14 +31,14 @@ pub fn check_cons(tcs: TCS, cons: AbsConsInfo) -> TCM<(TCS, ConsInfo)> {
 pub type DataTCS = (TCS, DataInfo, Vec<ConsInfo>);
 
 pub fn check_data(tcs: TCS, data: AbsDataInfo, conses: Vec<AbsConsInfo>) -> TCM<DataTCS> {
-    let t = Term::universe(data.level);
-    let mut tcs = check_tele(tcs, data.tele)?;
+    let t = Val::Type(data.level);
+    let mut tcs = check_tele(tcs, data.tele, &t)?;
     let param_len = tcs.gamma.len();
     // For debugging only.
     let mut data_ix = None;
     let mut cons_collect = Vec::with_capacity(conses.len());
     for cons in conses {
-        let (new_tcs, cons) = check_cons(tcs, cons)?;
+        let (new_tcs, cons) = check_cons(tcs, cons, &t)?;
         tcs = new_tcs;
         match data_ix {
             None => data_ix = Some(cons.data),
