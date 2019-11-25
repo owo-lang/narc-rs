@@ -18,6 +18,17 @@ pub struct CodataInfo {
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
+pub struct ConsInfo {
+    pub loc: Loc,
+    pub name: String,
+    pub params: Tele,
+    pub data: GI,
+    /// If this is a record constructor,
+    /// we fill the fields' names here.
+    pub fields: Option<Vec<String>>,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct DataInfo {
     pub loc: Loc,
     pub name: String,
@@ -35,15 +46,7 @@ pub enum Decl {
     Data(DataInfo),
     /// Coinductive records.
     Codata(CodataInfo),
-    Cons {
-        loc: Loc,
-        name: String,
-        params: Tele,
-        data: GI,
-        /// If this is a record constructor,
-        /// we fill the fields' names here.
-        fields: Option<Vec<String>>,
-    },
+    Cons(ConsInfo),
     Proj {
         loc: Loc,
         name: String,
@@ -62,8 +65,9 @@ pub enum Decl {
 impl Decl {
     pub fn def_name(&self) -> &String {
         match self {
-            Decl::Cons { name, .. } | Decl::Proj { name, .. } | Decl::Func { name, .. } => name,
+            Decl::Proj { name, .. } | Decl::Func { name, .. } => name,
             Decl::Data(i) => &i.name,
+            Decl::Cons(i) => &i.name,
             Decl::Codata(i) => &i.name,
         }
     }
@@ -72,8 +76,9 @@ impl Decl {
 impl ToLoc for Decl {
     fn loc(&self) -> Loc {
         match self {
-            Decl::Cons { loc, .. } | Decl::Proj { loc, .. } | Decl::Func { loc, .. } => *loc,
+            Decl::Proj { loc, .. } | Decl::Func { loc, .. } => *loc,
             Decl::Data(i) => i.loc(),
+            Decl::Cons(i) => i.loc(),
             Decl::Codata(i) => i.loc(),
         }
     }

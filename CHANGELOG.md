@@ -3,6 +3,7 @@
 # 0.0.5
 
 + Migrate from CircleCI + AppVeyor to GitHub Actions
++ Check datatype declaration (#15)
 
 # 0.0.4
 

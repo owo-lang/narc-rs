@@ -90,10 +90,10 @@ pub fn type_of_decl(tcs: &TCS, decl: GI) -> TCM<TermInfo> {
         | Decl::Codata(CodataInfo {
             loc, params, level, ..
         }) => Ok(Term::pi_from_tele(params.clone(), Term::universe(*level)).at(*loc)),
-        Decl::Cons {
-            loc, data, params, ..
-        } => {
-            let data_tele = match tcs.def(*data) {
+        Decl::Cons(cons) => {
+            let params = &cons.params;
+            let data = cons.data;
+            let data_tele = match tcs.def(data) {
                 Decl::Data(i) => &i.params,
                 _ => unreachable!(),
             };
@@ -106,8 +106,8 @@ pub fn type_of_decl(tcs: &TCS, decl: GI) -> TCM<TermInfo> {
                 .map(Bind::into_implicit)
                 .chain(params.iter().cloned())
                 .collect();
-            let ret = Term::def(*data, range.rev().map(DBI).map(Elim::from_dbi).collect());
-            Ok(Term::pi_from_tele(tele, ret).at(*loc))
+            let ret = Term::def(data, range.rev().map(DBI).map(Elim::from_dbi).collect());
+            Ok(Term::pi_from_tele(tele, ret).at(cons.loc()))
         }
         Decl::Proj {
             loc, codata, ty, ..
