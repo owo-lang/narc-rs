@@ -2,7 +2,9 @@ use voile_util::loc::{Ident, ToLoc};
 use voile_util::tags::Plicit;
 use voile_util::uid::{next_uid, GI};
 
-use crate::syntax::abs::{Abs, AbsClause, AbsDataInfo, AbsDecl, AbsPat, AbsTele, Bind};
+use crate::syntax::abs::{
+    Abs, AbsClause, AbsConsInfo, AbsDataInfo, AbsDecl, AbsPat, AbsTele, Bind,
+};
 use crate::syntax::common::Ductive;
 use crate::syntax::pat::{Copat, Pat};
 use crate::syntax::surf::{Expr, ExprCopat, ExprDecl, ExprPat, NamedTele, Param};
@@ -160,7 +162,7 @@ pub fn desugar_decl(state: DesugarState, decl: ExprDecl) -> DesugarM {
                     None => name.loc,
                     Some(a) => name.loc + a.ty.loc(),
                 };
-                let cons = AbsDecl::cons(loc, name, binds, GI(data_ix));
+                let cons = AbsDecl::Cons(AbsConsInfo::new(loc, name, binds, GI(data_ix)));
                 state.decls.push(cons);
             }
             Ok(state)

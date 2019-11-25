@@ -5,24 +5,21 @@ use voile_util::uid::GI;
 use super::{Abs, AbsCopat, AbsTele};
 
 #[derive(Debug, PartialEq, Eq, Clone)]
+pub struct AbsConsInfo {
+    pub source: Loc,
+    pub name: Ident,
+    pub tele: AbsTele,
+    /// Corresponding datatype's index.
+    pub data_ix: GI,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct AbsDataInfo {
     pub source: Loc,
     pub name: Ident,
     pub level: Level,
     pub tele: AbsTele,
     pub conses: Vec<GI>,
-}
-
-impl AbsDataInfo {
-    pub fn new(source: Loc, name: Ident, level: Level, tele: AbsTele, conses: Vec<GI>) -> Self {
-        AbsDataInfo {
-            source,
-            name,
-            level,
-            tele,
-            conses,
-        }
-    }
 }
 
 /// Declaration.
@@ -32,13 +29,7 @@ pub enum AbsDecl {
     /// Datatypes.
     Data(AbsDataInfo),
     /// Datatype constructors.
-    Cons {
-        source: Loc,
-        name: Ident,
-        tele: AbsTele,
-        /// Corresponding datatype's index.
-        data_ix: GI,
-    },
+    Cons(AbsConsInfo),
     /// Coinductive record projections.
     Proj {
         source: Loc,
@@ -65,15 +56,6 @@ pub enum AbsDecl {
 impl AbsDecl {
     pub fn defn(source: Loc, name: Ident, ty: Abs) -> Self {
         AbsDecl::Defn { source, name, ty }
-    }
-
-    pub fn cons(source: Loc, name: Ident, tele: AbsTele, data_index: GI) -> Self {
-        AbsDecl::Cons {
-            source,
-            name,
-            tele,
-            data_ix: data_index,
-        }
     }
 
     pub fn field(source: Loc, name: Ident, proj_ty: Abs, codata_index: GI) -> Self {
@@ -106,14 +88,21 @@ impl AbsDecl {
     pub fn decl_name(&self) -> &Ident {
         use AbsDecl::*;
         match self {
-            Cons { name, .. } | Proj { name, .. } | Defn { name, .. } | Codata { name, .. } => name,
+            Proj { name, .. } | Defn { name, .. } | Codata { name, .. } => name,
             Clause(info) => &info.name,
             Data(info) => &info.name,
+            Cons(info) => &info.name,
         }
     }
 }
 
 impl ToLoc for AbsDataInfo {
+    fn loc(&self) -> Loc {
+        self.source
+    }
+}
+
+impl ToLoc for AbsConsInfo {
     fn loc(&self) -> Loc {
         self.source
     }
@@ -129,11 +118,9 @@ impl ToLoc for AbsDecl {
     fn loc(&self) -> Loc {
         use AbsDecl::*;
         match self {
-            Cons { source, .. }
-            | Proj { source, .. }
-            | Defn { source, .. }
-            | Codata { source, .. } => *source,
+            Proj { source, .. } | Defn { source, .. } | Codata { source, .. } => *source,
             Data(i) => i.loc(),
+            Cons(i) => i.loc(),
             Clause(i) => i.loc(),
         }
     }
@@ -152,22 +139,4 @@ pub struct AbsClause {
     pub definition: GI,
     /// Rhs.
     pub body: Abs,
-}
-
-impl AbsClause {
-    pub fn new(
-        source: Loc,
-        name: Ident,
-        patterns: Vec<AbsCopat>,
-        definition: GI,
-        body: Abs,
-    ) -> Self {
-        Self {
-            source,
-            name,
-            patterns,
-            definition,
-            body,
-        }
-    }
 }
