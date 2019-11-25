@@ -2,7 +2,7 @@ use voile_util::loc::{Ident, ToLoc};
 use voile_util::tags::Plicit;
 use voile_util::uid::{next_uid, GI};
 
-use crate::syntax::abs::{Abs, AbsClause, AbsDecl, AbsPat, AbsTele, Bind};
+use crate::syntax::abs::{Abs, AbsClause, AbsDataInfo, AbsDecl, AbsPat, AbsTele, Bind};
 use crate::syntax::common::Ductive;
 use crate::syntax::pat::{Copat, Pat};
 use crate::syntax::surf::{Expr, ExprCopat, ExprDecl, ExprPat, NamedTele, Param};
@@ -111,13 +111,8 @@ pub fn desugar_clause(
     // Now `state` has been filled with local variable bindings!
     let (body, mut state) = desugar_expr(state, body)?;
     let loc = name.loc + body.loc();
-    let info = AbsClause {
-        name,
-        patterns: abs_pats,
-        definition: defn_ix,
-        body,
-    };
-    state.decls.push(AbsDecl::clause(loc, info));
+    let info = AbsClause::new(loc, name, abs_pats, defn_ix, body);
+    state.decls.push(AbsDecl::Clause(info));
     Ok(state)
 }
 
@@ -154,7 +149,8 @@ pub fn desugar_decl(state: DesugarState, decl: ExprDecl) -> DesugarM {
             };
             let data_ix = state.decls.len();
             let cons_ices = ops_range(data_ix + 1, conses.len());
-            let data = AbsDecl::data(loc, name, Default::default(), tele, cons_ices);
+            let data = AbsDataInfo::new(loc, name, Default::default(), tele, cons_ices);
+            let data = AbsDecl::Data(data);
             state.decls.push(data);
             for cons in conses {
                 let (binds, new_st) = desugar_params(state, cons.tele)?;

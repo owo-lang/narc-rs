@@ -50,7 +50,7 @@ pub enum AbsDecl {
     /// Function signature definition.
     Defn { source: Loc, name: Ident, ty: Abs },
     /// Pattern matching clause.
-    Clause { source: Loc, info: AbsClause },
+    Clause(AbsClause),
     /// Coinductive records.
     Codata {
         source: Loc,
@@ -85,10 +85,6 @@ impl AbsDecl {
         }
     }
 
-    pub fn data(source: Loc, name: Ident, level: Level, tele: AbsTele, conses: Vec<GI>) -> Self {
-        AbsDecl::Data(AbsDataInfo::new(source, name, level, tele, conses))
-    }
-
     pub fn codata(
         source: Loc,
         name: Ident,
@@ -107,21 +103,23 @@ impl AbsDecl {
         }
     }
 
-    pub fn clause(source: Loc, info: AbsClause) -> Self {
-        AbsDecl::Clause { source, info }
-    }
-
     pub fn decl_name(&self) -> &Ident {
         use AbsDecl::*;
         match self {
             Cons { name, .. } | Proj { name, .. } | Defn { name, .. } | Codata { name, .. } => name,
-            Clause { info, .. } => &info.name,
+            Clause(info) => &info.name,
             Data(info) => &info.name,
         }
     }
 }
 
 impl ToLoc for AbsDataInfo {
+    fn loc(&self) -> Loc {
+        self.source
+    }
+}
+
+impl ToLoc for AbsClause {
     fn loc(&self) -> Loc {
         self.source
     }
@@ -134,9 +132,9 @@ impl ToLoc for AbsDecl {
             Cons { source, .. }
             | Proj { source, .. }
             | Defn { source, .. }
-            | Clause { source, .. }
             | Codata { source, .. } => *source,
             Data(i) => i.loc(),
+            Clause(i) => i.loc(),
         }
     }
 }
@@ -145,6 +143,7 @@ impl ToLoc for AbsDecl {
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.Syntax.Abstract.html#Clause%27).
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct AbsClause {
+    pub source: Loc,
     /// Name of the function we're adding clause to.
     pub name: Ident,
     /// Lhs.
@@ -153,4 +152,22 @@ pub struct AbsClause {
     pub definition: GI,
     /// Rhs.
     pub body: Abs,
+}
+
+impl AbsClause {
+    pub fn new(
+        source: Loc,
+        name: Ident,
+        patterns: Vec<AbsCopat>,
+        definition: GI,
+        body: Abs,
+    ) -> Self {
+        Self {
+            source,
+            name,
+            patterns,
+            definition,
+            body,
+        }
+    }
 }
