@@ -8,7 +8,7 @@ use voile_util::uid::{next_uid, DBI, GI};
 use crate::check::monad::{TCE, TCM, TCS};
 use crate::syntax::abs::Abs;
 use crate::syntax::core::subst::RedEx;
-use crate::syntax::core::{Bind, DataInfo, Decl, Elim, Term, TermInfo, Val};
+use crate::syntax::core::{Bind, CodataInfo, DataInfo, Decl, Elim, Term, TermInfo, Val};
 
 use super::check;
 use super::whnf::normalize;
@@ -60,7 +60,7 @@ pub fn infer(tcs: TCS, abs: &Abs) -> InferTCM {
             Right((codata_def, _codata_elims)) => match arg {
                 Abs::Proj(ident, proj_def) => {
                     let (codata_name, codata_fields) = match new_tcs.def(codata_def) {
-                        Decl::Codata { name, fields, .. } => (name, fields),
+                        Decl::Codata(i) => (i.name.clone(), &i.fields),
                         _ => unreachable!(),
                     };
                     if !codata_fields.contains(&proj_def) {
@@ -87,9 +87,9 @@ pub fn type_of_decl(tcs: &TCS, decl: GI) -> TCM<TermInfo> {
         Decl::Data(DataInfo {
             loc, params, level, ..
         })
-        | Decl::Codata {
+        | Decl::Codata(CodataInfo {
             loc, params, level, ..
-        } => Ok(Term::pi_from_tele(params.clone(), Term::universe(*level)).at(*loc)),
+        }) => Ok(Term::pi_from_tele(params.clone(), Term::universe(*level)).at(*loc)),
         Decl::Cons {
             loc, data, params, ..
         } => {
@@ -113,7 +113,7 @@ pub fn type_of_decl(tcs: &TCS, decl: GI) -> TCM<TermInfo> {
             loc, codata, ty, ..
         } => {
             let data_tele = match tcs.def(*codata) {
-                Decl::Codata { params, .. } => params,
+                Decl::Codata(i) => &i.params,
                 _ => unreachable!(),
             };
             let range = 0..data_tele.len() - 1;

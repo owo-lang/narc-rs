@@ -7,6 +7,17 @@ use crate::syntax::core::Pat;
 use super::{Tele, Term};
 
 #[derive(Debug, PartialEq, Eq, Clone)]
+pub struct CodataInfo {
+    pub loc: Loc,
+    pub self_ref: String,
+    pub name: String,
+    pub params: Tele,
+    /// References to its projections (fields).
+    pub fields: Vec<GI>,
+    pub level: Level,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct DataInfo {
     pub loc: Loc,
     pub name: String,
@@ -23,15 +34,7 @@ pub enum Decl {
     /// Datatypes.
     Data(DataInfo),
     /// Coinductive records.
-    Codata {
-        loc: Loc,
-        self_ref: String,
-        name: String,
-        params: Tele,
-        /// References to its projections (fields).
-        fields: Vec<GI>,
-        level: Level,
-    },
+    Codata(CodataInfo),
     Cons {
         loc: Loc,
         name: String,
@@ -59,29 +62,19 @@ pub enum Decl {
 impl Decl {
     pub fn def_name(&self) -> &String {
         match self {
-            Decl::Codata { name, .. }
-            | Decl::Cons { name, .. }
-            | Decl::Proj { name, .. }
-            | Decl::Func { name, .. } => name,
+            Decl::Cons { name, .. } | Decl::Proj { name, .. } | Decl::Func { name, .. } => name,
             Decl::Data(i) => &i.name,
+            Decl::Codata(i) => &i.name,
         }
-    }
-}
-
-impl ToLoc for DataInfo {
-    fn loc(&self) -> Loc {
-        self.loc
     }
 }
 
 impl ToLoc for Decl {
     fn loc(&self) -> Loc {
         match self {
-            Decl::Codata { loc, .. }
-            | Decl::Cons { loc, .. }
-            | Decl::Proj { loc, .. }
-            | Decl::Func { loc, .. } => *loc,
+            Decl::Cons { loc, .. } | Decl::Proj { loc, .. } | Decl::Func { loc, .. } => *loc,
             Decl::Data(i) => i.loc(),
+            Decl::Codata(i) => i.loc(),
         }
     }
 }

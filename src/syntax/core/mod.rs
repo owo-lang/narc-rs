@@ -4,6 +4,7 @@ pub use self::ast::*;
 pub use self::ast_cons::*;
 pub use self::ast_fold::*;
 pub use self::decl::*;
+pub use self::decl_impl::*;
 pub use self::pat::*;
 pub use self::pretty::*;
 
@@ -20,6 +21,8 @@ mod ast_cons;
 mod ast_fold;
 /// Checked declarations.
 mod decl;
+/// Declarations' trivial trait implementations.
+mod decl_impl;
 /// Patterns and its operations.
 mod pat;
 /// Pretty printing things.
