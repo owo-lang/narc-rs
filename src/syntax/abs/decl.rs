@@ -23,6 +23,16 @@ pub struct AbsProjInfo {
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
+pub struct AbsCodataInfo {
+    pub source: Loc,
+    pub self_ref: Option<Ident>,
+    pub name: Ident,
+    pub fields: Vec<GI>,
+    pub level: Level,
+    pub tele: AbsTele,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct AbsDataInfo {
     pub source: Loc,
     pub name: Ident,
@@ -46,14 +56,7 @@ pub enum AbsDecl {
     /// Pattern matching clause.
     Clause(AbsClause),
     /// Coinductive records.
-    Codata {
-        source: Loc,
-        self_ref: Option<Ident>,
-        name: Ident,
-        fields: Vec<GI>,
-        level: Level,
-        tele: AbsTele,
-    },
+    Codata(AbsCodataInfo),
 }
 
 impl AbsDecl {
@@ -61,32 +64,15 @@ impl AbsDecl {
         AbsDecl::Defn { source, name, ty }
     }
 
-    pub fn codata(
-        source: Loc,
-        name: Ident,
-        me: Option<Ident>,
-        level: Level,
-        tele: AbsTele,
-        fields: Vec<GI>,
-    ) -> Self {
-        AbsDecl::Codata {
-            source,
-            name,
-            self_ref: me,
-            level,
-            tele,
-            fields,
-        }
-    }
-
     pub fn decl_name(&self) -> &Ident {
         use AbsDecl::*;
         match self {
-            Defn { name, .. } | Codata { name, .. } => name,
+            Defn { name, .. } => name,
             Clause(info) => &info.name,
             Data(info) => &info.name,
             Cons(info) => &info.name,
             Proj(info) => &info.name,
+            Codata(info) => &info.name,
         }
     }
 }
@@ -95,10 +81,11 @@ impl ToLoc for AbsDecl {
     fn loc(&self) -> Loc {
         use AbsDecl::*;
         match self {
-            Defn { source, .. } | Codata { source, .. } => *source,
+            Defn { source, .. } => *source,
             Data(i) => i.loc(),
             Cons(i) => i.loc(),
             Clause(i) => i.loc(),
+            Codata(i) => i.loc(),
             Proj(i) => i.loc(),
         }
     }

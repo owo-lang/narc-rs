@@ -56,6 +56,26 @@ impl AbsClause {
     }
 }
 
+impl AbsCodataInfo {
+    pub fn new(
+        source: Loc,
+        name: Ident,
+        me: Option<Ident>,
+        level: Level,
+        tele: AbsTele,
+        fields: Vec<GI>,
+    ) -> Self {
+        Self {
+            source,
+            name,
+            self_ref: me,
+            level,
+            tele,
+            fields,
+        }
+    }
+}
+
 macro_rules! simple_to_loc {
     ($name:ident) => {
         impl ToLoc for $name {
@@ -70,3 +90,4 @@ simple_to_loc!(AbsClause);
 simple_to_loc!(AbsConsInfo);
 simple_to_loc!(AbsDataInfo);
 simple_to_loc!(AbsProjInfo);
+simple_to_loc!(AbsCodataInfo);

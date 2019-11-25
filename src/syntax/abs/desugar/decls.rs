@@ -3,7 +3,8 @@ use voile_util::tags::Plicit;
 use voile_util::uid::{next_uid, GI};
 
 use crate::syntax::abs::{
-    Abs, AbsClause, AbsConsInfo, AbsDataInfo, AbsDecl, AbsPat, AbsProjInfo, AbsTele, Bind,
+    Abs, AbsClause, AbsCodataInfo, AbsConsInfo, AbsDataInfo, AbsDecl, AbsPat, AbsProjInfo, AbsTele,
+    Bind,
 };
 use crate::syntax::common::Ductive;
 use crate::syntax::pat::{Copat, Pat};
@@ -177,7 +178,8 @@ pub fn desugar_decl(state: DesugarState, decl: ExprDecl) -> DesugarM {
             let codata_ix = state.decls.len();
             let fields_ices = ops_range(codata_ix + 1, fields.len());
             // TODO: self reference?
-            let codata = AbsDecl::codata(loc, name, None, Default::default(), tele, fields_ices);
+            let codata = AbsCodataInfo::new(loc, name, None, Default::default(), tele, fields_ices);
+            let codata = AbsDecl::Codata(codata);
             state.decls.push(codata);
             for field in fields {
                 let (abs, new_st) = desugar_expr(state, field.expr)?;
