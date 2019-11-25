@@ -15,6 +15,17 @@ impl AbsConsInfo {
     }
 }
 
+impl AbsProjInfo {
+    pub fn new(source: Loc, name: Ident, proj_ty: Abs, codata_index: GI) -> Self {
+        Self {
+            source,
+            name,
+            ty: proj_ty,
+            codata_ix: codata_index,
+        }
+    }
+}
+
 impl AbsDataInfo {
     pub fn new(source: Loc, name: Ident, level: Level, tele: AbsTele, conses: Vec<GI>) -> Self {
         AbsDataInfo {
@@ -44,3 +55,18 @@ impl AbsClause {
         }
     }
 }
+
+macro_rules! simple_to_loc {
+    ($name:ident) => {
+        impl ToLoc for $name {
+            fn loc(&self) -> Loc {
+                self.source
+            }
+        }
+    };
+}
+
+simple_to_loc!(AbsClause);
+simple_to_loc!(AbsConsInfo);
+simple_to_loc!(AbsDataInfo);
+simple_to_loc!(AbsProjInfo);

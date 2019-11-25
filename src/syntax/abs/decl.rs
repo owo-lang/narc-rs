@@ -14,6 +14,15 @@ pub struct AbsConsInfo {
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
+pub struct AbsProjInfo {
+    pub source: Loc,
+    pub name: Ident,
+    pub ty: Abs,
+    /// Corresponding coinductive record's index.
+    pub codata_ix: GI,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct AbsDataInfo {
     pub source: Loc,
     pub name: Ident,
@@ -31,13 +40,7 @@ pub enum AbsDecl {
     /// Datatype constructors.
     Cons(AbsConsInfo),
     /// Coinductive record projections.
-    Proj {
-        source: Loc,
-        name: Ident,
-        ty: Abs,
-        /// Corresponding coinductive record's index.
-        codata_ix: GI,
-    },
+    Proj(AbsProjInfo),
     /// Function signature definition.
     Defn { source: Loc, name: Ident, ty: Abs },
     /// Pattern matching clause.
@@ -56,15 +59,6 @@ pub enum AbsDecl {
 impl AbsDecl {
     pub fn defn(source: Loc, name: Ident, ty: Abs) -> Self {
         AbsDecl::Defn { source, name, ty }
-    }
-
-    pub fn field(source: Loc, name: Ident, proj_ty: Abs, codata_index: GI) -> Self {
-        AbsDecl::Proj {
-            source,
-            name,
-            ty: proj_ty,
-            codata_ix: codata_index,
-        }
     }
 
     pub fn codata(
@@ -88,29 +82,12 @@ impl AbsDecl {
     pub fn decl_name(&self) -> &Ident {
         use AbsDecl::*;
         match self {
-            Proj { name, .. } | Defn { name, .. } | Codata { name, .. } => name,
+            Defn { name, .. } | Codata { name, .. } => name,
             Clause(info) => &info.name,
             Data(info) => &info.name,
             Cons(info) => &info.name,
+            Proj(info) => &info.name,
         }
-    }
-}
-
-impl ToLoc for AbsDataInfo {
-    fn loc(&self) -> Loc {
-        self.source
-    }
-}
-
-impl ToLoc for AbsConsInfo {
-    fn loc(&self) -> Loc {
-        self.source
-    }
-}
-
-impl ToLoc for AbsClause {
-    fn loc(&self) -> Loc {
-        self.source
     }
 }
 
@@ -118,10 +95,11 @@ impl ToLoc for AbsDecl {
     fn loc(&self) -> Loc {
         use AbsDecl::*;
         match self {
-            Proj { source, .. } | Defn { source, .. } | Codata { source, .. } => *source,
+            Defn { source, .. } | Codata { source, .. } => *source,
             Data(i) => i.loc(),
             Cons(i) => i.loc(),
             Clause(i) => i.loc(),
+            Proj(i) => i.loc(),
         }
     }
 }

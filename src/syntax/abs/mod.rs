@@ -1,5 +1,6 @@
 pub use self::ast::*;
 pub use self::decl::*;
+pub use self::decl_impl::*;
 
 /// Declarations.
 mod decl;
