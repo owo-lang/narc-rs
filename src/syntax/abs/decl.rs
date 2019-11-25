@@ -4,18 +4,33 @@ use voile_util::uid::GI;
 
 use super::{Abs, AbsCopat, AbsTele};
 
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub struct AbsDataInfo {
+    pub source: Loc,
+    pub name: Ident,
+    pub level: Level,
+    pub tele: AbsTele,
+    pub conses: Vec<GI>,
+}
+
+impl AbsDataInfo {
+    pub fn new(source: Loc, name: Ident, level: Level, tele: AbsTele, conses: Vec<GI>) -> Self {
+        AbsDataInfo {
+            source,
+            name,
+            level,
+            tele,
+            conses,
+        }
+    }
+}
+
 /// Declaration.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/Agda-Syntax-Abstract.html#t:Declaration).
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum AbsDecl {
     /// Datatypes.
-    Data {
-        source: Loc,
-        name: Ident,
-        level: Level,
-        tele: AbsTele,
-        conses: Vec<GI>,
-    },
+    Data(AbsDataInfo),
     /// Datatype constructors.
     Cons {
         source: Loc,
@@ -71,13 +86,7 @@ impl AbsDecl {
     }
 
     pub fn data(source: Loc, name: Ident, level: Level, tele: AbsTele, conses: Vec<GI>) -> Self {
-        AbsDecl::Data {
-            source,
-            name,
-            level,
-            tele,
-            conses,
-        }
+        AbsDecl::Data(AbsDataInfo::new(source, name, level, tele, conses))
     }
 
     pub fn codata(
@@ -105,13 +114,16 @@ impl AbsDecl {
     pub fn decl_name(&self) -> &Ident {
         use AbsDecl::*;
         match self {
-            Data { name, .. }
-            | Cons { name, .. }
-            | Proj { name, .. }
-            | Defn { name, .. }
-            | Codata { name, .. } => name,
+            Cons { name, .. } | Proj { name, .. } | Defn { name, .. } | Codata { name, .. } => name,
             Clause { info, .. } => &info.name,
+            Data(info) => &info.name,
         }
+    }
+}
+
+impl ToLoc for AbsDataInfo {
+    fn loc(&self) -> Loc {
+        self.source
     }
 }
 
@@ -119,12 +131,12 @@ impl ToLoc for AbsDecl {
     fn loc(&self) -> Loc {
         use AbsDecl::*;
         match self {
-            Data { source, .. }
-            | Cons { source, .. }
+            Cons { source, .. }
             | Proj { source, .. }
             | Defn { source, .. }
             | Clause { source, .. }
             | Codata { source, .. } => *source,
+            Data(i) => i.loc(),
         }
     }
 }

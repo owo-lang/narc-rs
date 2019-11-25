@@ -8,7 +8,7 @@ use voile_util::uid::{next_uid, DBI, GI};
 use crate::check::monad::{TCE, TCM, TCS};
 use crate::syntax::abs::Abs;
 use crate::syntax::core::subst::RedEx;
-use crate::syntax::core::{Bind, Decl, Elim, Term, TermInfo, Val};
+use crate::syntax::core::{Bind, DataInfo, Decl, Elim, Term, TermInfo, Val};
 
 use super::check;
 use super::whnf::normalize;
@@ -84,9 +84,9 @@ pub fn infer(tcs: TCS, abs: &Abs) -> InferTCM {
 pub fn type_of_decl(tcs: &TCS, decl: GI) -> TCM<TermInfo> {
     let decl = tcs.def(decl);
     match decl {
-        Decl::Data {
+        Decl::Data(DataInfo {
             loc, params, level, ..
-        }
+        })
         | Decl::Codata {
             loc, params, level, ..
         } => Ok(Term::pi_from_tele(params.clone(), Term::universe(*level)).at(*loc)),
@@ -94,7 +94,7 @@ pub fn type_of_decl(tcs: &TCS, decl: GI) -> TCM<TermInfo> {
             loc, data, params, ..
         } => {
             let data_tele = match tcs.def(*data) {
-                Decl::Data { params, .. } => params,
+                Decl::Data(i) => &i.params,
                 _ => unreachable!(),
             };
             let params_len = params.len();

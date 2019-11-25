@@ -2,6 +2,8 @@
 
 # 0.0.5
 
++ Migrate from CircleCI + AppVeyor to GitHub Actions
+
 # 0.0.4
 
 + Conversion check (#3)

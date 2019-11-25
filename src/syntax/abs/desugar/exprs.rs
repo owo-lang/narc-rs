@@ -13,7 +13,7 @@ pub fn desugar_expr(state: DesugarState, expr: Expr) -> DesugarM<(Abs, DesugarSt
             } else if let Some((ix, decl)) = state.lookup_by_name(&v.text) {
                 use AbsDecl::*;
                 match decl {
-                    Codata { .. } | Data { .. } | Defn { .. } => Ok((Abs::Def(v, ix), state)),
+                    Codata { .. } | Data(_) | Defn { .. } => Ok((Abs::Def(v, ix), state)),
                     Cons { .. } => Ok((Abs::Cons(v, ix), state)),
                     // A proj gets applied, using the application syntax
                     // (instead of the dot-projection syntax)

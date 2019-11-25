@@ -6,19 +6,22 @@ use crate::syntax::core::Pat;
 
 use super::{Tele, Term};
 
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub struct DataInfo {
+    pub loc: Loc,
+    pub name: String,
+    pub params: Tele,
+    /// References to its constructors.
+    pub conses: Vec<GI>,
+    pub level: Level,
+}
+
 /// Declaration.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Monad.Base.html#Function).
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum Decl {
     /// Datatypes.
-    Data {
-        loc: Loc,
-        name: String,
-        params: Tele,
-        /// References to its constructors.
-        conses: Vec<GI>,
-        level: Level,
-    },
+    Data(DataInfo),
     /// Coinductive records.
     Codata {
         loc: Loc,
@@ -56,23 +59,29 @@ pub enum Decl {
 impl Decl {
     pub fn def_name(&self) -> &String {
         match self {
-            Decl::Data { name, .. }
-            | Decl::Codata { name, .. }
+            Decl::Codata { name, .. }
             | Decl::Cons { name, .. }
             | Decl::Proj { name, .. }
             | Decl::Func { name, .. } => name,
+            Decl::Data(i) => &i.name,
         }
+    }
+}
+
+impl ToLoc for DataInfo {
+    fn loc(&self) -> Loc {
+        self.loc
     }
 }
 
 impl ToLoc for Decl {
     fn loc(&self) -> Loc {
         match self {
-            Decl::Data { loc, .. }
-            | Decl::Codata { loc, .. }
+            Decl::Codata { loc, .. }
             | Decl::Cons { loc, .. }
             | Decl::Proj { loc, .. }
             | Decl::Func { loc, .. } => *loc,
+            Decl::Data(i) => i.loc(),
         }
     }
 }

@@ -8,7 +8,7 @@ pub fn normalize(tcs: TCS, term: Term) -> ValTCM {
     match term {
         Term::Whnf(whnf) => Ok((whnf, tcs)),
         Term::Redex(def, elims) => match tcs.def(def) {
-            Decl::Data { .. } => normalize(tcs, Term::inductive(def, elims_to_terms(elims)?)),
+            Decl::Data(_) => normalize(tcs, Term::inductive(def, elims_to_terms(elims)?)),
             Decl::Codata { .. } => normalize(tcs, Term::coinductive(def, elims_to_terms(elims)?)),
             Decl::Cons {
                 loc,
