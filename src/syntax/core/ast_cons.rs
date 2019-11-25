@@ -7,6 +7,8 @@ use crate::syntax::core::{Bind, Tele};
 
 use super::{Closure, ConHead, Elim, Term, Val};
 
+pub const TYPE_OMEGA: Val = Val::Type(Level::Omega);
+
 /// Constructors and traversal functions.
 impl Term {
     pub fn is_type(&self) -> bool {

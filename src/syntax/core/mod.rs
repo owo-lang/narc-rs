@@ -54,12 +54,6 @@ impl TermInfo {
     }
 }
 
-impl ToLoc for TermInfo {
-    fn loc(&self) -> Loc {
-        self.loc.clone()
-    }
-}
-
 /// Telescopes.
 pub type Tele = Vec<Bind>;
 

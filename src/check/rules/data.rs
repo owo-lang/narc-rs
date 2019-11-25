@@ -1,7 +1,22 @@
 use crate::check::monad::{TCM, TCS};
-use crate::syntax::abs::AbsDataInfo;
-use crate::syntax::core::DataInfo;
+use crate::check::rules::check;
+use crate::syntax::abs::{AbsDataInfo, AbsTele};
+use crate::syntax::core::{DataInfo, Tele, Term, TYPE_OMEGA};
 
-pub fn check_data(tcs: TCS, data: AbsDataInfo) -> TCM<DataInfo> {
+/// The checked tele is put into the returned `tcs.gamma`.
+pub fn check_tele(mut tcs: TCS, tele: AbsTele) -> TCM<TCS> {
+    for bind in tele {
+        let (checked, new_tcs) = check(tcs, &bind.ty, &TYPE_OMEGA)?;
+        tcs = new_tcs;
+        let bind = bind.map_term(|_| checked.ast);
+        tcs.gamma.push(bind);
+    }
+    Ok(tcs)
+}
+
+pub fn check_data(tcs: TCS, data: AbsDataInfo) -> TCM<(TCS, DataInfo)> {
+    let t = Term::universe(data.level);
+    let tcs = check_tele(tcs, data.tele)?;
+    // TODO: check conses
     unimplemented!()
 }
