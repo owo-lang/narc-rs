@@ -3,7 +3,7 @@ use crate::syntax::surf::ExprDecl;
 use self::decls::*;
 use self::error::*;
 use self::exprs::*;
-use self::monad::*;
+pub use self::monad::*;
 
 /// Desugar declarations.
 mod decls;

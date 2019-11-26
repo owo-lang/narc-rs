@@ -9,6 +9,18 @@ use structopt::StructOpt;
     global_settings(&[AppSettings::ColoredHelp])
 )]
 pub struct CliOptions {
+    /// the input file to type-check (Notice: file should be UTF-8 encoded)
+    #[structopt(name = "FILE")]
+    pub file: Option<String>,
+
+    /// Parses but do not type-check the input file
+    #[structopt(short = "p", long)]
+    pub parse_only: bool,
+
+    /// Prints errors only
+    #[structopt(short = "q", long)]
+    pub quiet: bool,
+
     #[structopt(subcommand)]
     completion: Option<GenShellSubCommand>,
 }
