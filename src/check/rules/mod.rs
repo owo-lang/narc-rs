@@ -1,3 +1,5 @@
+pub use self::decls::*;
+
 /// Type check a function clause.
 mod clause;
 /// Type check data type & constructor declarations.

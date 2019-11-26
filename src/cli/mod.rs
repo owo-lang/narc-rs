@@ -1,4 +1,5 @@
 use nar::check::monad::TCS;
+use nar::check::rules::check_decls;
 use nar::syntax::abs::desugar::{desugar_main, DesugarState};
 
 mod args;
@@ -47,8 +48,7 @@ fn main_file(
 fn main() {
     let args = args::pre();
 
-    let mut checked =
-        main_file(args.file.as_ref(), args.quiet, args.parse_only).unwrap_or_default();
+    let checked = main_file(args.file.as_ref(), args.quiet, args.parse_only).unwrap_or_default();
 
     // Don't yet need to use this -- it's for the REPL.
     drop(checked);

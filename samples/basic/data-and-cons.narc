@@ -1,0 +1,10 @@
+//
+// Created by Dependently-Typed Lambda Calculus on 2019-11-26
+// data-and-cons
+// Author: ice10
+//
+
+data Nat {
+  constructor Zero;
+  constructor Succ : Nat;
+};
