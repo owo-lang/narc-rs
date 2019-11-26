@@ -2,6 +2,7 @@ use std::fmt::{Display, Error as FmtError, Formatter};
 
 use voile_util::loc::Ident;
 
+#[derive(Debug, Clone)]
 pub enum DesugarErr {
     UnresolvedReference(Ident),
 

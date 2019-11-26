@@ -17,3 +17,6 @@ mod monad;
 pub fn desugar_main(decls: Vec<ExprDecl>) -> DesugarM {
     desugar_decls(DesugarState::with_capacity(decls.len()), decls)
 }
+
+#[cfg(test)]
+mod tests;
