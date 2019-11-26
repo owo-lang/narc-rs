@@ -77,7 +77,7 @@ data = { "data" ~ ident ~ data_body ~ ";" }
 codata = { "codata" ~ ident ~ codata_body ~ ";" }
 
 // Constructor may have no parameters
-constructor = { "constructor" ~ ident ~ (":" ~ param+)? ~ ";" }
+constructor = { "constructor" ~ ident ~ param* ~ ";" }
 // Fields are annotated with a type instead of parameters
 projection = { "projection" ~ ident ~ ":" ~ expr ~ ";" }
 

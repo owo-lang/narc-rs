@@ -29,8 +29,8 @@ fn data_parse() {
     success!("data empty {};");
     success!("data unit { constructor tt; };");
     success!("data test tele {};");
-    success!("data test tele { constructor tt : tele; };");
-    success!("data test (x : tele) { constructor tt : (y : x); };");
+    success!("data test tele { constructor tt tele; };");
+    success!("data test (x : tele) { constructor tt (y : x); };");
 }
 
 #[test]

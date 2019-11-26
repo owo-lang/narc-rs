@@ -7,6 +7,8 @@
 + Check constructor declaration (#17)
 + Test desugar
 + Check declaration list (#19)
++ The CLI now check files, there are tests now
++ Don't require `:` in front of constructor tele
 
 # 0.0.4
 
