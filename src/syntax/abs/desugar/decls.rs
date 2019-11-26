@@ -116,6 +116,7 @@ pub fn desugar_clause(
     let loc = name.loc + body.loc();
     let info = AbsClause::new(loc, name, abs_pats, defn_ix, body);
     state.decls.push(AbsDecl::Clause(info));
+    state.local.clear();
     Ok(state)
 }
 
@@ -124,7 +125,7 @@ pub fn desugar_decl(state: DesugarState, decl: ExprDecl) -> DesugarM {
     match decl {
         Defn(name, sig) => {
             let (sig, mut state) = desugar_expr(state, sig)?;
-            state.ensure_local_emptiness();
+            state.local.clear();
             let abs_decl = AbsDecl::defn(name.loc + sig.loc(), name, sig);
             state.decls.push(abs_decl);
             Ok(state)
