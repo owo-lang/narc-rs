@@ -5,8 +5,13 @@ use nar::syntax::abs::desugar::{desugar_main, DesugarState};
 mod args;
 mod util;
 
-const SUCCESS_MSG: &'static str = "\u{1F42E}\u{1F37A}";
 const FAILURE_MSG: &'static str = "\u{1F528}";
+
+fn success(quiet: bool) {
+    if !quiet {
+        println!("\u{1F42E}\u{1F37A}");
+    }
+}
 
 fn main_file(
     file_ref: Option<&String>,
@@ -14,10 +19,8 @@ fn main_file(
     parse_only: bool,
 ) -> Option<(TCS, DesugarState)> {
     let decls = util::parse_file(file_ref?)?;
-    if !quiet {
-        println!("Parse successful.");
-    }
     if parse_only {
+        success(quiet);
         return None;
     }
 
@@ -38,10 +41,7 @@ fn main_file(
         std::process::exit(1)
     });
 
-    if !quiet {
-        println!("{}", SUCCESS_MSG);
-    }
-
+    success(quiet);
     Some((checked, abs_decls))
 }
 
