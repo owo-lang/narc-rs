@@ -7,11 +7,11 @@ pub enum Pat<Ix, Term> {
     /// Note: it has a name suggestion in Agda.
     /// https://hackage.haskell.org/package/Agda-2.6.0.1/docs/Agda-Syntax-Internal.html#t:Pattern
     Var(Ix),
-    /// Dual to [Refl](../core/ast/enum.Val.html#variant.Refl).
+    /// Dual to [`nar::syntax::core::ast::Val::Refl`].
     Refl,
     /// Impossible pattern.
     Absurd,
-    /// Dual to [Cons](../core/ast/enum.Val.html#variant.Cons),
+    /// Dual to [`nar::syntax::core::ast::Val::Cons`],
     /// but can be forced (the first member is "is\_forced").
     Cons(bool, ConHead, Vec<Self>),
     /// Forced term as an expression.
