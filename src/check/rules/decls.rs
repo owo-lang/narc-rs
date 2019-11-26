@@ -15,9 +15,8 @@ pub fn check_decls(mut tcs: TCS, decls: Vec<AbsDecl>) -> TCM {
         let decl: AbsDecl = take(i);
         match decl {
             AbsDecl::Data(i) => {
-                let cs = i.conses.iter().map(|GI(j)| take(*j));
-                let cs = cs
-                    .map(|c| match c {
+                let cs = (i.conses.iter())
+                    .map(|GI(j)| match take(*j) {
                         AbsDecl::Cons(i) => i,
                         _ => unreachable!(ERROR_TAKE),
                     })
