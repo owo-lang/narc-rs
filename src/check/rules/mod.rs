@@ -2,6 +2,8 @@
 mod clause;
 /// Type check data type & constructor declarations.
 mod data;
+/// Check a list of declarations.
+mod decls;
 /// Synthesize the type and its well-typed form from an abstract term.
 mod infer;
 /// Type check a term.
