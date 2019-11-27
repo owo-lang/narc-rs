@@ -27,7 +27,7 @@ pub struct LhsState {
     // TODO: what is `_lhsPartialSplit`?
 }
 
-pub fn init_lhs_state(tcs: TCS, tele: Tele) -> TCM<LhsState> {
+pub fn init_lhs_state(tcs: TCS, tele: Tele, ty: &Val) -> TCM<LhsState> {
     unimplemented!()
 }
 

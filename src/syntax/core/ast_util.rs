@@ -85,6 +85,21 @@ impl Term {
         })
     }
 
+    /// # Returns
+    ///
+    /// The telescope and the return type.
+    pub fn tele_view(self) -> (Tele, Self) {
+        match self {
+            Term::Whnf(Val::Pi(bind, Closure::Plain(r))) => {
+                let (mut view, r) = r.tele_view();
+                view.insert(0, bind.unboxed());
+                (view, r)
+            }
+            // The capacity is an arbitrarily estimated value.
+            e => (Vec::with_capacity(2), e),
+        }
+    }
+
     pub fn pi(licit: Plicit, name: UID, param_type: Term, body: Closure) -> Self {
         Self::pi2(Bind::boxing(licit, name, param_type), body)
     }

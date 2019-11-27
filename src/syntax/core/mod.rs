@@ -1,8 +1,8 @@
 use voile_util::loc::{Loc, ToLoc};
 
 pub use self::ast::*;
-pub use self::ast_cons::*;
 pub use self::ast_fold::*;
+pub use self::ast_util::*;
 pub use self::decl::*;
 pub use self::decl_impl::*;
 pub use self::pat::*;
@@ -10,15 +10,15 @@ pub use self::pretty::*;
 
 /// Core language syntax definitions.
 mod ast;
-/// Constructor functions.
-///
-/// To avoid too much `Box::new` invocations.
-mod ast_cons;
 /// Ast traversal functions.
 ///
 /// I don't think these functions should be used much, though.
 /// We should use pattern matching instead.
 mod ast_fold;
+/// Constructor functions & utility functions.
+///
+/// To avoid too much `Box::new` invocations.
+mod ast_util;
 /// Checked declarations.
 mod decl;
 /// Declarations' trivial trait implementations.

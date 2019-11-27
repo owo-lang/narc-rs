@@ -39,4 +39,8 @@ impl<T> Bind<Box<T>> {
     pub fn boxing(licit: Plicit, name: UID, term: T) -> Self {
         Self::new(licit, name, Box::new(term))
     }
+
+    pub fn unboxed(self) -> Bind<T> {
+        self.map_term(|t| *t)
+    }
 }
