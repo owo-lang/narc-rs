@@ -49,11 +49,3 @@ You can also start a REPL:
 ```bash
 narc -i
 ```
-
-## Progress
-
-+ [X] Basic dependent type (minitt/voile things)
-+ [ ] Data type and codata types
-+ [ ] Definition and clauses checking
-+ [ ] Universe level support
-+ [ ] Implicit arguments

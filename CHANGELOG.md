@@ -9,6 +9,9 @@
 + Check declaration list (#19)
 + The CLI now check files, there are tests now
 + Don't require `:` in front of constructor tele
++ Rename `ast_cons` to `ast_util`
++ Add `Ident` info to `Term::Whnf`
++ Unfold constructor applications (#27)
 
 # 0.0.4
 
@@ -23,7 +26,7 @@
 + Inference now respect implicit parameters (#24)
 + Inference produces well-typed term as well (#23)
 + Application inference now supports projections (#25)
-+ Unfolds data and codata applications (#27)
++ Unfold data and codata applications (#27)
 + Parsing (expr parsing and file parsing) (#20, #31)
 + `Abs::App` is now chained (#33)
 + Desugar surface into abstract, scope check (#36, #42, #43)
