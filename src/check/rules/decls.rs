@@ -9,7 +9,7 @@ const ERROR_TAKE: &str = "Please report this as a bug.";
 pub fn check_decls(mut tcs: TCS, decls: Vec<AbsDecl>) -> TCM {
     let mut decls = decls.into_iter().map(Some).collect::<Vec<_>>();
     let range = 0..decls.len();
-    let mut take = |decls: &mut [Option<AbsDecl>], i: usize| decls[i].take().expect(ERROR_TAKE);
+    let take = |decls: &mut [Option<AbsDecl>], i: usize| decls[i].take().expect(ERROR_TAKE);
 
     for i in range {
         if decls[i].is_none() {
