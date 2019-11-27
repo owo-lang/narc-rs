@@ -5,8 +5,6 @@ use nar::syntax::abs::desugar::{desugar_main, DesugarState};
 mod args;
 mod util;
 
-const FAILURE_MSG: &'static str = "\u{1F528}";
-
 fn success(quiet: bool) {
     if !quiet {
         println!("\u{1F42E}\u{1F37A}");
@@ -27,7 +25,7 @@ fn main_file(
     // Translate to abstract syntax
     let abs_decls = desugar_main(decls).unwrap_or_else(|err| {
         eprintln!("{}", err);
-        eprintln!("{}", FAILURE_MSG);
+        eprintln!("\u{2026}");
         std::process::exit(1)
     });
 
@@ -37,7 +35,7 @@ fn main_file(
         .expand_with_fresh_meta(abs_decls.meta_count);
     let checked = check_decls(tcs, abs_decls.decls.clone()).unwrap_or_else(|err| {
         eprintln!("{}", err);
-        eprintln!("{}", FAILURE_MSG);
+        eprintln!("\u{1f336}\u{1f414}");
         std::process::exit(1)
     });
 

@@ -29,6 +29,10 @@ pub struct LhsState {
     // TODO: what is `_lhsPartialSplit`?
 }
 
+/// In Agda,
+/// [this function](https://hackage.haskell.org/package/Agda-2.5.4/docs/src/Agda.TypeChecking.Rules.LHS.ProblemRest.html#initLHSState)
+/// is implemented via an
+/// [auxiliary function](https://hackage.haskell.org/package/Agda-2.5.4/docs/src/Agda.TypeChecking.Rules.LHS.ProblemRest.html#updateProblemRest).
 pub fn init_lhs_state(tcs: TCS, pats: Vec<AbsCopat>, ty: Term) -> TCMS<LhsState> {
     let (tele, target) = ty.tele_view();
     let pats_len = pats.len();
