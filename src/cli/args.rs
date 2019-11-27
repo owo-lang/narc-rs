@@ -28,7 +28,7 @@ pub struct CliOptions {
 fn app<'a, 'b>() -> App<'a, 'b> {
     let extra_help = "\
     Narc will not load the file if parse failed, \
-    and will say \u{1f336}\u{1f414} if scope-check failed, \
+    and will say \u{1f375} if scope-check failed, \
     and \u{1F528} if type-check failed.
     If type-check succeeded, Narc will say \u{1F42E}\u{1F37A}.\n
     For extra help please head to \

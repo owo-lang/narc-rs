@@ -25,17 +25,17 @@ fn main_file(
     // Translate to abstract syntax
     let abs_decls = desugar_main(decls).unwrap_or_else(|err| {
         eprintln!("{}", err);
-        eprintln!("\u{2026}");
+        eprint!("\u{1f375}");
         std::process::exit(1)
     });
 
-    // Type Check
+    // Type check
     let mut tcs = TCS::default();
     tcs.meta_context
         .expand_with_fresh_meta(abs_decls.meta_count);
     let checked = check_decls(tcs, abs_decls.decls.clone()).unwrap_or_else(|err| {
         eprintln!("{}", err);
-        eprintln!("\u{1f336}\u{1f414}");
+        eprintln!("\u{1F528}");
         std::process::exit(1)
     });
 

@@ -1,6 +1,6 @@
 use voile_util::uid::DBI;
 
-use crate::check::monad::{TCMS, TCS};
+use crate::check::monad::{TCM, TCMS, TCS};
 use crate::syntax::abs::{AbsClause, AbsCopat};
 use crate::syntax::core::{Clause, Pat, Tele, Term};
 
@@ -33,7 +33,7 @@ pub struct LhsState {
 /// [this function](https://hackage.haskell.org/package/Agda-2.5.4/docs/src/Agda.TypeChecking.Rules.LHS.ProblemRest.html#initLHSState)
 /// is implemented via an
 /// [auxiliary function](https://hackage.haskell.org/package/Agda-2.5.4/docs/src/Agda.TypeChecking.Rules.LHS.ProblemRest.html#updateProblemRest).
-pub fn init_lhs_state(tcs: TCS, pats: Vec<AbsCopat>, ty: Term) -> TCMS<LhsState> {
+pub fn init_lhs_state(pats: Vec<AbsCopat>, ty: Term) -> TCM<LhsState> {
     let (tele, target) = ty.tele_view();
     let pats_len = pats.len();
     let mut pats_iter = pats.into_iter();
@@ -56,7 +56,7 @@ pub fn init_lhs_state(tcs: TCS, pats: Vec<AbsCopat>, ty: Term) -> TCMS<LhsState>
         problem: pats,
         target,
     };
-    Ok((state, tcs))
+    Ok(state)
 }
 
 /// Checking an abstract clause.
