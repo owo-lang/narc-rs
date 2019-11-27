@@ -28,8 +28,14 @@ For language description, please head to the [docs.rs][doc-rs] page.
 + [Docs.rs][doc-rs] documentation
 + [IntelliJ Plugin][plugin], which can export your code as clickable HTML
 + [Change Log](../CHANGELOG.md), useful resource for tracking language evolution
++ [**Binary Download**][ga-url] on GitHub Actions page for
+  Windows, Ubuntu and macOS
 
 ## Install
+
+The most recommended way of installation is to download the prebuilt binaries
+from [GitHub Actions page][ga-url].
+Here's [how to find them](https://github.com/actions/upload-artifact#where-does-the-upload-go).
 
 You can install the narc type-checker by this command
 (cargo installation and rust stable toolchain are assumed):

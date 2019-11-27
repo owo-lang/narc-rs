@@ -29,7 +29,6 @@ pub struct LhsState {
     pub equations: Vec<Equation>,
     /// Type eliminated by `problem`.
     pub target: Term,
-    // TODO: what is `_lhsPartialSplit`?
 }
 
 /// In Agda,
