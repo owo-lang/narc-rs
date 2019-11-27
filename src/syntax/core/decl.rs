@@ -1,5 +1,5 @@
 use voile_util::level::Level;
-use voile_util::loc::{Loc, ToLoc};
+use voile_util::loc::*;
 use voile_util::uid::GI;
 
 use crate::syntax::core::Pat;
@@ -9,8 +9,8 @@ use super::{Tele, Term};
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct CodataInfo {
     pub loc: Loc,
-    pub self_ref: String,
-    pub name: String,
+    pub self_ref: Option<Ident>,
+    pub name: Ident,
     pub params: Tele,
     /// References to its projections (fields).
     pub fields: Vec<GI>,
@@ -20,7 +20,7 @@ pub struct CodataInfo {
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct ConsInfo {
     pub loc: Loc,
-    pub name: String,
+    pub name: Ident,
     pub params: Tele,
     pub data: GI,
     /// If this is a record constructor,
@@ -31,7 +31,7 @@ pub struct ConsInfo {
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct DataInfo {
     pub loc: Loc,
-    pub name: String,
+    pub name: Ident,
     pub params: Tele,
     /// References to its constructors.
     pub conses: Vec<GI>,
@@ -49,21 +49,21 @@ pub enum Decl {
     Cons(ConsInfo),
     Proj {
         loc: Loc,
-        name: String,
+        name: Ident,
         codata: GI,
         ty: Term,
     },
     /// Function definitions.
     Func {
         loc: Loc,
-        name: String,
+        name: Ident,
         signature: Term,
         clauses: Vec<Clause>,
     },
 }
 
 impl Decl {
-    pub fn def_name(&self) -> &String {
+    pub fn def_name(&self) -> &Ident {
         match self {
             Decl::Proj { name, .. } | Decl::Func { name, .. } => name,
             Decl::Data(i) => &i.name,

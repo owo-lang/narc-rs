@@ -66,7 +66,7 @@ pub fn infer(tcs: TCS, abs: &Abs) -> InferTCM {
                     if !codata_fields.contains(&proj_def) {
                         return Err(TCE::FieldCodataMismatch(
                             ident.loc,
-                            codata_name.clone(),
+                            codata_name.text.clone(),
                             ident.text,
                         ));
                     }
@@ -106,11 +106,7 @@ pub fn type_of_decl(tcs: &TCS, decl: GI) -> TCM<TermInfo> {
                 .map(Bind::into_implicit)
                 .chain(params.iter().cloned())
                 .collect();
-            // TODO: This is a fake ident
-            let ident = Ident {
-                loc: cons.loc(),
-                text: tcs.def(data).def_name().clone(),
-            };
+            let ident = tcs.def(data).def_name().clone();
             let elims = range.rev().map(DBI).map(Elim::from_dbi).collect();
             let ret = Term::def(data, ident, elims);
             Ok(Term::pi_from_tele(tele, ret).at(cons.loc()))
@@ -123,11 +119,7 @@ pub fn type_of_decl(tcs: &TCS, decl: GI) -> TCM<TermInfo> {
                 _ => unreachable!(),
             };
             let range = 0..data_tele.len() - 1;
-            // TODO: This is a fake ident
-            let ident = Ident {
-                loc: *loc,
-                text: tcs.def(*codata).def_name().clone(),
-            };
+            let ident = tcs.def(*codata).def_name().clone();
             let elims = range.rev().map(DBI).map(Elim::from_dbi).collect();
             let codata = Term::def(*codata, ident, elims);
             let tele = data_tele

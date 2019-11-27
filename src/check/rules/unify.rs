@@ -58,8 +58,8 @@ impl Unify for Term {
 impl Unify for GI {
     fn unify(tcs: TCS, left: &Self, right: &Self) -> TCM {
         if left != right {
-            let left_name = tcs.def(*left).def_name().clone();
-            let right_name = tcs.def(*right).def_name().clone();
+            let left_name = tcs.def(*left).def_name().text.clone();
+            let right_name = tcs.def(*right).def_name().text.clone();
             Err(TCE::DifferentName(left_name, right_name))
         } else {
             Ok(tcs)

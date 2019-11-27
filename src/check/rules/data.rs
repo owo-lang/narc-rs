@@ -19,7 +19,7 @@ pub fn check_cons(tcs: TCS, cons: AbsConsInfo, ty: &Val) -> TCM<(TCS, ConsInfo)>
     let mut tcs = check_tele(tcs, cons.tele, ty)?;
     let info = ConsInfo {
         loc: cons.source,
-        name: cons.name.text,
+        name: cons.name,
         params: tcs.gamma.split_off(param_len),
         data: cons.data_ix,
         // Inductive!
@@ -36,7 +36,7 @@ pub fn check_data(tcs: TCS, data: AbsDataInfo, conses: Vec<AbsConsInfo>) -> TCM 
     let info = DataInfo {
         params: tcs.gamma.clone(),
         loc: data.source,
-        name: data.name.text,
+        name: data.name,
         level: data.level,
         conses: data.conses,
     };
