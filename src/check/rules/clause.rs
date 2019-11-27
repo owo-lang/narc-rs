@@ -79,5 +79,9 @@ pub fn init_lhs_state(pats: Vec<AbsCopat>, ty: Term) -> TCM<LhsState> {
 pub fn clause(tcs: TCS, cls: AbsClause, against: Term) -> TCMS<Clause> {
     // Expand pattern synonyms here once we support it.
     let lhs_state = init_lhs_state(cls.patterns, against)?;
+    let splits_to_try = (lhs_state.equations.iter())
+        .filter(|e| e.in_pat.is_split())
+        .cloned()
+        .collect::<Vec<_>>();
     unimplemented!()
 }

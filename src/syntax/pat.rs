@@ -33,12 +33,10 @@ pub enum Copat<Ix, Term> {
 
 impl<Ix, Term> Pat<Ix, Term> {
     pub fn is_split(&self) -> bool {
+        use Pat::*;
         match self {
-            Pat::Var(..) => false,
-            Pat::Refl => true,
-            Pat::Absurd => false,
-            Pat::Cons(..) => true,
-            Pat::Forced(..) => false,
+            Refl | Cons(..) => true,
+            Var(..) | Absurd | Forced(..) => false,
         }
     }
 }
