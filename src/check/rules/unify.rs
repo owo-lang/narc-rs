@@ -46,7 +46,7 @@ impl Unify for Term {
         use Term::*;
         match (left, right) {
             (Whnf(left), Whnf(right)) => Unify::unify(tcs, left, right),
-            (Redex(i, a), Redex(j, b)) if a.len() == b.len() => {
+            (Redex(i, _, a), Redex(j, _, b)) if a.len() == b.len() => {
                 tcs = Unify::unify(tcs, i, j)?;
                 Unify::unify(tcs, a.as_slice(), b.as_slice())
             }

@@ -20,7 +20,7 @@ impl Display for Term {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
         match self {
             Term::Whnf(v) => v.fmt(f),
-            Term::Redex(fun, args) => pretty_application(f, fun, args),
+            Term::Redex(_, ident, args) => pretty_application(f, &ident.text, args),
         }
     }
 }

@@ -20,7 +20,7 @@ impl RedEx for Term {
     fn reduce_dbi(self, subst: &Subst) -> Term {
         match self {
             Term::Whnf(n) => n.reduce_dbi(subst),
-            Term::Redex(f, args) => def_app(f, vec![], reduce_vec_dbi(args, &subst)),
+            Term::Redex(f, id, args) => def_app(f, id, vec![], reduce_vec_dbi(args, &subst)),
         }
     }
 

@@ -70,7 +70,7 @@ pub enum Val {
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum Term {
     Whnf(Val),
-    Redex(GI, Vec<Elim>),
+    Redex(GI, Ident, Vec<Elim>),
 }
 
 pub type Bind<T = Term> = common::Bind<T>;

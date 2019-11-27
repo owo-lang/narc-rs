@@ -1,4 +1,5 @@
 use super::super::{Elim, Term, Val};
+use voile_util::loc::Ident;
 use voile_util::uid::GI;
 
 impl Term {
@@ -34,7 +35,7 @@ impl Term {
                     }
                 }
             }
-            Term::Redex(f, a) => def_app(f, a, args),
+            Term::Redex(f, id, a) => def_app(f, id, a, args),
             e => panic!("Cannot eliminate `{}`.", e),
         }
     }
@@ -42,7 +43,7 @@ impl Term {
 
 /// Application on a definition.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.html#defApp).
-pub fn def_app(f: GI, mut a: Vec<Elim>, mut args: Vec<Elim>) -> Term {
+pub fn def_app(f: GI, id: Ident, mut a: Vec<Elim>, mut args: Vec<Elim>) -> Term {
     /* // Does not support projection using application syntax.
     match args.first() {
         Some(Elim::App(arg)) => {
@@ -53,5 +54,5 @@ pub fn def_app(f: GI, mut a: Vec<Elim>, mut args: Vec<Elim>) -> Term {
     }
     */
     a.append(&mut args);
-    Term::Redex(f, a)
+    Term::Redex(f, id, a)
 }

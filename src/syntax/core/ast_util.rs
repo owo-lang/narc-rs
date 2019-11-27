@@ -1,4 +1,5 @@
 use voile_util::level::Level;
+use voile_util::loc::Ident;
 use voile_util::meta::MI;
 use voile_util::tags::{Plicit, VarRec};
 use voile_util::uid::*;
@@ -71,12 +72,12 @@ impl Term {
         Term::Whnf(Val::Axiom(uid))
     }
 
-    pub fn def(gi: GI, elims: Vec<Elim>) -> Self {
-        Term::Redex(gi, elims)
+    pub fn def(gi: GI, ident: Ident, elims: Vec<Elim>) -> Self {
+        Term::Redex(gi, ident, elims)
     }
 
-    pub fn simple_def(gi: GI) -> Self {
-        Self::def(gi, vec![])
+    pub fn simple_def(gi: GI, ident: Ident) -> Self {
+        Self::def(gi, ident, vec![])
     }
 
     pub fn pi_from_tele(tele: Tele, ret: Self) -> Self {

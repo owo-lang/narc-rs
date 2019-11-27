@@ -1,7 +1,7 @@
 use std::iter::once;
 
 use either::Either::{Left, Right};
-use voile_util::loc::ToLoc;
+use voile_util::loc::*;
 use voile_util::tags::{Plicit, VarRec};
 use voile_util::uid::{next_uid, DBI, GI};
 
@@ -106,7 +106,13 @@ pub fn type_of_decl(tcs: &TCS, decl: GI) -> TCM<TermInfo> {
                 .map(Bind::into_implicit)
                 .chain(params.iter().cloned())
                 .collect();
-            let ret = Term::def(data, range.rev().map(DBI).map(Elim::from_dbi).collect());
+            // TODO: This is a fake ident
+            let ident = Ident {
+                loc: cons.loc(),
+                text: tcs.def(data).def_name().clone(),
+            };
+            let elims = range.rev().map(DBI).map(Elim::from_dbi).collect();
+            let ret = Term::def(data, ident, elims);
             Ok(Term::pi_from_tele(tele, ret).at(cons.loc()))
         }
         Decl::Proj {
@@ -117,7 +123,13 @@ pub fn type_of_decl(tcs: &TCS, decl: GI) -> TCM<TermInfo> {
                 _ => unreachable!(),
             };
             let range = 0..data_tele.len() - 1;
-            let codata = Term::def(*codata, range.rev().map(DBI).map(Elim::from_dbi).collect());
+            // TODO: This is a fake ident
+            let ident = Ident {
+                loc: *loc,
+                text: tcs.def(*codata).def_name().clone(),
+            };
+            let elims = range.rev().map(DBI).map(Elim::from_dbi).collect();
+            let codata = Term::def(*codata, ident, elims);
             let tele = data_tele
                 .iter()
                 .cloned()
@@ -134,9 +146,8 @@ pub fn type_of_decl(tcs: &TCS, decl: GI) -> TCM<TermInfo> {
 pub fn infer_head(tcs: TCS, abs: &Abs) -> InferTCM {
     use Abs::*;
     match abs {
-        Proj(id, def) | Cons(id, def) | Def(id, def) => {
-            type_of_decl(&tcs, *def).map(|ty| (Term::simple_def(*def).at(id.loc), ty.ast, tcs))
-        }
+        Proj(id, def) | Cons(id, def) | Def(id, def) => type_of_decl(&tcs, *def)
+            .map(|ty| (Term::simple_def(*def, id.clone()).at(id.loc), ty.ast, tcs)),
         Var(loc, var) => {
             let (ix, ty) = tcs.local_by_id(*var);
             Ok((Term::from_dbi(ix).at(loc.loc), ty.ty.clone(), tcs))

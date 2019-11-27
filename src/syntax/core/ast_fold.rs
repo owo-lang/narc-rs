@@ -27,7 +27,7 @@ impl FoldVal for Term {
         use Term::*;
         match self {
             Whnf(val) => val.try_fold_val(init, f),
-            Redex(_, args) => args.try_fold_val(init, f),
+            Redex(_, _, args) => args.try_fold_val(init, f),
         }
     }
 }
