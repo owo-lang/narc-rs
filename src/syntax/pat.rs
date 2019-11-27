@@ -31,6 +31,18 @@ pub enum Copat<Ix, Term> {
     Proj(String),
 }
 
+impl<Ix, Term> Pat<Ix, Term> {
+    pub fn is_split(&self) -> bool {
+        match self {
+            Pat::Var(..) => false,
+            Pat::Refl => true,
+            Pat::Absurd => false,
+            Pat::Cons(..) => true,
+            Pat::Forced(..) => false,
+        }
+    }
+}
+
 impl<Ix, Term> Copat<Ix, Term> {
     pub fn absurd() -> Self {
         Copat::App(Pat::Absurd)
@@ -46,6 +58,14 @@ impl<Ix, Term> Copat<Ix, Term> {
     }
     pub fn cons(is_forced: bool, cons: ConHead, pats: Vec<Pat<Ix, Term>>) -> Self {
         Copat::App(Pat::Cons(is_forced, cons, pats))
+    }
+
+    pub fn is_split(&self) -> bool {
+        match self {
+            Copat::App(p) => p.is_split(),
+            // Agda panics for this case.
+            Copat::Proj(..) => false,
+        }
     }
 
     pub fn map_app<Ix2, Term2>(
