@@ -1,3 +1,5 @@
+use voile_util::uid::{next_uid, UID};
+
 use crate::syntax::core::ConHead;
 
 /// Patterns.
@@ -54,5 +56,11 @@ impl<Ix, Term> Copat<Ix, Term> {
             Copat::App(app) => Copat::App(f(app)),
             Copat::Proj(field) => Copat::Proj(field),
         }
+    }
+}
+
+impl<Term> Copat<UID, Term> {
+    pub fn fresh_var() -> Self {
+        Self::var(unsafe { next_uid() })
     }
 }

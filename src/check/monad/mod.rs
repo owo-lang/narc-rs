@@ -11,8 +11,11 @@ mod state;
 /// Type-Checking Monad.
 pub type TCM<T = TCS> = Result<T, TCE>;
 
-/// Val-Producing Type-Checking Monad.
-pub type TermTCM = TCM<(TermInfo, TCS)>;
+/// Type-Checking Monad with State.
+pub type TCMS<T> = TCM<(T, TCS)>;
+
+/// Term-Producing Type-Checking Monad.
+pub type TermTCM = TCMS<TermInfo>;
 
 /// Whnf-Producing Type-Checking Monad.
-pub type ValTCM = TCM<(Val, TCS)>;
+pub type ValTCM = TCMS<Val>;

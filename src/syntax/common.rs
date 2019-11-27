@@ -21,6 +21,10 @@ impl<T> Bind<T> {
         Self { licit, name, ty }
     }
 
+    pub fn is_implicit(&self) -> bool {
+        self.licit == Plicit::Im
+    }
+
     pub fn into_implicit(mut self) -> Self {
         self.licit = Plicit::Im;
         self

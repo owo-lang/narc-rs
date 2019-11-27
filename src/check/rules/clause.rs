@@ -1,6 +1,8 @@
-use crate::check::monad::{TCM, TCS};
+use voile_util::uid::DBI;
+
+use crate::check::monad::{TCMS, TCS};
 use crate::syntax::abs::{AbsClause, AbsCopat};
-use crate::syntax::core::{Clause, Pat, Tele, Term, Val};
+use crate::syntax::core::{Clause, Pat, Tele, Term};
 
 /// A user pattern and a core term that they should equal
 /// after splitting is complete.
@@ -22,18 +24,40 @@ pub struct LhsState {
     pub pats: Vec<Pat>,
     /// User patterns' unification problems.
     pub problem: Vec<AbsCopat>,
-    /// Type eliminated by `problem.rest_pats`.
+    /// Type eliminated by `problem`.
     pub target: Term,
     // TODO: what is `_lhsPartialSplit`?
 }
 
-pub fn init_lhs_state(tcs: TCS, tele: Tele, ty: &Val) -> TCM<LhsState> {
-    unimplemented!()
+pub fn init_lhs_state(tcs: TCS, pats: Vec<AbsCopat>, ty: Term) -> TCMS<LhsState> {
+    let (tele, target) = ty.tele_view();
+    let pats_len = pats.len();
+    let mut pats_iter = pats.into_iter();
+    let mut pats = Vec::with_capacity(pats_len + 2);
+    for bind in &tele {
+        if bind.is_implicit() {
+            pats.push(AbsCopat::fresh_var());
+        } else if let Some(pat) = pats_iter.next() {
+            pats.push(pat);
+        } else {
+            // All patterns are eliminated -- because
+            // `pats_iter.next()` returns `None`
+            break;
+        }
+    }
+    let tele_dbi = (0..tele.len()).rev().map(DBI).map(Pat::var).collect();
+    let state = LhsState {
+        tele,
+        pats: tele_dbi,
+        problem: pats,
+        target,
+    };
+    Ok((state, tcs))
 }
 
 /// Checking an abstract clause.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.Def.html#checkClause).
-pub fn clause(tcs: TCS, cls: AbsClause, against: &Val) -> TCM<Clause> {
+pub fn clause(tcs: TCS, cls: AbsClause, against: Term) -> TCMS<Clause> {
     // Expand pattern synonyms here once we support it.
     unimplemented!()
 }
