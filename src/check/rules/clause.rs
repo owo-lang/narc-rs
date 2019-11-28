@@ -21,10 +21,11 @@ pub struct Equation {
 pub struct LhsState {
     /// Pattern variables' types.
     pub tele: Tele,
-    /// Patterns after splitting. Indices are positioned from right to left.
+    /// Patterns after splitting.
+    /// Indices are positioned from right to left.
     pub pats: Vec<Pat>,
     /// List of user patterns which could not yet be typed.
-    pub problems: Vec<AbsCopat>,
+    pub todo_pats: Vec<AbsCopat>,
     /// User patterns' unification problems.
     pub equations: Vec<Equation>,
     /// Type eliminated by `problem`.
@@ -39,11 +40,9 @@ pub fn init_lhs_state(pats: Vec<AbsCopat>, ty: Term) -> TCM<LhsState> {
     let (tele, target) = ty.tele_view();
     let pats_len = pats.len();
     let mut pats_iter = pats.into_iter();
-    let mut pats = Vec::with_capacity(pats_len + 2);
     let mut equations = Vec::with_capacity(pats_len);
     for (i, bind) in tele.iter().enumerate() {
         let mut f = |pat: AbsCopat| {
-            pats.push(pat.clone());
             let equation = Equation {
                 in_pat: pat,
                 // DBI is from right to left
@@ -66,7 +65,7 @@ pub fn init_lhs_state(pats: Vec<AbsCopat>, ty: Term) -> TCM<LhsState> {
     let state = LhsState {
         tele,
         pats: tele_dbi,
-        problems: pats,
+        todo_pats: pats_iter.collect(),
         equations,
         target,
     };
