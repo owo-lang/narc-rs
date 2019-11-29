@@ -4,6 +4,7 @@ use crate::check::monad::{TCM, TCMS, TCS};
 use crate::syntax::abs::{AbsClause, AbsCopat};
 use crate::syntax::core::subst::RedEx;
 use crate::syntax::core::{Clause, Pat, Tele, Term};
+use crate::syntax::pat::PatCommon;
 
 /// A user pattern and a core term that they should equal
 /// after splitting is complete.
@@ -16,6 +17,14 @@ pub struct Equation {
     pub ty: Term,
 }
 
+#[derive(Debug, Clone)]
+pub struct Problem {
+    /// List of user patterns which could not yet be typed.
+    pub todo_pats: Vec<AbsCopat>,
+    /// User patterns' unification problems.
+    pub equations: Vec<Equation>,
+}
+
 /// State worked on during lhs checking.
 #[derive(Debug, Clone)]
 pub struct LhsState {
@@ -24,10 +33,8 @@ pub struct LhsState {
     /// Patterns after splitting.
     /// Indices are positioned from right to left.
     pub pats: Vec<Pat>,
-    /// List of user patterns which could not yet be typed.
-    pub todo_pats: Vec<AbsCopat>,
-    /// User patterns' unification problems.
-    pub equations: Vec<Equation>,
+    /// Yet solved pattern matching.
+    pub problem: Problem,
     /// Type eliminated by `problem`.
     pub target: Term,
 }
@@ -61,12 +68,15 @@ pub fn init_lhs_state(pats: Vec<AbsCopat>, ty: Term) -> TCM<LhsState> {
             break;
         }
     }
+    let problem = Problem {
+        todo_pats: pats_iter.collect(),
+        equations,
+    };
     let tele_dbi = (0..tele.len()).rev().map(DBI).map(Pat::var).collect();
     let state = LhsState {
         tele,
         pats: tele_dbi,
-        todo_pats: pats_iter.collect(),
-        equations,
+        problem,
         target,
     };
     Ok(state)
@@ -77,7 +87,7 @@ pub fn init_lhs_state(pats: Vec<AbsCopat>, ty: Term) -> TCM<LhsState> {
 pub fn clause(tcs: TCS, cls: AbsClause, against: Term) -> TCMS<Clause> {
     // Expand pattern synonyms here once we support it.
     let lhs_state = init_lhs_state(cls.patterns, against)?;
-    let splits_to_try = (lhs_state.equations.iter())
+    let splits_to_try = (lhs_state.problem.equations.iter())
         .filter(|e| e.in_pat.is_split())
         .cloned()
         .collect::<Vec<_>>();

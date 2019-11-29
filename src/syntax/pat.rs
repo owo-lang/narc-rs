@@ -31,12 +31,32 @@ pub enum Copat<Ix, Term> {
     Proj(String),
 }
 
-impl<Ix, Term> Pat<Ix, Term> {
-    pub fn is_split(&self) -> bool {
+/// Common methods shared by patterns.
+pub trait PatCommon {
+    /// Whether the pattern is a splitting pattern or not.
+    fn is_split(&self) -> bool;
+
+    fn is_solved(&self) -> bool {
+        self.is_split()
+    }
+}
+
+impl<Ix, Term> PatCommon for Pat<Ix, Term> {
+    fn is_split(&self) -> bool {
         use Pat::*;
         match self {
             Refl | Cons(..) => true,
             Var(..) | Absurd | Forced(..) => false,
+        }
+    }
+}
+
+impl<Ix, Term> PatCommon for Copat<Ix, Term> {
+    fn is_split(&self) -> bool {
+        match self {
+            Copat::App(p) => p.is_split(),
+            // Agda panics for this case.
+            Copat::Proj(..) => false,
         }
     }
 }
@@ -56,14 +76,6 @@ impl<Ix, Term> Copat<Ix, Term> {
     }
     pub fn cons(is_forced: bool, cons: ConHead, pats: Vec<Pat<Ix, Term>>) -> Self {
         Copat::App(Pat::Cons(is_forced, cons, pats))
-    }
-
-    pub fn is_split(&self) -> bool {
-        match self {
-            Copat::App(p) => p.is_split(),
-            // Agda panics for this case.
-            Copat::Proj(..) => false,
-        }
     }
 
     pub fn map_app<Ix2, Term2>(
