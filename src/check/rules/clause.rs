@@ -17,12 +17,24 @@ pub struct Equation {
     pub ty: Term,
 }
 
+impl PatCommon for Equation {
+    fn is_split(&self) -> bool {
+        self.in_pat.is_split()
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Problem {
     /// List of user patterns which could not yet be typed.
     pub todo_pats: Vec<AbsCopat>,
     /// User patterns' unification problems.
     pub equations: Vec<Equation>,
+}
+
+impl Problem {
+    pub fn is_all_solved(&self) -> bool {
+        self.todo_pats.is_empty() && self.equations.iter().all(|eq| eq.is_solved())
+    }
 }
 
 /// State worked on during lhs checking.
@@ -82,14 +94,25 @@ pub fn init_lhs_state(pats: Vec<AbsCopat>, ty: Term) -> TCM<LhsState> {
     Ok(state)
 }
 
+/// Checking a pattern matching lhs.
+/// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.LHS.html).
+pub fn check_lhs(tcs: TCS, lhs: LhsState) -> TCM<Clause> {
+    if lhs.problem.is_all_solved() {
+        // TODO: check rhs
+        unimplemented!();
+    }
+    let splits_to_try = (lhs.problem.equations.iter())
+        .filter(|e| e.in_pat.is_split())
+        .cloned()
+        .collect::<Vec<_>>();
+    unimplemented!()
+}
+
 /// Checking an abstract clause.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.Def.html#checkClause).
 pub fn clause(tcs: TCS, cls: AbsClause, against: Term) -> TCMS<Clause> {
     // Expand pattern synonyms here once we support it.
     let lhs_state = init_lhs_state(cls.patterns, against)?;
-    let splits_to_try = (lhs_state.problem.equations.iter())
-        .filter(|e| e.in_pat.is_split())
-        .cloned()
-        .collect::<Vec<_>>();
+    let _ = check_lhs(tcs, lhs_state)?;
     unimplemented!()
 }
