@@ -78,6 +78,13 @@ impl<Ix, Term> Copat<Ix, Term> {
         Copat::App(Pat::Cons(is_forced, cons, pats))
     }
 
+    pub fn is_proj(&self) -> bool {
+        match self {
+            Copat::App(_) => false,
+            Copat::Proj(_) => true,
+        }
+    }
+
     pub fn map_app<Ix2, Term2>(
         self,
         f: impl FnOnce(Pat<Ix, Term>) -> Pat<Ix2, Term2>,

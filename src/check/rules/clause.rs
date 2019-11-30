@@ -51,6 +51,13 @@ pub struct LhsState {
     pub target: Term,
 }
 
+impl LhsState {
+    /// Number of patterns.
+    pub fn len_pats(&self) -> usize {
+        self.pats.iter().take_while(|pat| !pat.is_proj()).count()
+    }
+}
+
 /// In Agda,
 /// [this function](https://hackage.haskell.org/package/Agda-2.5.4/docs/src/Agda.TypeChecking.Rules.LHS.ProblemRest.html#initLHSState)
 /// is implemented via an
@@ -94,12 +101,17 @@ pub fn init_lhs_state(pats: Vec<AbsCopat>, ty: Term) -> TCM<LhsState> {
     Ok(state)
 }
 
-/// Checking a pattern matching lhs.
+pub fn check_rhs(tcs: TCS, lhs: LhsState) -> TCMS<Clause> {
+    debug_assert!(lhs.problem.todo_pats.is_empty());
+    let len_pats = lhs.len_pats();
+    unimplemented!()
+}
+
+/// Checking a pattern matching lhs recursively.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.LHS.html).
-pub fn check_lhs(tcs: TCS, lhs: LhsState) -> TCM<Clause> {
+pub fn check_lhs(tcs: TCS, lhs: LhsState) -> TCMS<Clause> {
     if lhs.problem.is_all_solved() {
-        // TODO: check rhs
-        unimplemented!();
+        return check_rhs(tcs, lhs);
     }
     let splits_to_try = (lhs.problem.equations.iter())
         .filter(|e| e.in_pat.is_split())
@@ -113,6 +125,5 @@ pub fn check_lhs(tcs: TCS, lhs: LhsState) -> TCM<Clause> {
 pub fn clause(tcs: TCS, cls: AbsClause, against: Term) -> TCMS<Clause> {
     // Expand pattern synonyms here once we support it.
     let lhs_state = init_lhs_state(cls.patterns, against)?;
-    let _ = check_lhs(tcs, lhs_state)?;
-    unimplemented!()
+    check_lhs(tcs, lhs_state)
 }
