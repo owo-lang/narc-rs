@@ -1,10 +1,8 @@
 use std::rc::Rc;
 
-use either::Either;
 use voile_util::uid::DBI;
 
 use super::super::{Pat, Term};
-use super::*;
 
 /// Substitution type.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.Syntax.Internal.html#Substitution%27).
@@ -46,76 +44,6 @@ pub enum PrimSubst<T> {
 impl<T> Default for PrimSubst<T> {
     fn default() -> Self {
         PrimSubst::IdS
-    }
-}
-
-impl PrimSubst<Term> {
-    /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#composeS).
-    pub fn compose(rho: Rc<Self>, sgm: Rc<Self>) -> Rc<Self> {
-        use PrimSubst::*;
-        match (&*rho, &*sgm) {
-            (_, IdS) => rho,
-            (IdS, _) => sgm,
-            // rho, EmptyS(err) => EmptyS(err)
-            (_, Weak(n, sgm)) => Self::compose(Self::drop_by(rho, *n), sgm.clone()),
-            (_, Cons(u, sgm)) => Rc::new(Cons(
-                u.clone().reduce_dbi(&*rho),
-                Self::compose(rho, sgm.clone()),
-            )),
-            (_, Succ(sgm)) => Rc::new(Succ(Self::compose(rho, sgm.clone()))),
-            (_, Lift(DBI(0), _sgm)) => unreachable!(),
-            (Cons(u, rho), Lift(n, sgm)) => Rc::new(Cons(
-                u.clone(),
-                Self::compose(rho.clone(), Self::lift_by(sgm.clone(), *n - 1)),
-            )),
-            (_, Lift(n, sgm)) => Rc::new(Cons(
-                rho.lookup(DBI(0)),
-                Self::compose(
-                    rho.clone(),
-                    Self::weaken(Self::lift_by(sgm.clone(), *n - 1), DBI(1)),
-                ),
-            )),
-        }
-    }
-
-    /// If lookup failed, return the DBI.
-    /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#lookupS).
-    pub fn lookup_impl(&self, dbi: DBI) -> Either<&Term, Term> {
-        use Either::*;
-        use PrimSubst::*;
-        match self {
-            IdS => Right(Term::from_dbi(dbi)),
-            Cons(o, rest) => match dbi.nat() {
-                None => Left(o),
-                Some(dbi) => rest.lookup_impl(dbi),
-            },
-            Succ(rest) => rest.lookup_impl(dbi.pred()),
-            Weak(i, rest) => match &**rest {
-                IdS => Right(Term::from_dbi(dbi + *i)),
-                rho => Right(rho.lookup(*i).reduce_dbi(&*Self::raise(*i))),
-            },
-            Lift(n, rest) => {
-                if dbi < *n {
-                    Right(Term::from_dbi(dbi))
-                } else {
-                    Right(Self::raise_term(*n, rest.lookup(dbi - *n)))
-                }
-            }
-        }
-    }
-
-    pub fn lookup(&self, dbi: DBI) -> Term {
-        self.lookup_impl(dbi).map_left(Clone::clone).into_inner()
-    }
-
-    /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#raise).
-    pub fn raise_term(k: DBI, term: Term) -> Term {
-        Self::raise_from(DBI(0), k, term)
-    }
-
-    /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#raiseFrom).
-    pub fn raise_from(n: DBI, k: DBI, term: Term) -> Term {
-        term.reduce_dbi(&Self::lift_by(Self::raise(k), n))
     }
 }
 
