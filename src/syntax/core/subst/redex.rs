@@ -1,6 +1,3 @@
-use voile_util::tags::Plicit;
-use voile_util::uid::{next_uid, DBI};
-
 use crate::syntax::common::Bind;
 
 use super::super::{Closure, Elim, Term, Val};
