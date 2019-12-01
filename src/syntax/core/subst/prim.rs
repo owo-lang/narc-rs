@@ -98,34 +98,43 @@ impl<T> PrimSubst<T> {
     }
 
     /// Lift a substitution under k binders.
+    /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#dropS).
+    pub fn drop_by(me: Rc<Self>, by: usize) -> Rc<Self> {
+        use PrimSubst::*;
+        match (by, &*me) {
+            (0, _) => me,
+            (n, IdS) => Self::raise(n),
+            (n, Weak(m, rho)) => Self::weaken(Self::drop_by(rho.clone(), n - 1), *m),
+            (n, Cons(_, rho)) | (n, Succ(rho)) => Self::drop_by(rho.clone(), n - 1),
+            // n, EmptyS(err) => absurd(err)
+            (n, Lift(0, _rho)) => unreachable!(&format!("n = {:?}", n)),
+            (n, Lift(m, rho)) => {
+                Self::weaken(Self::drop_by(Self::lift_by(rho.clone(), m - 1), n - 1), 1)
+            }
+        }
+    }
+
+    /// Lift a substitution under k binders.
     /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#liftS).
     pub fn lift_by(me: Rc<Self>, by: usize) -> Rc<Self> {
         use PrimSubst::*;
-        match (by, me) {
-            (0, rho) => rho,
-            (k, rho) => match &*rho {
-                IdS => Default::default(),
-                Lift(n, rho) => Rc::new(Lift(n + k, rho.clone())),
-                _ => Rc::new(Lift(k, rho)),
-            },
+        match (by, &*me) {
+            (0, _) => me,
+            (k, IdS) => Default::default(),
+            (k, Lift(n, rho)) => Rc::new(Lift(n + k, rho.clone())),
+            (k, _) => Rc::new(Lift(k, me)),
         }
     }
 
     /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#wkS).
     pub fn weaken(me: Rc<Self>, by: usize) -> Rc<Self> {
         use PrimSubst::*;
-        match (by, me) {
-            (0, rho) => rho,
-            (n, rho) => match &*rho {
-                Weak(m, rho) => Rc::new(Weak(n + *m, rho.clone())),
-                // EmptyS(err) => EmptyS(err)
-                _ => Rc::new(Weak(n, rho)),
-            },
+        match (by, &*me) {
+            (0, _) => me,
+            (n, Weak(m, rho)) => Rc::new(Weak(n + *m, rho.clone())),
+            // n, EmptyS(err) => EmptyS(err)
+            (n, _) => Rc::new(Weak(n, me)),
         }
-    }
-
-    pub fn id() -> Rc<Self> {
-        Rc::new(Default::default())
     }
 
     // === Constructors ===
@@ -134,17 +143,14 @@ impl<T> PrimSubst<T> {
         Self::cons(Self::default(), t)
     }
 
-    /// Constructor.
     pub fn cons(self, t: T) -> Self {
         PrimSubst::Cons(t, Rc::new(self))
     }
 
-    /// Constructor.
     pub fn lift(self, i: usize) -> Self {
         PrimSubst::Lift(i, Rc::new(self))
     }
 
-    /// Constructor.
     pub fn weak(self, i: usize) -> Self {
         PrimSubst::Weak(i, Rc::new(self))
     }
