@@ -1,41 +1,12 @@
 use voile_util::uid::DBI;
 
 use crate::check::monad::{TCM, TCMS, TCS};
-use crate::syntax::abs::{AbsClause, AbsCopat};
+use crate::syntax::abs::AbsCopat;
 use crate::syntax::core::subst::RedEx;
 use crate::syntax::core::{Clause, Pat, Tele, Term};
 use crate::syntax::pat::PatCommon;
 
-/// A user pattern and a core term that they should equal
-/// after splitting is complete.
-/// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.Syntax.Abstract.html#ProblemEq).
-#[derive(Debug, PartialEq, Eq, Clone)]
-pub struct Equation {
-    /// The pattern causes this problem.
-    pub in_pat: AbsCopat,
-    pub inst: Term,
-    pub ty: Term,
-}
-
-impl PatCommon for Equation {
-    fn is_split(&self) -> bool {
-        self.in_pat.is_split()
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct Problem {
-    /// List of user patterns which could not yet be typed.
-    pub todo_pats: Vec<AbsCopat>,
-    /// User patterns' unification problems.
-    pub equations: Vec<Equation>,
-}
-
-impl Problem {
-    pub fn is_all_solved(&self) -> bool {
-        self.todo_pats.is_empty() && self.equations.iter().all(|eq| eq.is_solved())
-    }
-}
+use super::{check_rhs, Equation, Problem};
 
 /// State worked on during lhs checking.
 #[derive(Debug, Clone)]
@@ -101,12 +72,6 @@ pub fn init_lhs_state(pats: Vec<AbsCopat>, ty: Term) -> TCM<LhsState> {
     Ok(state)
 }
 
-pub fn check_rhs(tcs: TCS, lhs: LhsState) -> TCMS<Clause> {
-    debug_assert!(lhs.problem.todo_pats.is_empty());
-    let len_pats = lhs.len_pats();
-    unimplemented!()
-}
-
 /// Checking a pattern matching lhs recursively.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.LHS.html).
 pub fn check_lhs(tcs: TCS, lhs: LhsState) -> TCMS<Clause> {
@@ -118,12 +83,4 @@ pub fn check_lhs(tcs: TCS, lhs: LhsState) -> TCMS<Clause> {
         .cloned()
         .collect::<Vec<_>>();
     unimplemented!()
-}
-
-/// Checking an abstract clause.
-/// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.Def.html#checkClause).
-pub fn clause(tcs: TCS, cls: AbsClause, against: Term) -> TCMS<Clause> {
-    // Expand pattern synonyms here once we support it.
-    let lhs_state = init_lhs_state(cls.patterns, against)?;
-    check_lhs(tcs, lhs_state)
 }
