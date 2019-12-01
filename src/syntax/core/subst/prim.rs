@@ -99,9 +99,9 @@ impl<T> PrimSubst<T> {
 
     /// Lift a substitution under k binders.
     /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#dropS).
-    pub fn drop_by(me: Rc<Self>, by: usize) -> Rc<Self> {
+    pub fn drop_by(me: Rc<Self>, drop_by: usize) -> Rc<Self> {
         use PrimSubst::*;
-        match (by, &*me) {
+        match (drop_by, &*me) {
             (0, _) => me,
             (n, IdS) => Self::raise(n),
             (n, Weak(m, rho)) => Self::weaken(Self::drop_by(rho.clone(), n - 1), *m),
@@ -116,9 +116,9 @@ impl<T> PrimSubst<T> {
 
     /// Lift a substitution under k binders.
     /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#liftS).
-    pub fn lift_by(me: Rc<Self>, by: usize) -> Rc<Self> {
+    pub fn lift_by(me: Rc<Self>, lift_by: usize) -> Rc<Self> {
         use PrimSubst::*;
-        match (by, &*me) {
+        match (lift_by, &*me) {
             (0, _) => me,
             (k, IdS) => Default::default(),
             (k, Lift(n, rho)) => Rc::new(Lift(n + k, rho.clone())),
@@ -127,9 +127,9 @@ impl<T> PrimSubst<T> {
     }
 
     /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#wkS).
-    pub fn weaken(me: Rc<Self>, by: usize) -> Rc<Self> {
+    pub fn weaken(me: Rc<Self>, weaken_by: usize) -> Rc<Self> {
         use PrimSubst::*;
-        match (by, &*me) {
+        match (weaken_by, &*me) {
             (0, _) => me,
             (n, Weak(m, rho)) => Rc::new(Weak(n + *m, rho.clone())),
             // n, EmptyS(err) => EmptyS(err)
@@ -140,21 +140,41 @@ impl<T> PrimSubst<T> {
     // === Constructors ===
 
     pub fn one(t: T) -> Self {
-        Self::cons(Self::default(), t)
-    }
-
-    pub fn cons(self, t: T) -> Self {
-        PrimSubst::Cons(t, Rc::new(self))
-    }
-
-    pub fn lift(self, i: usize) -> Self {
-        PrimSubst::Lift(i, Rc::new(self))
-    }
-
-    pub fn weak(self, i: usize) -> Self {
-        PrimSubst::Weak(i, Rc::new(self))
+        PrimSubst::Cons(t, Default::default())
     }
 }
 
 pub type Subst = PrimSubst<Term>;
 pub type PatSubst = PrimSubst<Pat>;
+
+impl Subst {
+    /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#composeS).
+    pub fn compose(rho: Rc<Self>, sgm: Rc<Self>) -> Rc<Self> {
+        /*
+        composeS :: Subst a a => Substitution' a -> Substitution' a -> Substitution' a
+        composeS (u :# rho) (Lift n sgm) = u :# composeS rho (liftS (n - 1) sgm)
+        composeS rho (Lift n sgm) = lookupS rho 0 :# composeS rho (wkS 1 (liftS (n - 1) sgm))
+        */
+        use PrimSubst::*;
+        match (&*rho, &*sgm) {
+            (_, IdS) => rho,
+            (IdS, _) => sgm,
+            // rho, EmptyS(err) => EmptyS(err)
+            (_, Weak(n, sgm)) => Self::compose(Self::drop_by(rho, *n), sgm.clone()),
+            (_, Cons(u, sgm)) => Rc::new(Cons(u.reduce_dbi(&rho), Self::compose(rho, sgm.clone()))),
+            (_, Succ(sgm)) => Rc::new(Succ(Self::compose(rho, sgm.clone()))),
+            (_, Lift(0, _sgm)) => unreachable!(),
+            (Cons(u, rho), Lift(n, sgm)) => Rc::new(Cons(
+                u.clone(),
+                Self::compose(rho.clone(), Self::lift_by(sgm.clone(), n - 1)),
+            )),
+            (_, Lift(n, sgm)) => Rc::new(Cons(
+                rho.lookup(DBI(0)),
+                Self::compose(
+                    rho.clone(),
+                    Self::weaken(Self::lift_by(sgm.clone(), n - 1), 1),
+                ),
+            )),
+        }
+    }
+}
