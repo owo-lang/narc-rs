@@ -2,7 +2,7 @@ use std::convert::TryFrom;
 
 use voile_util::uid::DBI;
 
-use crate::syntax::core::subst::RedEx;
+use crate::syntax::core::subst::DeBruijn;
 use crate::syntax::core::Elim;
 use crate::syntax::pat;
 

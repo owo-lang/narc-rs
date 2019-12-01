@@ -7,7 +7,7 @@ use voile_util::uid::{next_uid, DBI, GI};
 
 use crate::check::monad::{TCE, TCM, TCS};
 use crate::syntax::abs::Abs;
-use crate::syntax::core::subst::RedEx;
+use crate::syntax::core::subst::DeBruijn;
 use crate::syntax::core::{Bind, CodataInfo, DataInfo, Decl, Elim, Term, TermInfo, Val};
 
 use super::term::check;

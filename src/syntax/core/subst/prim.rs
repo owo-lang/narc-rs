@@ -146,14 +146,9 @@ impl<T> PrimSubst<T> {
 pub type Subst = PrimSubst<Term>;
 pub type PatSubst = PrimSubst<Pat>;
 
-impl Subst {
+impl PrimSubst<Term> {
     /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#composeS).
     pub fn compose(rho: Rc<Self>, sgm: Rc<Self>) -> Rc<Self> {
-        /*
-        composeS :: Subst a a => Substitution' a -> Substitution' a -> Substitution' a
-        composeS (u :# rho) (Lift n sgm) = u :# composeS rho (liftS (n - 1) sgm)
-        composeS rho (Lift n sgm) = lookupS rho 0 :# composeS rho (wkS 1 (liftS (n - 1) sgm))
-        */
         use PrimSubst::*;
         match (&*rho, &*sgm) {
             (_, IdS) => rho,
@@ -161,7 +156,7 @@ impl Subst {
             // rho, EmptyS(err) => EmptyS(err)
             (_, Weak(n, sgm)) => Self::compose(Self::drop_by(rho, *n), sgm.clone()),
             (_, Cons(u, sgm)) => Rc::new(Cons(
-                u.clone().reduce_dbi(&rho),
+                u.clone().reduce_dbi(&*rho),
                 Self::compose(rho, sgm.clone()),
             )),
             (_, Succ(sgm)) => Rc::new(Succ(Self::compose(rho, sgm.clone()))),

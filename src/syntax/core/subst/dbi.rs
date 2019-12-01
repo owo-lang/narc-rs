@@ -2,12 +2,16 @@ use std::rc::Rc;
 
 use voile_util::uid::DBI;
 
-use crate::syntax::core::{Term, Val};
+use crate::syntax::core::{Elim, Term, Val};
 
 use super::PrimSubst;
 
 pub trait DeBruijn {
+    /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.DeBruijn.html#deBruijnView).
     fn dbi_view(&self) -> Option<DBI>;
+
+    /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.DeBruijn.html#deBruijnVar).
+    fn from_dbi(dbi: DBI) -> Self;
 }
 
 impl DeBruijn for Val {
@@ -17,6 +21,23 @@ impl DeBruijn for Val {
             _ => None,
         }
     }
+
+    fn from_dbi(dbi: DBI) -> Self {
+        Val::Var(dbi, Default::default())
+    }
+}
+
+impl DeBruijn for Elim {
+    fn dbi_view(&self) -> Option<DBI> {
+        match self {
+            Elim::App(a) => a.dbi_view(),
+            Elim::Proj(..) => None,
+        }
+    }
+
+    fn from_dbi(dbi: DBI) -> Self {
+        Elim::app(DeBruijn::from_dbi(dbi))
+    }
 }
 
 impl DeBruijn for Term {
@@ -25,6 +46,10 @@ impl DeBruijn for Term {
             Term::Whnf(w) => w.dbi_view(),
             Term::Redex(..) => None,
         }
+    }
+
+    fn from_dbi(dbi: DBI) -> Self {
+        Term::Whnf(DeBruijn::from_dbi(dbi))
     }
 }
 

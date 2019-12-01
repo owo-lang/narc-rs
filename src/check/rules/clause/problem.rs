@@ -2,7 +2,7 @@ use voile_util::uid::DBI;
 
 use crate::check::monad::TCM;
 use crate::syntax::abs::AbsCopat;
-use crate::syntax::core::subst::RedEx;
+use crate::syntax::core::subst::DeBruijn;
 use crate::syntax::core::{Pat, Tele, Term};
 use crate::syntax::pat::PatCommon;
 

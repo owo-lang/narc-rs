@@ -12,6 +12,7 @@
 + Rename `ast_cons` to `ast_util`
 + Add `Ident` info to `Term::Whnf`
 + Unfold constructor applications (#27)
++ Introduce `DeBruijn` trait
 
 # 0.0.4
 
