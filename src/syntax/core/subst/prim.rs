@@ -8,6 +8,7 @@ use super::super::{Pat, Term};
 
 /// Substitution type.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.Syntax.Internal.html#Substitution%27).
+#[derive(Clone)]
 pub enum PrimSubst<T> {
     /// The identity substitution.
     /// $$

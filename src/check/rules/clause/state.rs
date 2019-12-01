@@ -23,7 +23,7 @@ impl Problem {
 }
 
 /// State worked on during lhs checking.
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct LhsState {
     /// Pattern variables' types.
     pub tele: Tele,

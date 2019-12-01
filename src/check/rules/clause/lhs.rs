@@ -4,11 +4,37 @@ use voile_util::uid::DBI;
 
 use crate::check::monad::{TCMS, TCS};
 use crate::syntax::core::subst::Subst;
-use crate::syntax::core::{Clause, Tele, Term};
+use crate::syntax::core::{Clause, Pat, Tele, Term};
 use crate::syntax::pat::PatCommon;
 
 use super::super::ERROR_TAKE;
 use super::{classify_eqs, LhsState};
+use crate::check::rules::clause::AsBind;
+
+/// Result of checking the LHS of a clause.
+/// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.LHS.html#LHSResult).
+#[derive(Clone)]
+pub struct Lhs {
+    /// $\Delta$: The types of the pattern variables, in internal dependency order.
+    /// Corresponds to `clauseTel` (in Agda).
+    pub tele: Tele,
+    /// Whether the LHS has at least one absurd pattern.
+    pub has_absurd: bool,
+    /// The patterns in internal syntax.
+    pub pats: Vec<Pat>,
+    /// The type of the body. Is $b~\sigma$ if $\Gamma$ is defined.
+    pub ty: Term,
+    /// Substitution version of `pats`, only up to the first projection pattern.
+    /// $\Delta \vdash \text{pat\_subst} : \Gamma$.
+    /// Where $\Gamma$ is the argument telescope of the function.
+    /// This is used to update inherited dot patterns in
+    /// with-function clauses.
+    pub pat_subst: Subst,
+    /// As-bindings from the left-hand side.
+    /// Return instead of bound since we
+    /// want them in where's and right-hand sides, but not in with-clauses
+    pub as_binds: Vec<AsBind>,
+}
 
 /**
 Compute substitution from the out patterns.
