@@ -4,7 +4,7 @@ use either::Either;
 use voile_util::uid::DBI;
 
 use crate::syntax::common::Bind;
-use crate::syntax::pat::Pat;
+use crate::syntax::pat::{Copat, Pat};
 
 use super::super::{Closure, Elim, Term, Val};
 use super::{def_app, DeBruijn, PrimSubst, Subst};
@@ -77,6 +77,15 @@ impl RedEx for Closure {
 impl<R, T: RedEx<R>> RedEx<Vec<R>> for Vec<T> {
     fn reduce_dbi(self, subst: &Subst) -> Vec<R> {
         self.into_iter().map(|e| e.reduce_dbi(subst)).collect()
+    }
+}
+
+impl<Ix, R, T: RedEx<R>> RedEx<Copat<Ix, R>> for Copat<Ix, T> {
+    fn reduce_dbi(self, subst: &Subst) -> Copat<Ix, R> {
+        match self {
+            Copat::App(a) => Copat::App(a.reduce_dbi(subst)),
+            Copat::Proj(p) => Copat::Proj(p),
+        }
     }
 }
 

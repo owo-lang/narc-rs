@@ -50,7 +50,7 @@ pub struct PatClass {
     pub as_binds: Vec<AsBind>,
     pub other_pats: Vec<AbsCopat>,
     /// Supposed to be an `IntMap`.
-    pub pat_vars: HashMap<DBI, UID>,
+    pub pat_vars: PatVars,
 }
 
 impl Add for PatClass {
@@ -59,7 +59,11 @@ impl Add for PatClass {
     fn add(mut self, mut rhs: Self) -> Self::Output {
         self.other_pats.append(&mut rhs.other_pats);
         self.as_binds.append(&mut rhs.as_binds);
-        self.pat_vars.extend(rhs.pat_vars.into_iter());
+        for (dbi, mut names) in rhs.pat_vars.into_iter() {
+            let mut existing = self.pat_vars.remove(&dbi).unwrap_or_default();
+            existing.append(&mut names);
+            self.pat_vars.insert(dbi, existing);
+        }
         Self {
             absurd_count: self.absurd_count + rhs.absurd_count,
             ..self
@@ -67,8 +71,10 @@ impl Add for PatClass {
     }
 }
 
+pub type PatVars = HashMap<DBI, Vec<UID>>;
+
 pub fn classify_eqs(mut tcs: TCS, eqs: Vec<Equation>) -> TCMS<PatClass> {
-    let mut pat_vars = HashMap::new();
+    let mut pat_vars = PatVars::new();
     let mut other_pats = Vec::with_capacity(eqs.len());
     let mut as_binds = Vec::with_capacity(eqs.len());
     let mut absurd_count = 0usize;
@@ -79,7 +85,10 @@ pub fn classify_eqs(mut tcs: TCS, eqs: Vec<Equation>) -> TCMS<PatClass> {
                 let (i, new_tcs) = is_eta_var_borrow(tcs, &eq.inst, &eq.ty)?;
                 tcs = new_tcs;
                 if let Some(i) = i {
-                    pat_vars.insert(i, x);
+                    pat_vars
+                        .entry(i)
+                        .and_modify(|v| v.push(x))
+                        .or_insert(vec![x]);
                 } else {
                     as_binds.push(AsBind::new(x, eq.inst, eq.ty));
                 }

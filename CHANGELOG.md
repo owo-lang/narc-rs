@@ -13,6 +13,8 @@
 + Add `Ident` info to `Term::Whnf`
 + Unfold constructor applications (#27)
 + Introduce `DeBruijn` trait
++ WIP LHS checking (equations, lhs-results, lhs-states, etc.)
+  + Pattern splitting is missing
 
 # 0.0.4
 
