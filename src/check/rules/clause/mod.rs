@@ -2,11 +2,13 @@ use crate::check::monad::{TCMS, TCS};
 use crate::syntax::abs::AbsClause;
 use crate::syntax::core::{Clause, Term};
 
+pub use self::eqs::*;
 pub use self::lhs::*;
-pub use self::problem::*;
+pub use self::state::*;
 
+mod eqs;
 mod lhs;
-mod problem;
+mod state;
 
 /// Checking an abstract clause.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.Def.html#checkClause).

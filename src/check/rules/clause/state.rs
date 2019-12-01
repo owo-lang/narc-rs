@@ -1,7 +1,4 @@
-use std::collections::HashMap;
-use std::ops::Add;
-
-use voile_util::uid::{DBI, UID};
+use voile_util::uid::DBI;
 
 use crate::check::monad::TCM;
 use crate::syntax::abs::AbsCopat;
@@ -9,22 +6,7 @@ use crate::syntax::core::subst::DeBruijn;
 use crate::syntax::core::{Pat, Tele, Term};
 use crate::syntax::pat::PatCommon;
 
-/// A user pattern and a core term that they should equal
-/// after splitting is complete.
-/// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.Syntax.Abstract.html#ProblemEq).
-#[derive(Debug, PartialEq, Eq, Clone)]
-pub struct Equation {
-    /// The pattern causes this problem.
-    pub in_pat: AbsCopat,
-    pub inst: Term,
-    pub ty: Term,
-}
-
-impl PatCommon for Equation {
-    fn is_split(&self) -> bool {
-        self.in_pat.is_split()
-    }
-}
+use super::Equation;
 
 #[derive(Debug, Clone)]
 pub struct Problem {
@@ -102,38 +84,4 @@ pub fn init_lhs_state(pats: Vec<AbsCopat>, ty: Term) -> TCM<LhsState> {
         target,
     };
     Ok(state)
-}
-
-/// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.LHS.Problem.html#AsBinding).
-#[derive(Debug, Clone)]
-pub struct AsBind {
-    pub name: UID,
-    pub term: Term,
-    pub ty: Term,
-}
-
-/// Classified patterns, called `LeftoverPatterns` in Agda.
-/// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.LHS.html#LeftoverPatterns).
-#[derive(Debug, Clone)]
-pub struct PatClass {
-    /// Number of absurd patterns.
-    pub absurd_count: usize,
-    pub as_binds: Vec<AsBind>,
-    pub other_pats: Vec<AbsCopat>,
-    /// Supposed to be an `IntMap`.
-    pub pat_vars: HashMap<DBI, UID>,
-}
-
-impl Add for PatClass {
-    type Output = Self;
-
-    fn add(mut self, mut rhs: Self) -> Self::Output {
-        self.other_pats.append(&mut rhs.other_pats);
-        self.as_binds.append(&mut rhs.as_binds);
-        self.pat_vars.extend(rhs.pat_vars.into_iter());
-        Self {
-            absurd_count: self.absurd_count + rhs.absurd_count,
-            ..self
-        }
-    }
 }

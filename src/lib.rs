@@ -52,7 +52,13 @@ href="https://www.zhihu.com/people/wu-liang-95-71"><em>Narc</em></a> (or
 <em>lwoo1999</em> on
 <a href="https://www.codewars.com/users/lwoo1999">CodeWars</a> and
 <a href="https://github.com/lwoo1999">GitHub</a>).
+<details>
+<summary>The real origin</summary>
+<span>
+The word <em>Narc</em> is originated from the visual noval
+<a href="https://store.steampowered.com/app/264380/Narcissu_1st__2nd">Narcissu</a>.
 </span>
+</details></span>
 </details></span>
 */
 

@@ -59,6 +59,11 @@ impl<T: DeBruijn> PrimSubst<T> {
         ts.fold(to, |to, t| Self::cons(t, to))
     }
 
+    /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#parallelS).
+    pub fn parallel(ts: impl Iterator<Item = T>) -> Rc<Self> {
+        Self::concat(ts, Default::default())
+    }
+
     /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#consS).
     pub fn cons(t: T, rho: Rc<Self>) -> Rc<Self> {
         match (t.dbi_view(), &*rho) {

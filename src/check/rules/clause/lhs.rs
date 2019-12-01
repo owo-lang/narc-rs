@@ -1,50 +1,14 @@
-use std::collections::HashMap;
 use std::convert::TryFrom;
 
-use voile_util::uid::{DBI, UID};
+use voile_util::uid::DBI;
 
 use crate::check::monad::{TCMS, TCS};
 use crate::syntax::core::subst::Subst;
-use crate::syntax::core::{Clause, Term};
-use crate::syntax::pat::{Copat, Pat, PatCommon};
+use crate::syntax::core::{Clause, Tele, Term};
+use crate::syntax::pat::PatCommon;
 
-use super::super::term::is_eta_var_borrow;
 use super::super::ERROR_TAKE;
-use super::{AsBind, Equation, LhsState, PatClass};
-
-pub fn classify_eqs(mut tcs: TCS, eqs: Vec<Equation>) -> TCMS<PatClass> {
-    let mut pat_vars = HashMap::new();
-    let mut other_pats = Vec::with_capacity(eqs.len());
-    let mut as_binds = Vec::with_capacity(eqs.len());
-    let mut absurd_count = 0usize;
-    for eq in eqs {
-        match eq.in_pat {
-            Copat::App(Pat::Absurd) => absurd_count += 1,
-            Copat::App(Pat::Var(x)) => {
-                let (i, new_tcs) = is_eta_var_borrow(tcs, &eq.inst, &eq.ty)?;
-                tcs = new_tcs;
-                if let Some(i) = i {
-                    pat_vars.insert(i, x);
-                } else {
-                    let bind = AsBind {
-                        name: x,
-                        term: eq.inst,
-                        ty: eq.ty,
-                    };
-                    as_binds.push(bind);
-                }
-            }
-            p => other_pats.push(p),
-        }
-    }
-    let class = PatClass {
-        absurd_count,
-        other_pats,
-        pat_vars,
-        as_binds,
-    };
-    Ok((class, tcs))
-}
+use super::{classify_eqs, LhsState};
 
 /**
 Compute substitution from the out patterns.
@@ -100,14 +64,15 @@ pub fn final_check(tcs: TCS, lhs: LhsState) -> TCMS<Clause> {
     // which we don't really support.
     let weak_sub = Subst::weaken(Default::default(), DBI(len_pats));
     let with_sub = Default::default();
-    let pat_sub = Subst::concat(
+    let pat_sub = Subst::parallel(
         (lhs.pats.iter().take(len_pats).rev().cloned())
             .map(Term::try_from)
             .map(|t| t.expect(ERROR_TAKE)),
-        Default::default(),
     );
     let param_sub = Subst::compose(Subst::compose(pat_sub, weak_sub), with_sub);
     // TODO: check linearity
+    let (classified, tcs) = classify_eqs(tcs, lhs.problem.equations)?;
+    debug_assert!(!classified.other_pats.is_empty());
     unimplemented!()
 }
 
