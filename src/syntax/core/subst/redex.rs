@@ -82,13 +82,12 @@ impl<R, T: RedEx<R>> RedEx<Vec<R>> for Vec<T> {
 
 impl<Ix, R, T: RedEx<R>> RedEx<Pat<Ix, R>> for Pat<Ix, T> {
     fn reduce_dbi(self, subst: &Subst) -> Pat<Ix, R> {
-        use Pat::*;
         match self {
-            Refl => Refl,
-            Absurd => Absurd,
-            Var(v) => Var(v),
-            Cons(is_forced, c, pats) => Cons(is_forced, c, pats.reduce_dbi(subst)),
-            Forced(t) => Forced(t.reduce_dbi(subst)),
+            Pat::Refl => Pat::Refl,
+            Pat::Absurd => Pat::Absurd,
+            Pat::Var(v) => Pat::Var(v),
+            Pat::Cons(f, c, pats) => Pat::Cons(f, c, pats.reduce_dbi(subst)),
+            Pat::Forced(t) => Pat::Forced(t.reduce_dbi(subst)),
         }
     }
 }
@@ -138,13 +137,8 @@ impl PrimSubst<Term> {
                 IdS => Right(Term::from_dbi(dbi + *i)),
                 rho => Right(rho.lookup(*i).reduce_dbi(&*Self::raise(*i))),
             },
-            Lift(n, rest) => {
-                if dbi < *n {
-                    Right(Term::from_dbi(dbi))
-                } else {
-                    Right(Self::raise_term(*n, rest.lookup(dbi - *n)))
-                }
-            }
+            Lift(n, rest) if dbi < *n => Right(Term::from_dbi(dbi)),
+            Lift(n, rest) => Right(Self::raise_term(*n, rest.lookup(dbi - *n))),
         }
     }
 }
