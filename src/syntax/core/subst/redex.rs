@@ -4,13 +4,14 @@ use either::Either;
 use voile_util::uid::DBI;
 
 use crate::syntax::common::Bind;
+use crate::syntax::pat::Pat;
 
 use super::super::{Closure, Elim, Term, Val};
 use super::{def_app, DeBruijn, PrimSubst, Subst};
 
 /// Reducible expressions.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#Subst).
-pub trait RedEx<T: Sized = Term>: Sized {
+pub trait RedEx<T: Sized = Self>: Sized {
     /// Apply a substitution to a redex.
     fn reduce_dbi(self, subst: &Subst) -> T;
 }
@@ -19,12 +20,12 @@ impl RedEx for Term {
     fn reduce_dbi(self, subst: &Subst) -> Term {
         match self {
             Term::Whnf(n) => n.reduce_dbi(subst),
-            Term::Redex(f, id, args) => def_app(f, id, vec![], reduce_vec_dbi(args, &subst)),
+            Term::Redex(f, id, args) => def_app(f, id, vec![], args.reduce_dbi(&subst)),
         }
     }
 }
 
-impl RedEx<Elim> for Elim {
+impl RedEx for Elim {
     fn reduce_dbi(self, subst: &Subst) -> Elim {
         match self {
             Elim::App(term) => Elim::app(term.reduce_dbi(subst)),
@@ -39,7 +40,7 @@ impl<R, T: RedEx<R>> RedEx<Bind<R>> for Bind<T> {
     }
 }
 
-impl RedEx for Val {
+impl RedEx<Term> for Val {
     fn reduce_dbi(self, subst: &Subst) -> Term {
         let reduce_vec = |a: Vec<Term>| a.into_iter().map(|a| a.reduce_dbi(&subst)).collect();
         match self {
@@ -52,8 +53,8 @@ impl RedEx for Val {
             Val::Cons(name, a) => Term::cons(name, reduce_vec(a)),
             Val::Type(n) => Term::universe(n),
             Val::Data(kind, gi, a) => Term::data(kind, gi, reduce_vec(a)),
-            Val::Meta(m, a) => Term::meta(m, reduce_vec_dbi(a, &subst)),
-            Val::Var(f, args) => subst.lookup(f).apply_elim(reduce_vec_dbi(args, subst)),
+            Val::Meta(m, a) => Term::meta(m, a.reduce_dbi(&subst)),
+            Val::Var(f, args) => subst.lookup(f).apply_elim(args.reduce_dbi(subst)),
             Val::Axiom(a) => Term::Whnf(Val::Axiom(a)),
             Val::Refl => Term::reflexivity(),
             Val::Id(ty, a, b) => Term::identity(
@@ -65,7 +66,7 @@ impl RedEx for Val {
     }
 }
 
-impl RedEx<Closure> for Closure {
+impl RedEx for Closure {
     fn reduce_dbi(self, subst: &Subst) -> Self {
         use Closure::*;
         let Plain(body) = self;
@@ -73,8 +74,23 @@ impl RedEx<Closure> for Closure {
     }
 }
 
-fn reduce_vec_dbi<T>(me: Vec<impl RedEx<T>>, subst: &Subst) -> Vec<T> {
-    me.into_iter().map(|e| e.reduce_dbi(subst)).collect()
+impl<R, T: RedEx<R>> RedEx<Vec<R>> for Vec<T> {
+    fn reduce_dbi(self, subst: &Subst) -> Vec<R> {
+        self.into_iter().map(|e| e.reduce_dbi(subst)).collect()
+    }
+}
+
+impl<Ix, R, T: RedEx<R>> RedEx<Pat<Ix, R>> for Pat<Ix, T> {
+    fn reduce_dbi(self, subst: &Subst) -> Pat<Ix, R> {
+        use Pat::*;
+        match self {
+            Refl => Refl,
+            Absurd => Absurd,
+            Var(v) => Var(v),
+            Cons(is_forced, c, pats) => Cons(is_forced, c, pats.reduce_dbi(subst)),
+            Forced(t) => Forced(t.reduce_dbi(subst)),
+        }
+    }
 }
 
 impl PrimSubst<Term> {
@@ -130,19 +146,5 @@ impl PrimSubst<Term> {
                 }
             }
         }
-    }
-
-    pub fn lookup(&self, dbi: DBI) -> Term {
-        self.lookup_impl(dbi).map_left(Clone::clone).into_inner()
-    }
-
-    /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#raise).
-    pub fn raise_term(k: DBI, term: Term) -> Term {
-        Self::raise_from(DBI(0), k, term)
-    }
-
-    /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#raiseFrom).
-    pub fn raise_from(n: DBI, k: DBI, term: Term) -> Term {
-        term.reduce_dbi(&Self::lift_by(Self::raise(k), n))
     }
 }

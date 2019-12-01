@@ -1,5 +1,7 @@
 use std::convert::TryFrom;
 
+use voile_util::uid::DBI;
+
 use crate::check::monad::{TCMS, TCS};
 use crate::syntax::core::subst::Subst;
 use crate::syntax::core::{Clause, Term};
@@ -7,7 +9,6 @@ use crate::syntax::pat::PatCommon;
 
 use super::super::ERROR_TAKE;
 use super::LhsState;
-use voile_util::uid::DBI;
 
 /**
 Compute substitution from the out patterns.

@@ -2,6 +2,8 @@ use std::rc::Rc;
 
 use voile_util::uid::DBI;
 
+use crate::syntax::core::subst::RedEx;
+
 use super::super::{Pat, Term};
 
 /// Substitution type.
@@ -44,6 +46,22 @@ pub enum PrimSubst<T> {
 impl<T> Default for PrimSubst<T> {
     fn default() -> Self {
         PrimSubst::IdS
+    }
+}
+
+impl PrimSubst<Term> {
+    pub fn lookup(&self, dbi: DBI) -> Term {
+        self.lookup_impl(dbi).map_left(Clone::clone).into_inner()
+    }
+
+    /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#raise).
+    pub fn raise_term(k: DBI, term: Term) -> Term {
+        Self::raise_from(DBI(0), k, term)
+    }
+
+    /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#raiseFrom).
+    pub fn raise_from(n: DBI, k: DBI, term: Term) -> Term {
+        term.reduce_dbi(&Self::lift_by(Self::raise(k), n))
     }
 }
 
