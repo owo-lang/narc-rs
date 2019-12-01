@@ -4,7 +4,7 @@ use crate::check::monad::{TCM, TCS};
 use crate::check::rules::data::check_data;
 use crate::syntax::abs::AbsDecl;
 
-const ERROR_TAKE: &str = "Please report this as a bug.";
+use super::ERROR_TAKE;
 
 pub fn check_decls(mut tcs: TCS, decls: Vec<AbsDecl>) -> TCM {
     let mut decls = decls.into_iter().map(Some).collect::<Vec<_>>();

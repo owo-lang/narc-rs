@@ -137,7 +137,9 @@ impl<T> PrimSubst<T> {
         }
     }
 
-    // === Constructors ===
+    pub fn concat(ts: impl Iterator<Item = T>, to: Rc<Self>) -> Rc<Self> {
+        ts.fold(to, |to, t| Rc::new(PrimSubst::Cons(t, to)))
+    }
 
     pub fn one(t: T) -> Self {
         PrimSubst::Cons(t, Default::default())
@@ -161,7 +163,10 @@ impl Subst {
             (IdS, _) => sgm,
             // rho, EmptyS(err) => EmptyS(err)
             (_, Weak(n, sgm)) => Self::compose(Self::drop_by(rho, *n), sgm.clone()),
-            (_, Cons(u, sgm)) => Rc::new(Cons(u.reduce_dbi(&rho), Self::compose(rho, sgm.clone()))),
+            (_, Cons(u, sgm)) => Rc::new(Cons(
+                u.clone().reduce_dbi(&rho),
+                Self::compose(rho, sgm.clone()),
+            )),
             (_, Succ(sgm)) => Rc::new(Succ(Self::compose(rho, sgm.clone()))),
             (_, Lift(0, _sgm)) => unreachable!(),
             (Cons(u, rho), Lift(n, sgm)) => Rc::new(Cons(
