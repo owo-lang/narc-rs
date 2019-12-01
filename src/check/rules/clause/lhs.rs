@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::convert::TryFrom;
 
 use voile_util::uid::{DBI, UID};
@@ -7,9 +8,9 @@ use crate::syntax::core::subst::Subst;
 use crate::syntax::core::{Clause, Term};
 use crate::syntax::pat::{Copat, Pat, PatCommon};
 
+use super::super::term::is_eta_var_borrow;
 use super::super::ERROR_TAKE;
-use super::{Equation, LhsState, PatClass};
-use std::collections::HashMap;
+use super::{AsBind, Equation, LhsState, PatClass};
 
 pub fn classify_eqs(mut tcs: TCS, eqs: Vec<Equation>) -> TCMS<PatClass> {
     let mut pat_vars = HashMap::new();
@@ -19,7 +20,20 @@ pub fn classify_eqs(mut tcs: TCS, eqs: Vec<Equation>) -> TCMS<PatClass> {
     for eq in eqs {
         match eq.in_pat {
             Copat::App(Pat::Absurd) => absurd_count += 1,
-            Copat::App(Pat::Var(x)) => unimplemented!(),
+            Copat::App(Pat::Var(x)) => {
+                let (i, new_tcs) = is_eta_var_borrow(tcs, &eq.inst, &eq.ty)?;
+                tcs = new_tcs;
+                if let Some(i) = i {
+                    pat_vars.insert(i, x);
+                } else {
+                    let bind = AsBind {
+                        name: x,
+                        term: eq.inst,
+                        ty: eq.ty,
+                    };
+                    as_binds.push(bind);
+                }
+            }
             p => other_pats.push(p),
         }
     }
