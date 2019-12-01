@@ -1,4 +1,4 @@
-use std::convert::TryInto;
+use std::convert::TryFrom;
 
 use voile_util::uid::DBI;
 
@@ -11,34 +11,34 @@ use super::Term;
 pub type Pat = pat::Copat<DBI, Term>;
 pub type APat = pat::Pat<DBI, Term>;
 
-impl TryInto<Term> for Pat {
+impl TryFrom<Pat> for Term {
     type Error = String;
-    fn try_into(self) -> Result<Term, String> {
-        Into::<Elim>::into(self).try_into_app()
+    fn try_from(p: Pat) -> Result<Term, String> {
+        Elim::from(p).try_into_app()
     }
 }
 
-impl TryInto<Term> for APat {
+impl TryFrom<APat> for Term {
     type Error = String;
-    fn try_into(self) -> Result<Term, String> {
-        pat::Copat::App(self).try_into()
+    fn try_from(p: APat) -> Result<Term, String> {
+        Term::try_from(pat::Copat::App(p))
     }
 }
 
-impl Into<Elim> for Pat {
-    fn into(self) -> Elim {
+impl From<Pat> for Elim {
+    fn from(p: Pat) -> Elim {
         use pat::Copat::*;
-        match self {
+        match p {
             Proj(field) => Elim::Proj(field),
-            App(p) => p.into(),
+            App(p) => From::from(p),
         }
     }
 }
 
-impl Into<Elim> for APat {
-    fn into(self) -> Elim {
+impl From<APat> for Elim {
+    fn from(p: APat) -> Elim {
         use pat::Pat::*;
-        match self {
+        match p {
             Var(ix) => Elim::from_dbi(ix),
             Forced(t) => Elim::app(t),
             Refl => Elim::app(Term::reflexivity()),

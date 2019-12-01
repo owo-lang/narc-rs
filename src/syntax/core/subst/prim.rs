@@ -124,6 +124,10 @@ impl<T> PrimSubst<T> {
         }
     }
 
+    pub fn id() -> Rc<Self> {
+        Rc::new(Default::default())
+    }
+
     // === Constructors ===
 
     pub fn one(t: T) -> Self {
