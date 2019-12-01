@@ -137,7 +137,7 @@ impl PrimSubst<Term> {
                 IdS => Right(Term::from_dbi(dbi + *i)),
                 rho => Right(rho.lookup(*i).reduce_dbi(&*Self::raise(*i))),
             },
-            Lift(n, rest) if dbi < *n => Right(Term::from_dbi(dbi)),
+            Lift(n, _) if dbi < *n => Right(Term::from_dbi(dbi)),
             Lift(n, rest) => Right(Self::raise_term(*n, rest.lookup(dbi - *n))),
         }
     }

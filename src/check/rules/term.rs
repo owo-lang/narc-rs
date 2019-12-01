@@ -1,12 +1,13 @@
 use voile_util::loc::ToLoc;
+use voile_util::uid::DBI;
 
-use crate::check::monad::{TermTCM, TCE, TCS};
+use crate::check::monad::{TermTCM, TCE, TCMS, TCS};
 use crate::syntax::abs::Abs;
 use crate::syntax::core::{Bind, Closure, Term, Val};
 
 use super::infer::*;
 use super::unify::subtype;
-use super::whnf::normalize;
+use super::whnf::simplify;
 
 pub fn check(tcs: TCS, abs: &Abs, against: &Val) -> TermTCM {
     match (abs, against) {
@@ -33,7 +34,24 @@ pub fn check(tcs: TCS, abs: &Abs, against: &Val) -> TermTCM {
 
 pub fn check_fallback(tcs: TCS, expr: Abs, expected_type: &Val) -> TermTCM {
     let (evaluated, inferred, tcs) = infer(tcs, &expr)?;
-    let (whnf, tcs) = normalize(tcs, inferred)?;
+    let (whnf, tcs) = simplify(tcs, inferred)?;
     let tcs = subtype(tcs, &whnf, expected_type).map_err(|e| e.wrap(expr.loc()))?;
     Ok((evaluated, tcs))
+}
+
+/// Checks whether the given term (of the given type) is beta-eta-equivalent
+/// to a variable. Returns just the de Bruijn-index of the variable if it is,
+/// or nothing otherwise.
+/// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Records.html#isEtaVar).
+pub fn is_eta_var(tcs: TCS, term: &Term, ty: &Term) -> TCMS<Option<DBI>> {
+    match term {
+        Term::Whnf(Val::Var(dbi, v)) if v.is_empty() => Ok((Some(*dbi), tcs)),
+        _ => is_eta_var_inner(tcs, term, ty.clone()),
+    }
+}
+
+/// TODO: type-directedness.
+fn is_eta_var_inner(tcs: TCS, term: &Term, ty: Term) -> TCMS<Option<DBI>> {
+    // let (ty_whnf, tcs) = simplify(tcs, ty)?;
+    unimplemented!()
 }

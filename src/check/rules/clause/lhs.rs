@@ -1,14 +1,36 @@
 use std::convert::TryFrom;
 
-use voile_util::uid::DBI;
+use voile_util::uid::{DBI, UID};
 
 use crate::check::monad::{TCMS, TCS};
 use crate::syntax::core::subst::Subst;
 use crate::syntax::core::{Clause, Term};
-use crate::syntax::pat::PatCommon;
+use crate::syntax::pat::{Copat, Pat, PatCommon};
 
 use super::super::ERROR_TAKE;
-use super::LhsState;
+use super::{Equation, LhsState, PatClass};
+use std::collections::HashMap;
+
+pub fn classify_eqs(mut tcs: TCS, eqs: Vec<Equation>) -> TCMS<PatClass> {
+    let mut pat_vars = HashMap::new();
+    let mut other_pats = Vec::with_capacity(eqs.len());
+    let mut as_binds = Vec::with_capacity(eqs.len());
+    let mut absurd_count = 0usize;
+    for eq in eqs {
+        match eq.in_pat {
+            Copat::App(Pat::Absurd) => absurd_count += 1,
+            Copat::App(Pat::Var(x)) => unimplemented!(),
+            p => other_pats.push(p),
+        }
+    }
+    let class = PatClass {
+        absurd_count,
+        other_pats,
+        pat_vars,
+        as_binds,
+    };
+    Ok((class, tcs))
+}
 
 /**
 Compute substitution from the out patterns.

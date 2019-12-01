@@ -11,7 +11,7 @@ use crate::syntax::core::subst::DeBruijn;
 use crate::syntax::core::{Bind, CodataInfo, DataInfo, Decl, Elim, Term, TermInfo, Val};
 
 use super::term::check;
-use super::whnf::normalize;
+use super::whnf::simplify;
 
 pub type InferTCM = TCM<(TermInfo, Term, TCS)>;
 
@@ -28,21 +28,21 @@ pub fn infer(tcs: TCS, abs: &Abs) -> InferTCM {
     let (head, mut ty, mut tcs) = infer_head(tcs, &view.fun)?;
     let mut elims = Vec::with_capacity(view.args.len());
     for arg in view.args {
-        let (mut ty_val, mut new_tcs) = normalize(tcs, ty)?;
+        let (mut ty_val, mut new_tcs) = simplify(tcs, ty)?;
         match loop {
             let (param, clos) = match ty_val {
                 Val::Pi(param, clos) => (param, clos),
                 Val::Data(VarRec::Record, codata_def, elims) => break Right((codata_def, elims)),
                 e => return Err(TCE::NotPi(Term::Whnf(e), arg.loc())),
             };
-            let (param_ty, loop_tcs) = normalize(new_tcs, *param.ty)?;
+            let (param_ty, loop_tcs) = simplify(new_tcs, *param.ty)?;
             new_tcs = loop_tcs;
             // In case this is an implicit argument
             if param.licit == Plicit::Im {
                 // This meta has type "param_ty".
                 let meta = new_tcs.fresh_meta();
                 elims.push(Elim::app(meta.clone()));
-                let (new_ty_val, loop_tcs) = normalize(new_tcs, clos.instantiate(meta))?;
+                let (new_ty_val, loop_tcs) = simplify(new_tcs, clos.instantiate(meta))?;
                 ty_val = new_ty_val;
                 new_tcs = loop_tcs;
             } else {
