@@ -1,15 +1,16 @@
 use std::convert::TryFrom;
+use std::rc::Rc;
 
-use voile_util::uid::DBI;
+use voile_util::uid::{DBI, UID};
 
 use crate::check::monad::{TCMS, TCS};
-use crate::syntax::core::subst::Subst;
-use crate::syntax::core::{Clause, Pat, Tele, Term};
+use crate::check::rules::clause::{AsBind, PatVars};
+use crate::syntax::core::subst::{DeBruijn, RedEx, Subst};
+use crate::syntax::core::{Pat, Tele, Term};
 use crate::syntax::pat::PatCommon;
 
 use super::super::ERROR_TAKE;
 use super::{classify_eqs, LhsState};
-use crate::check::rules::clause::AsBind;
 
 /// Result of checking the LHS of a clause.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.LHS.html#LHSResult).
@@ -29,11 +30,37 @@ pub struct Lhs {
     /// Where $\Gamma$ is the argument telescope of the function.
     /// This is used to update inherited dot patterns in
     /// with-function clauses.
-    pub pat_subst: Subst,
+    pub pat_subst: Rc<Subst>,
     /// As-bindings from the left-hand side.
     /// Return instead of bound since we
     /// want them in where's and right-hand sides, but not in with-clauses
     pub as_binds: Vec<AsBind>,
+}
+
+/// Build a renaming for the internal patterns using variable names from
+/// the user patterns. If there are multiple user names for the same internal
+/// variable, the unused ones are returned as as-bindings.
+/// Names that are not also module parameters are preferred over
+/// those that are.
+///
+/// # Parameters
+///
+/// + `tele`: The telescope of pattern variables
+/// + `pat_vars`: The list of user names for each pattern variable
+///
+pub fn user_variable_names(tele: &Tele, mut pat_vars: PatVars) -> (Vec<Option<UID>>, Vec<AsBind>) {
+    let len_rng = 0..tele.len();
+    let mut as_binds = Vec::with_capacity(pat_vars.len());
+    let mut names = Vec::with_capacity(tele.len());
+    for (bind, ix) in tele.iter().zip(len_rng.rev().map(DBI)) {
+        let ids = pat_vars.remove(&ix).unwrap_or_default();
+        names.push(ids.first().copied());
+        for uid in ids {
+            let as_bind = AsBind::new(uid, DeBruijn::from_dbi(ix), bind.ty.clone());
+            as_binds.push(as_bind)
+        }
+    }
+    (names, as_binds)
 }
 
 /**
@@ -82,7 +109,7 @@ To compute $\Theta$ we can look at the arity of the with-function
 and compare it to numPats. This works since the with-function
 type is fully reduced.
 */
-pub fn final_check(tcs: TCS, lhs: LhsState) -> TCMS<Clause> {
+pub fn final_check(tcs: TCS, lhs: LhsState) -> TCMS<Lhs> {
     debug_assert!(lhs.problem.todo_pats.is_empty());
     let len_pats = lhs.len_pats();
     // It should be `len_pats - ctx.len()`,
@@ -99,12 +126,29 @@ pub fn final_check(tcs: TCS, lhs: LhsState) -> TCMS<Clause> {
     // TODO: check linearity
     let (classified, tcs) = classify_eqs(tcs, lhs.problem.equations)?;
     debug_assert!(!classified.other_pats.is_empty());
-    unimplemented!()
+    let (vars, mut asb) = user_variable_names(&lhs.tele, classified.pat_vars);
+    // The variable name stands for `rename`.
+    let ren = Subst::parallel(
+        vars.into_iter()
+            .zip(0usize..)
+            .map(|(_, b)| DeBruijn::from_dbi(DBI(b))),
+    );
+    let mut as_binds = classified.as_binds;
+    as_binds.append(&mut asb);
+    let lhs_result = Lhs {
+        tele: lhs.tele,
+        has_absurd: classified.absurd_count > 0,
+        pats: lhs.pats.reduce_dbi(&ren),
+        ty: lhs.target,
+        pat_subst: param_sub,
+        as_binds,
+    };
+    Ok((lhs_result, tcs))
 }
 
 /// Checking a pattern matching lhs recursively.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.LHS.html).
-pub fn check_lhs(tcs: TCS, lhs: LhsState) -> TCMS<Clause> {
+pub fn check_lhs(tcs: TCS, lhs: LhsState) -> TCMS<Lhs> {
     if lhs.problem.is_all_solved() {
         return final_check(tcs, lhs);
     }

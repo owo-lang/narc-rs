@@ -15,5 +15,6 @@ mod state;
 pub fn clause(tcs: TCS, cls: AbsClause, against: Term) -> TCMS<Clause> {
     // Expand pattern synonyms here once we support it.
     let lhs_state = init_lhs_state(cls.patterns, against)?;
-    check_lhs(tcs, lhs_state)
+    let (lhs, tcs) = check_lhs(tcs, lhs_state)?;
+    unimplemented!()
 }
