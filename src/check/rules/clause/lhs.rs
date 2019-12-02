@@ -30,7 +30,7 @@ pub struct Lhs {
     /// Where $\Gamma$ is the argument telescope of the function.
     /// This is used to update inherited dot patterns in
     /// with-function clauses.
-    pub pat_subst: Rc<Subst>,
+    pub pat_sub: Rc<Subst>,
     /// As-bindings from the left-hand side.
     /// Return instead of bound since we
     /// want them in where's and right-hand sides, but not in with-clauses
@@ -115,14 +115,14 @@ pub fn final_check(tcs: TCS, lhs: LhsState) -> TCMS<Lhs> {
     // It should be `len_pats - ctx.len()`,
     // but I think the `ctx` in Agda comes from module parameters | variables | stuff,
     // which we don't really support.
-    let weak_sub = Subst::weaken(Default::default(), DBI(len_pats));
-    let with_sub = Default::default();
+    // let weak_sub = Subst::weaken(Default::default(), DBI(len_pats));
     let pat_sub = Subst::parallel(
         (lhs.pats.iter().take(len_pats).rev().cloned())
             .map(Term::try_from)
             .map(|t| t.expect(ERROR_TAKE)),
     );
-    let param_sub = Subst::compose(Subst::compose(pat_sub, weak_sub), with_sub);
+    // let with_sub = Default::default();
+    // let param_sub = Subst::compose(Subst::compose(pat_sub.clone(), weak_sub), with_sub);
     // TODO: check linearity
     let (classified, tcs) = classify_eqs(tcs, lhs.problem.equations)?;
     debug_assert!(!classified.other_pats.is_empty());
@@ -140,9 +140,10 @@ pub fn final_check(tcs: TCS, lhs: LhsState) -> TCMS<Lhs> {
         has_absurd: classified.absurd_count > 0,
         pats: lhs.pats.reduce_dbi(&ren),
         ty: lhs.target,
-        pat_subst: param_sub,
+        pat_sub,
         as_binds,
     };
+    // Agda is calling `computeLHSContext` here. Is it needed?
     Ok((lhs_result, tcs))
 }
 
