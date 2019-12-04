@@ -13,8 +13,11 @@ mod lhs;
 mod state;
 
 /// Bind as patterns
-pub fn bind_as_pats<T>(tcs: TCS, asb: Vec<AsBind>, f: impl FnOnce(TCS) -> T) -> T {
-    unimplemented!()
+pub fn bind_as_pats<T>(mut tcs: TCS, asb: Vec<AsBind>, f: impl FnOnce(TCS) -> T) -> T {
+    for bind in asb {
+        tcs.gamma.push(bind.into());
+    }
+    f(tcs)
 }
 
 /// Checking an abstract clause.

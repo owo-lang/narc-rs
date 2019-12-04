@@ -82,7 +82,7 @@ impl Term {
 
     pub fn pi_from_tele(tele: Tele, ret: Self) -> Self {
         tele.into_iter().rfold(ret, |ret, param| {
-            Self::pi2(param.map_term(Box::new), Closure::plain(ret))
+            Self::pi2(param.boxed(), Closure::plain(ret))
         })
     }
 
@@ -102,7 +102,7 @@ impl Term {
     }
 
     pub fn pi(licit: Plicit, name: UID, param_type: Term, body: Closure) -> Self {
-        Self::pi2(Bind::boxing(licit, name, param_type), body)
+        Self::pi2(Bind::boxing(licit, name, param_type, None), body)
     }
 
     pub fn pi2(param: Bind<Box<Term>>, body: Closure) -> Self {

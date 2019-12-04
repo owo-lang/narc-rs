@@ -38,11 +38,11 @@ pub fn desugar_params(mut state: DesugarState, params: Vec<Param>) -> DeclM<AbsT
         let mut intros = |name: Ident, licit: Plicit, ty: Abs| {
             let uid = unsafe { next_uid() };
             state.local.insert(name.text, uid);
-            tele.push(Bind::new(licit, uid, ty));
+            tele.push(Bind::new(licit, uid, ty, None));
         };
         let licit = param.licit;
         match param.names.len() {
-            0 => tele.push(Bind::new(licit, unsafe { next_uid() }, ty)),
+            0 => tele.push(Bind::new(licit, unsafe { next_uid() }, ty, None)),
             1 => intros(param.names.remove(0), licit, ty),
             _ => (param.names.into_iter()).for_each(|name| intros(name, licit, ty.clone())),
         }

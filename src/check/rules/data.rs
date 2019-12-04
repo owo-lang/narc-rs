@@ -8,7 +8,7 @@ pub fn check_tele(mut tcs: TCS, tele: AbsTele, ty: &Val) -> TCM {
     for bind in tele {
         let (checked, new_tcs) = check(tcs, &bind.ty, ty)?;
         tcs = new_tcs;
-        let bind = bind.map_term(|_| checked.ast);
+        let bind = bind.map_term(|_| checked.ast, |_| None);
         tcs.gamma.push(bind);
     }
     Ok(tcs)

@@ -1,11 +1,12 @@
 use std::collections::HashMap;
 use std::ops::Add;
 
+use voile_util::tags::Plicit;
 use voile_util::uid::{DBI, UID};
 
 use crate::check::monad::{TCMS, TCS};
 use crate::syntax::abs::AbsCopat;
-use crate::syntax::core::Term;
+use crate::syntax::core::{Bind, Term};
 use crate::syntax::pat::{Copat, Pat, PatCommon};
 
 use super::super::term::is_eta_var_borrow;
@@ -33,6 +34,12 @@ pub struct AsBind {
     pub name: UID,
     pub term: Term,
     pub ty: Term,
+}
+
+impl From<AsBind> for Bind {
+    fn from(asb: AsBind) -> Self {
+        Bind::new(Plicit::Ex, asb.name, asb.ty, Some(asb.term))
+    }
 }
 
 impl AsBind {

@@ -127,7 +127,12 @@ pub fn type_of_decl(tcs: &TCS, decl: GI) -> TCM<TermInfo> {
                 .cloned()
                 // Or maybe we shouldn't?
                 .map(Bind::into_implicit)
-                .chain(once(Bind::new(Plicit::Ex, unsafe { next_uid() }, codata)))
+                .chain(once(Bind::new(
+                    Plicit::Ex,
+                    unsafe { next_uid() },
+                    codata,
+                    None,
+                )))
                 .collect();
             Ok(Term::pi_from_tele(tele, ty.clone()).at(*loc))
         }
