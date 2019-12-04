@@ -60,6 +60,29 @@ fn simple_data_and_constructor_desugar() {
 }
 
 #[test]
+fn multiple_patterns_increases_ix() {
+    let code = "\
+    definition test : (a : Type) -> Type a;
+    clause test a = a;
+    clause test a = a;
+
+    definition test2 : (a : Type) -> Type a;
+    clause test2 a = a;
+    ";
+    let mut state = desugar_main(parse_str(code).unwrap()).unwrap();
+    println!("{:#?}", state);
+    assert!(state.local.is_empty());
+    assert_eq!(state.decls.len(), 5);
+    let mut c: AbsClause = expect_clause(state.decls.remove(4));
+    assert_eq!(c.patterns.len(), 1);
+    assert_eq!(c.definition, GI(3));
+    assert_eq!(
+        expect_app_var_pat(c.patterns.remove(0)),
+        expect_var_expr(c.body)
+    );
+}
+
+#[test]
 fn simple_pattern_definition_desugar() {
     let code = "\
     definition test : (a : Type) -> Type a;

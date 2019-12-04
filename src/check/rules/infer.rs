@@ -15,7 +15,7 @@ use super::whnf::simplify;
 
 pub type InferTCM = TCM<(TermInfo, Term, TCS)>;
 
-/// Infer the type of an expression.
+/// Infer the type of the expression.
 pub fn infer(tcs: TCS, abs: &Abs) -> InferTCM {
     let abs = match abs {
         Abs::Type(id, level) => {
@@ -136,7 +136,7 @@ pub fn type_of_decl(tcs: &TCS, decl: GI) -> TCM<TermInfo> {
                 .collect();
             Ok(Term::pi_from_tele(tele, ty.clone()).at(*loc))
         }
-        Decl::Func { loc, signature, .. } => Ok(signature.clone().at(*loc)),
+        Decl::Func(func) => Ok(func.signature.clone().at(func.loc)),
     }
 }
 

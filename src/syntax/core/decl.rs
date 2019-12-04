@@ -18,6 +18,14 @@ pub struct CodataInfo {
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
+pub struct FuncInfo {
+    pub loc: Loc,
+    pub name: Ident,
+    pub signature: Term,
+    pub clauses: Vec<Clause>,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct ConsInfo {
     pub loc: Loc,
     pub name: Ident,
@@ -54,21 +62,17 @@ pub enum Decl {
         ty: Term,
     },
     /// Function definitions.
-    Func {
-        loc: Loc,
-        name: Ident,
-        signature: Term,
-        clauses: Vec<Clause>,
-    },
+    Func(FuncInfo),
 }
 
 impl Decl {
     pub fn def_name(&self) -> &Ident {
         match self {
-            Decl::Proj { name, .. } | Decl::Func { name, .. } => name,
+            Decl::Proj { name, .. } => name,
             Decl::Data(i) => &i.name,
             Decl::Cons(i) => &i.name,
             Decl::Codata(i) => &i.name,
+            Decl::Func(i) => &i.name,
         }
     }
 }
@@ -76,10 +80,11 @@ impl Decl {
 impl ToLoc for Decl {
     fn loc(&self) -> Loc {
         match self {
-            Decl::Proj { loc, .. } | Decl::Func { loc, .. } => *loc,
+            Decl::Proj { loc, .. } => *loc,
             Decl::Data(i) => i.loc(),
             Decl::Cons(i) => i.loc(),
             Decl::Codata(i) => i.loc(),
+            Decl::Func(i) => i.loc(),
         }
     }
 }
