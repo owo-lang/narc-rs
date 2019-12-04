@@ -15,6 +15,7 @@
 + Introduce `DeBruijn` trait
 + WIP LHS checking (equations, lhs-results, lhs-states, etc.)
   + Pattern splitting is missing
++ `Bind` now has optional `val` field
 
 # 0.0.4
 

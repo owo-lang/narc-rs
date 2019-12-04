@@ -147,7 +147,8 @@ pub fn infer_head(tcs: TCS, abs: &Abs) -> InferTCM {
             .map(|ty| (Term::simple_def(*def, id.clone()).at(id.loc), ty.ast, tcs)),
         Var(loc, var) => {
             let (ix, ty) = tcs.local_by_id(*var);
-            Ok((Term::from_dbi(ix).at(loc.loc), ty.ty.clone(), tcs))
+            let term = (ty.val.as_ref()).map_or_else(|| Term::from_dbi(ix), Clone::clone);
+            Ok((term.at(loc.loc), ty.ty.clone(), tcs))
         }
         e => Err(TCE::NotHead(e.clone())),
     }
