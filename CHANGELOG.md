@@ -7,6 +7,7 @@
 + Check constructor declaration (#17)
 + Test desugar
 + Check declaration list (#19)
+  + Projection & Codata are missing
 + The CLI now check files, there are tests now
 + Don't require `:` in front of constructor tele
 + Rename `ast_cons` to `ast_util`

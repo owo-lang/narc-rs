@@ -31,6 +31,7 @@ pub fn clause(tcs: TCS, cls: AbsClause, against: Term) -> TCMS<Clause> {
     let ty = lhs.ty;
     let patterns = lhs.pats;
     let has_absurd = lhs.has_absurd;
+    let to_pop = lhs.as_binds.len();
     bind_as_pats(tcs, lhs.as_binds, |mut tcs| {
         let body = if has_absurd {
             None
@@ -40,6 +41,10 @@ pub fn clause(tcs: TCS, cls: AbsClause, against: Term) -> TCMS<Clause> {
             tcs = new_tcs;
             Some(term.ast)
         };
+        for _ in 0..=to_pop {
+            let len = tcs.gamma.len();
+            tcs.gamma.remove(len - 1);
+        }
         let clause = Clause {
             pat_tele,
             patterns,
