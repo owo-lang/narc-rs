@@ -89,10 +89,10 @@ impl ToLoc for Decl {
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Clause {
     /// $\Delta$. The types of the pattern variables in dependency order.
-    pat_tele: Tele,
+    pub pat_tele: Tele,
     /// $\Delta \vdash ps$. The de Bruijn indices refer to $\Delta$.
-    patterns: Vec<Pat>,
+    pub patterns: Vec<Pat>,
     /// `Some(v)` if $\Delta \vdash v$, while `None` if the patterns are absurd.
-    body: Option<Term>,
+    pub body: Option<Term>,
     // TODO: case-trees.
 }
