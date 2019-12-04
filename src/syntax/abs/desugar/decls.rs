@@ -3,8 +3,8 @@ use voile_util::tags::Plicit;
 use voile_util::uid::{next_uid, GI};
 
 use crate::syntax::abs::{
-    Abs, AbsClause, AbsCodataInfo, AbsConsInfo, AbsDataInfo, AbsDecl, AbsPat, AbsProjInfo, AbsTele,
-    Bind,
+    Abs, AbsClause, AbsCodataInfo, AbsConsInfo, AbsDataInfo, AbsDecl, AbsDefnInfo, AbsPat,
+    AbsProjInfo, AbsTele, Bind,
 };
 use crate::syntax::common::Ductive;
 use crate::syntax::pat::{Copat, Pat};
@@ -126,7 +126,7 @@ pub fn desugar_decl(state: DesugarState, decl: ExprDecl) -> DesugarM {
         Defn(name, sig) => {
             let (sig, mut state) = desugar_expr(state, sig)?;
             state.local.clear();
-            let abs_decl = AbsDecl::defn(name.loc + sig.loc(), name, sig);
+            let abs_decl = AbsDecl::Defn(AbsDefnInfo::new(name.loc + sig.loc(), name, sig));
             state.decls.push(abs_decl);
             Ok(state)
         }
@@ -138,7 +138,7 @@ pub fn desugar_decl(state: DesugarState, decl: ExprDecl) -> DesugarM {
                 let decl_len = state.decl_len();
                 let mut state = desugar_clause(state, decl_len, name.clone(), pats, body)?;
                 state.ensure_local_emptiness();
-                let defn = AbsDecl::defn(name.loc, name, meta);
+                let defn = AbsDecl::Defn(AbsDefnInfo::new(name.loc, name, meta));
                 state.decls.push(defn);
                 Ok(state)
             }

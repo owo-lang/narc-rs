@@ -56,6 +56,12 @@ impl AbsClause {
     }
 }
 
+impl AbsDefnInfo {
+    pub fn new(source: Loc, name: Ident, ty: Abs) -> Self {
+        Self { source, name, ty }
+    }
+}
+
 impl AbsCodataInfo {
     pub fn new(
         source: Loc,
@@ -90,4 +96,5 @@ simple_to_loc!(AbsClause);
 simple_to_loc!(AbsConsInfo);
 simple_to_loc!(AbsDataInfo);
 simple_to_loc!(AbsProjInfo);
+simple_to_loc!(AbsDefnInfo);
 simple_to_loc!(AbsCodataInfo);

@@ -14,6 +14,13 @@ pub struct AbsConsInfo {
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
+pub struct AbsDefnInfo {
+    pub source: Loc,
+    pub name: Ident,
+    pub ty: Abs,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct AbsProjInfo {
     pub source: Loc,
     pub name: Ident,
@@ -52,7 +59,7 @@ pub enum AbsDecl {
     /// Coinductive record projections.
     Proj(AbsProjInfo),
     /// Function signature definition.
-    Defn { source: Loc, name: Ident, ty: Abs },
+    Defn(AbsDefnInfo),
     /// Pattern matching clause.
     Clause(AbsClause),
     /// Coinductive records.
@@ -60,14 +67,10 @@ pub enum AbsDecl {
 }
 
 impl AbsDecl {
-    pub fn defn(source: Loc, name: Ident, ty: Abs) -> Self {
-        AbsDecl::Defn { source, name, ty }
-    }
-
     pub fn decl_name(&self) -> &Ident {
         use AbsDecl::*;
         match self {
-            Defn { name, .. } => name,
+            Defn(info) => &info.name,
             Clause(info) => &info.name,
             Data(info) => &info.name,
             Cons(info) => &info.name,
@@ -81,7 +84,7 @@ impl ToLoc for AbsDecl {
     fn loc(&self) -> Loc {
         use AbsDecl::*;
         match self {
-            Defn { source, .. } => *source,
+            Defn(i) => i.loc(),
             Data(i) => i.loc(),
             Cons(i) => i.loc(),
             Clause(i) => i.loc(),

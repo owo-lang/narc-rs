@@ -27,6 +27,7 @@ pub fn check_decls(mut tcs: TCS, decls: Vec<AbsDecl>) -> TCM {
                 tcs = check_data(tcs, i, cs)?;
             }
             AbsDecl::Cons(_) => unreachable!(ERROR_TAKE),
+            AbsDecl::Clause(_) => unreachable!(ERROR_TAKE),
             _ => unimplemented!(),
         }
     }
