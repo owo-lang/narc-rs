@@ -63,6 +63,8 @@ pub enum Decl {
     },
     /// Function definitions.
     Func(FuncInfo),
+    /// Placeholder for a clause, should never be accessed.
+    ClausePlaceholder,
 }
 
 impl Decl {
@@ -73,6 +75,7 @@ impl Decl {
             Decl::Cons(i) => &i.name,
             Decl::Codata(i) => &i.name,
             Decl::Func(i) => &i.name,
+            Decl::ClausePlaceholder => unreachable!(),
         }
     }
 }
@@ -85,6 +88,7 @@ impl ToLoc for Decl {
             Decl::Cons(i) => i.loc(),
             Decl::Codata(i) => i.loc(),
             Decl::Func(i) => i.loc(),
+            Decl::ClausePlaceholder => unreachable!(),
         }
     }
 }

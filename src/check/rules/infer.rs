@@ -137,6 +137,7 @@ pub fn type_of_decl(tcs: &TCS, decl: GI) -> TCM<TermInfo> {
             Ok(Term::pi_from_tele(tele, ty.clone()).at(*loc))
         }
         Decl::Func(func) => Ok(func.signature.clone().at(func.loc)),
+        Decl::ClausePlaceholder => unreachable!(),
     }
 }
 

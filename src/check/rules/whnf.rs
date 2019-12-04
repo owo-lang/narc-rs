@@ -19,6 +19,7 @@ pub fn simplify(tcs: TCS, term: Term) -> ValTCM {
             Decl::Proj { .. } => unimplemented!(),
             // TODO: build up a substitution and unfold the declaration.
             Decl::Func { .. } => unimplemented!(),
+            Decl::ClausePlaceholder => unreachable!(),
         },
     }
 }
