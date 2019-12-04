@@ -57,7 +57,7 @@ pub fn init_lhs_state(pats: Vec<AbsCopat>, ty: Term) -> TCM<LhsState> {
             let equation = Equation {
                 in_pat: pat,
                 // DBI is from right to left
-                inst: Term::from_dbi(DBI(pats_len - i - 1)),
+                inst: Term::from_dbi(DBI(pats_len - i)),
                 ty: bind.ty.clone(),
             };
             equations.push(equation);
