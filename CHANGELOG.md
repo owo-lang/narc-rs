@@ -1,5 +1,7 @@
 # Change Log
 
+# 0.0.6
+
 # 0.0.5
 
 + Migrate from CircleCI + AppVeyor to GitHub Actions
