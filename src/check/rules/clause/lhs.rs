@@ -125,7 +125,8 @@ pub fn final_check(tcs: TCS, lhs: LhsState) -> TCMS<Lhs> {
     // let param_sub = Subst::compose(Subst::compose(pat_sub.clone(), weak_sub), with_sub);
     // TODO: check linearity
     let (classified, tcs) = classify_eqs(tcs, lhs.problem.equations)?;
-    debug_assert!(!classified.other_pats.is_empty());
+    // Agda is doing this. Why?
+    // debug_assert!(!classified.other_pats.is_empty());
     let (vars, mut asb) = user_variable_names(&lhs.tele, classified.pat_vars);
     // The variable name stands for `rename`.
     let ren = Subst::parallel(

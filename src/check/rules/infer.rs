@@ -98,7 +98,7 @@ pub fn type_of_decl(tcs: &TCS, decl: GI) -> TCM<TermInfo> {
                 _ => unreachable!(),
             };
             let params_len = params.len();
-            let range = params_len..params_len + data_tele.len() - 1;
+            let range = params_len..params_len + data_tele.len();
             let tele = data_tele
                 .iter()
                 .cloned()
@@ -122,17 +122,11 @@ pub fn type_of_decl(tcs: &TCS, decl: GI) -> TCM<TermInfo> {
             let ident = tcs.def(*codata).def_name().clone();
             let elims = range.rev().map(DBI).map(Elim::from_dbi).collect();
             let codata = Term::def(*codata, ident, elims);
-            let tele = data_tele
-                .iter()
-                .cloned()
+            let bind = Bind::new(Plicit::Ex, unsafe { next_uid() }, codata, None);
+            let tele = (data_tele.iter().cloned())
                 // Or maybe we shouldn't?
                 .map(Bind::into_implicit)
-                .chain(once(Bind::new(
-                    Plicit::Ex,
-                    unsafe { next_uid() },
-                    codata,
-                    None,
-                )))
+                .chain(once(bind))
                 .collect();
             Ok(Term::pi_from_tele(tele, ty.clone()).at(*loc))
         }

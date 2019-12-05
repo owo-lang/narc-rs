@@ -8,3 +8,9 @@ data Nat {
   constructor Zero;
   constructor Succ Nat;
 };
+
+definition One : Nat;
+clause One = Succ Zero;
+
+definition Two : Nat;
+clause Two = Succ One;

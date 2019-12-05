@@ -19,7 +19,7 @@ pub fn bind_as_pats<T>(mut tcs: TCS, asb: Vec<AsBind>, f: impl FnOnce(TCS) -> TC
         tcs.gamma.push(bind.into());
     }
     let (thing, mut tcs) = f(tcs)?;
-    for _ in 0..=to_pop {
+    for _ in 0..to_pop {
         let len = tcs.gamma.len();
         tcs.gamma.remove(len - 1);
     }
