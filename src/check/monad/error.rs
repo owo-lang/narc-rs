@@ -24,6 +24,9 @@ pub enum TCE {
     /// A projection is not a term.
     NotTerm(String),
 
+    // === Split* === //
+    SplitOnNonVar(Term, Term),
+
     // === Meta* === //
     MetaRecursion(MI),
 
@@ -61,6 +64,9 @@ impl Display for TCE {
             TCE::NotPi(term, loc) => write!(f, "`{}` is not a pi type (at {}).", term, loc),
             TCE::NotProj(abs) => write!(f, "`{:?}` is not a projection (at {}).", abs, abs.loc()),
             TCE::NotTerm(proj) => write!(f, "Cannot project `{}` on a datatype.", proj),
+            TCE::SplitOnNonVar(term, ty) => {
+                write!(f, "Splitting on non variable `{}` (of type `{}`)", term, ty)
+            }
             TCE::MetaRecursion(mi) => {
                 write!(f, "Trying to solve a recursive meta of index {}.", mi)
             }

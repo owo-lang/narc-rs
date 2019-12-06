@@ -5,4 +5,4 @@
 //
 
 definition id : {A : Type} -> A -> A;
-// clause id a = a;
+clause id a = a;

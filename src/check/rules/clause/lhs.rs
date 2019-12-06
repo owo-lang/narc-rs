@@ -3,11 +3,13 @@ use std::rc::Rc;
 
 use voile_util::uid::{DBI, UID};
 
-use crate::check::monad::{TCMS, TCS};
+use crate::check::monad::{TCE, TCMS, TCS};
 use crate::check::rules::clause::{AsBind, PatVars};
+use crate::check::rules::term::is_eta_var_borrow;
+use crate::syntax::abs::Abs;
 use crate::syntax::core::subst::{DeBruijn, RedEx, Subst};
 use crate::syntax::core::{Pat, Tele, Term};
-use crate::syntax::pat::PatCommon;
+use crate::syntax::pat::{Copat, PatCommon};
 
 use super::super::ERROR_TAKE;
 use super::{classify_eqs, LhsState};
@@ -150,13 +152,19 @@ pub fn final_check(tcs: TCS, lhs: LhsState) -> TCMS<Lhs> {
 
 /// Checking a pattern matching lhs recursively.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.LHS.html).
-pub fn check_lhs(tcs: TCS, lhs: LhsState) -> TCMS<Lhs> {
-    if lhs.problem.is_all_solved() {
-        return final_check(tcs, lhs);
+pub fn check_lhs(mut tcs: TCS, lhs: LhsState) -> TCMS<Lhs> {
+    for split in (lhs.problem.equations.iter()).filter(|e| e.in_pat.is_split()) {
+        if lhs.problem.is_all_solved() {
+            return final_check(tcs, lhs);
+        }
+        let (is_eta, tcs0) = is_eta_var_borrow(tcs, &split.inst, &split.ty)?;
+        tcs = tcs0;
+        let ix = is_eta.ok_or_else(|| TCE::SplitOnNonVar(split.inst.clone(), split.ty.clone()))?;
+        let pos = lhs.tele.len() - ix.0 + 1;
+        let (delta1, delta2) = lhs.tele.split_at(pos);
+        unimplemented!()
     }
-    let splits_to_try = (lhs.problem.equations.iter())
-        .filter(|e| e.in_pat.is_split())
-        .cloned()
-        .collect::<Vec<_>>();
-    unimplemented!()
+    // Really?
+    // debug_assert!(lhs.problem.is_all_solved());
+    final_check(tcs, lhs)
 }
