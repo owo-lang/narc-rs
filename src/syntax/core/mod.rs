@@ -56,6 +56,7 @@ impl TermInfo {
 
 /// Telescopes.
 pub type Tele = Vec<Bind>;
+pub type TeleS = [Bind];
 
 /// Contexts.
 pub type Ctx = Vec<Term>;

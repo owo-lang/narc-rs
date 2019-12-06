@@ -37,7 +37,7 @@ pub trait PatCommon {
     fn is_split(&self) -> bool;
 
     fn is_solved(&self) -> bool {
-        self.is_split()
+        !self.is_split()
     }
 }
 

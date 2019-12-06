@@ -44,7 +44,7 @@ impl DesugarState {
     }
 
     pub fn lookup_by_name(&self, name: &str) -> Option<(GI, &AbsDecl)> {
-        self.lookup_decls(|decl| name == &decl.decl_name().text)
+        self.lookup_decls(|decl| name == decl.decl_name().text)
     }
 
     pub fn fresh_meta(&mut self) -> MI {

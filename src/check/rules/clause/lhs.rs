@@ -8,7 +8,7 @@ use crate::check::rules::clause::{AsBind, PatVars};
 use crate::check::rules::term::is_eta_var_borrow;
 use crate::syntax::abs::Abs;
 use crate::syntax::core::subst::{DeBruijn, RedEx, Subst};
-use crate::syntax::core::{Pat, Tele, Term};
+use crate::syntax::core::{Pat, Tele, TeleS, Term};
 use crate::syntax::pat::{Copat, PatCommon};
 
 use super::super::ERROR_TAKE;
@@ -50,7 +50,7 @@ pub struct Lhs {
 /// + `tele`: The telescope of pattern variables
 /// + `pat_vars`: The list of user names for each pattern variable
 ///
-pub fn user_variable_names(tele: &Tele, mut pat_vars: PatVars) -> (Vec<Option<UID>>, Vec<AsBind>) {
+pub fn user_variable_names(tele: &TeleS, mut pat_vars: PatVars) -> (Vec<Option<UID>>, Vec<AsBind>) {
     let len_rng = 0..tele.len();
     let mut as_binds = Vec::with_capacity(pat_vars.len());
     let mut names = Vec::with_capacity(tele.len());
@@ -160,12 +160,12 @@ pub fn check_lhs(mut tcs: TCS, lhs: LhsState) -> TCMS<Lhs> {
         }
         let (is_eta, tcs0) = is_eta_var_borrow(tcs, &split.inst, &split.ty)?;
         tcs = tcs0;
-        let ix = is_eta.ok_or_else(|| TCE::SplitOnNonVar(split.inst.clone(), split.ty.clone()))?;
+        let ix =
+            is_eta.ok_or_else(|| TCE::split_on_non_var(split.inst.clone(), split.ty.clone()))?;
         let pos = lhs.tele.len() - ix.0 + 1;
         let (delta1, delta2) = lhs.tele.split_at(pos);
         unimplemented!()
     }
-    // Really?
-    // debug_assert!(lhs.problem.is_all_solved());
+    debug_assert!(lhs.problem.is_all_solved());
     final_check(tcs, lhs)
 }

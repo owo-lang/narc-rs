@@ -50,7 +50,7 @@ impl Unify for Term {
                 tcs = Unify::unify(tcs, i, j)?;
                 Unify::unify(tcs, a.as_slice(), b.as_slice())
             }
-            (a, b) => Err(TCE::DifferentTerm(a.clone(), b.clone())),
+            (a, b) => Err(TCE::different_term(a.clone(), b.clone())),
         }
     }
 }
@@ -73,7 +73,7 @@ impl Unify for Elim {
         match (left, right) {
             (Proj(a), Proj(b)) if a == b => Ok(tcs),
             (App(a), App(b)) => Unify::unify(tcs, &**a, &**b),
-            (a, b) => Err(TCE::DifferentElim(a.clone(), b.clone())),
+            (a, b) => Err(TCE::different_elim(a.clone(), b.clone())),
         }
     }
 }
@@ -132,7 +132,7 @@ fn unify_val(mut tcs: TCS, left: &Val, right: &Val) -> TCM {
         }
         // Uniqueness of identity proof??
         (Refl, Refl) => Ok(tcs),
-        (a, b) => Err(TCE::DifferentTerm(
+        (a, b) => Err(TCE::different_term(
             Term::Whnf(a.clone()),
             Term::Whnf(b.clone()),
         )),

@@ -25,20 +25,36 @@ pub enum TCE {
     NotTerm(String),
 
     // === Split* === //
-    SplitOnNonVar(Term, Term),
+    SplitOnNonVar(Box<Term>, Box<Term>),
 
     // === Meta* === //
     MetaRecursion(MI),
 
     // === Different* === //
-    DifferentTerm(Term, Term),
-    DifferentElim(Elim, Elim),
+    DifferentTerm(Box<Term>, Box<Term>),
+    DifferentElim(Box<Elim>, Box<Elim>),
     DifferentName(String, String),
 }
 
 impl TCE {
     pub fn wrap(self, info: Loc) -> Self {
         TCE::Wrapped(Box::new(self), info)
+    }
+
+    fn boxing_two<A, B>(a: A, b: B, f: impl FnOnce(Box<A>, Box<B>) -> Self) -> Self {
+        f(Box::new(a), Box::new(b))
+    }
+
+    pub fn different_term(a: Term, b: Term) -> Self {
+        Self::boxing_two(a, b, TCE::DifferentTerm)
+    }
+
+    pub fn different_elim(a: Elim, b: Elim) -> Self {
+        Self::boxing_two(a, b, TCE::DifferentElim)
+    }
+
+    pub fn split_on_non_var(a: Term, b: Term) -> Self {
+        Self::boxing_two(a, b, TCE::SplitOnNonVar)
     }
 }
 

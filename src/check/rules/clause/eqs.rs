@@ -95,7 +95,7 @@ pub fn classify_eqs(mut tcs: TCS, eqs: Vec<Equation>) -> TCMS<PatClass> {
                     pat_vars
                         .entry(i)
                         .and_modify(|v| v.push(x))
-                        .or_insert(vec![x]);
+                        .or_insert_with(|| vec![x]);
                 } else {
                     as_binds.push(AsBind::new(x, eq.inst, eq.ty));
                 }

@@ -41,7 +41,7 @@ pub fn parse_str_expr(input: &str) -> Result<Expr, String> {
 }
 
 fn decls(the_rule: Tok) -> Vec<ExprDecl> {
-    the_rule.into_inner().into_iter().map(decl).collect()
+    the_rule.into_inner().map(decl).collect()
 }
 
 fn decl(rules: Tok) -> ExprDecl {
@@ -98,7 +98,7 @@ fn pattern(rules: Tok) -> ExprPat {
 fn cons_pat(rules: Tok) -> ExprPat {
     let mut inner: Tik = rules.into_inner();
     let ident = next_ident(&mut inner);
-    let pats = inner.into_iter().map(pattern).collect();
+    let pats = inner.map(pattern).collect();
     Pat::Cons(false, ConHead::pseudo(ident), pats)
 }
 
@@ -208,17 +208,17 @@ fn codata(rules: Tok) -> ExprDecl {
 }
 
 fn constructors(rules: Tok) -> Vec<ExprCons> {
-    rules.into_inner().into_iter().map(constructor).collect()
+    rules.into_inner().map(constructor).collect()
 }
 
 fn constructor(rules: Tok) -> ExprCons {
     let mut inner: Tik = rules.into_inner();
     let ident = next_ident(&mut inner);
-    NamedTele::new(ident, inner.into_iter().map(param).collect())
+    NamedTele::new(ident, inner.map(param).collect())
 }
 
 fn projections(rules: Tok) -> Vec<ExprProj> {
-    rules.into_inner().into_iter().map(projection).collect()
+    rules.into_inner().map(projection).collect()
 }
 
 fn projection(rules: Tok) -> ExprProj {
