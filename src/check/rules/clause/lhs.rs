@@ -111,7 +111,7 @@ To compute $\Theta$ we can look at the arity of the with-function
 and compare it to numPats. This works since the with-function
 type is fully reduced.
 */
-pub fn final_check(tcs: TCS, lhs: LhsState) -> TCMS<Lhs> {
+pub fn final_check(tcs: TCS, mut lhs: LhsState) -> TCMS<Lhs> {
     debug_assert!(lhs.problem.todo_pats.is_empty());
     let len_pats = lhs.len_pats();
     // It should be `len_pats - ctx.len()`,
@@ -126,9 +126,9 @@ pub fn final_check(tcs: TCS, lhs: LhsState) -> TCMS<Lhs> {
     // let with_sub = Default::default();
     // let param_sub = Subst::compose(Subst::compose(pat_sub.clone(), weak_sub), with_sub);
     // TODO: check linearity
-    let (classified, tcs) = classify_eqs(tcs, lhs.problem.equations)?;
-    // Agda is doing this. Why?
-    // debug_assert!(!classified.other_pats.is_empty());
+    let equations = lhs.problem.equations;
+    let (classified, tcs) = tcs.under(&mut lhs.tele, |tcs| classify_eqs(tcs, equations))?;
+    debug_assert!(classified.other_pats.is_empty());
     let (vars, mut asb) = user_variable_names(&lhs.tele, classified.pat_vars);
     // The variable name stands for `rename`.
     let ren = Subst::parallel(
