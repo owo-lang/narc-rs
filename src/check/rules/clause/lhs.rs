@@ -132,9 +132,9 @@ pub fn final_check(tcs: TCS, mut lhs: LhsState) -> TCMS<Lhs> {
     let (vars, mut asb) = user_variable_names(&lhs.tele, classified.pat_vars);
     // The variable name stands for `rename`.
     let ren = Subst::parallel(
-        vars.into_iter()
-            .zip(0usize..)
-            .map(|(_, b)| DeBruijn::from_dbi(DBI(b))),
+        (vars.into_iter().rev())
+            .enumerate()
+            .map(|(b, _)| DeBruijn::from_dbi(DBI(b))),
     );
     let mut as_binds = classified.as_binds;
     as_binds.append(&mut asb);
@@ -146,7 +146,8 @@ pub fn final_check(tcs: TCS, mut lhs: LhsState) -> TCMS<Lhs> {
         pat_sub,
         as_binds,
     };
-    // Agda is calling `computeLHSContext` here. Is it needed?
+    // Agda is calling `computeLHSContext` here, and is updating context with `param_sub`.
+    // TODO: do it.
     Ok((lhs_result, tcs))
 }
 
