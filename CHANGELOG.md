@@ -3,6 +3,7 @@
 # 0.0.6
 
 + Fix a bunch of index-relevant problems
++ Add Agda's `AddContext Telescope` instance (`TCS::under`)
 
 # 0.0.5
 
