@@ -6,7 +6,6 @@ use voile_util::uid::{DBI, UID};
 use crate::check::monad::{TCE, TCMS, TCS};
 use crate::check::rules::clause::{AsBind, PatVars};
 use crate::check::rules::term::is_eta_var_borrow;
-use crate::syntax::abs::Abs;
 use crate::syntax::core::subst::{DeBruijn, RedEx, Subst};
 use crate::syntax::core::{Pat as CorePat, Tele, TeleS, Term};
 use crate::syntax::pat::{Copat, Pat, PatCommon};

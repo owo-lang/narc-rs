@@ -21,8 +21,8 @@ pub fn check(tcs: TCS, abs: &Abs, against: &Val) -> TermTCM {
         (Abs::Pi(info, bind, ret), Val::Type(..)) => {
             // Because `against` is `Val::Type(level)`
             let (bind_ty, mut tcs) = check(tcs, &*bind.ty, against)?;
-            tcs.gamma
-                .push(Bind::new(bind.licit, bind.name, bind_ty.ast, None));
+            let new = Bind::new(bind.licit, bind.name, bind_ty.ast);
+            tcs.gamma.push(new);
             let (ret_ty, mut tcs) = check(tcs, &**ret, against)?;
             let bind_ty = tcs.gamma.pop().expect("Bad index");
             let term = Term::pi2(bind_ty.boxed(), Closure::plain(ret_ty.ast));

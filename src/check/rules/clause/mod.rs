@@ -1,25 +1,34 @@
 use crate::check::monad::{TCMS, TCS};
+use crate::check::rules::term::check;
+use crate::check::rules::whnf::simplify;
 use crate::syntax::abs::AbsClause;
-use crate::syntax::core::{Clause, Term};
+use crate::syntax::core::{Clause, Tele, Term};
 
 pub use self::eqs::*;
 pub use self::lhs::*;
 pub use self::state::*;
-use crate::check::rules::term::check;
-use crate::check::rules::whnf::simplify;
 
 mod eqs;
 mod lhs;
 mod state;
 
 /// Bind as patterns
-pub fn bind_as_pats<T>(mut tcs: TCS, asb: Vec<AsBind>, f: impl FnOnce(TCS) -> TCMS<T>) -> TCMS<T> {
-    let init_len = tcs.gamma.len();
-    for bind in asb {
-        tcs.gamma.push(bind.into());
+pub fn bind_as_and_tele<T>(
+    mut tcs: TCS,
+    as_binds: Vec<AsBind>,
+    mut tele: Tele,
+    f: impl FnOnce(TCS) -> TCMS<T>,
+) -> TCMS<T> {
+    if tcs.lets.len() < as_binds.len() {
+        tcs.lets.reserve(as_binds.len() - tcs.lets.len());
     }
+    for bind in as_binds {
+        tcs.lets.push(bind.into());
+    }
+    std::mem::swap(&mut tcs.gamma, &mut tele);
     let (thing, mut tcs) = f(tcs)?;
-    tcs.gamma.split_off(init_len);
+    tcs.lets.clear();
+    std::mem::swap(&mut tcs.gamma, &mut tele);
     Ok((thing, tcs))
 }
 
@@ -34,7 +43,7 @@ pub fn clause(tcs: TCS, cls: AbsClause, against: Term) -> TCMS<Clause> {
     let ty = lhs.ty;
     let patterns = lhs.pats;
     let has_absurd = lhs.has_absurd;
-    bind_as_pats(tcs, lhs.as_binds, |mut tcs| {
+    bind_as_and_tele(tcs, lhs.as_binds, pat_tele.clone(), |mut tcs| {
         let body = if has_absurd {
             None
         } else {

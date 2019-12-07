@@ -74,6 +74,7 @@ pub enum Term {
 }
 
 pub type Bind<T = Term> = common::Bind<T>;
+pub type Let<T = Term> = common::Let<T>;
 
 /// Type for eliminations.
 #[derive(Debug, PartialEq, Eq, Clone)]

@@ -102,7 +102,7 @@ impl Term {
     }
 
     pub fn pi(licit: Plicit, name: UID, param_type: Term, body: Closure) -> Self {
-        Self::pi2(Bind::boxing(licit, name, param_type, None), body)
+        Self::pi2(Bind::boxing(licit, name, param_type), body)
     }
 
     pub fn pi2(param: Bind<Box<Term>>, body: Closure) -> Self {

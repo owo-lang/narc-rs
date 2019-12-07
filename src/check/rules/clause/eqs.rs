@@ -6,7 +6,7 @@ use voile_util::uid::{DBI, UID};
 
 use crate::check::monad::{TCMS, TCS};
 use crate::syntax::abs::AbsCopat;
-use crate::syntax::core::{Bind, Term};
+use crate::syntax::core::{Bind, Let, Term};
 use crate::syntax::pat::{Copat, Pat, PatCommon};
 
 use super::super::term::is_eta_var_borrow;
@@ -36,9 +36,10 @@ pub struct AsBind {
     pub ty: Term,
 }
 
-impl From<AsBind> for Bind {
+impl From<AsBind> for Let {
     fn from(asb: AsBind) -> Self {
-        Bind::new(Plicit::Ex, asb.name, asb.ty, Some(asb.term))
+        let bind = Bind::new(Plicit::Ex, asb.name, asb.ty);
+        Let::new(bind, asb.term)
     }
 }
 

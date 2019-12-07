@@ -36,7 +36,7 @@ impl RedEx for Elim {
 
 impl<R, T: RedEx<R>> RedEx<Bind<R>> for Bind<T> {
     fn reduce_dbi(self, subst: &Subst) -> Bind<R> {
-        self.map_term(|t| t.reduce_dbi(subst), |v| Some(v.reduce_dbi(subst)))
+        Bind::new(self.licit, self.name, self.ty.reduce_dbi(subst))
     }
 }
 

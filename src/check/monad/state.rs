@@ -1,9 +1,13 @@
-use crate::syntax::core::{Bind, Decl, Tele, Term};
 use voile_util::meta::MetaContext;
 use voile_util::uid::{DBI, GI, UID};
 
+use crate::syntax::core::subst::DeBruijn;
+use crate::syntax::core::{Bind, Decl, Let, LetList, Tele, Term};
+
 /// Typing context.
 pub type Sigma = Vec<Decl>;
+
+const UNRESOLVED: &str = "Unresolved reference";
 
 /// Type-checking state.
 #[derive(Debug, Clone, Default)]
@@ -12,6 +16,8 @@ pub struct TCS {
     pub sigma: Sigma,
     /// Local typing context.
     pub gamma: Tele,
+    /// Let bindings.
+    pub lets: LetList,
     /// Meta variable context. Always global.
     pub meta_context: MetaContext<Term>,
 }
@@ -36,11 +42,21 @@ impl TCS {
         &self.gamma[ix.0]
     }
 
-    pub fn local_by_id(&self, id: UID) -> (DBI, &Bind) {
-        self.local_by_id_safe(id).expect("Unresolved reference")
+    pub fn local_by_id(&self, id: UID) -> Let {
+        self.local_by_id_safe(id).expect(UNRESOLVED)
     }
 
-    pub fn local_by_id_safe(&self, id: UID) -> Option<(DBI, &Bind)> {
+    pub fn local_by_id_safe(&self, id: UID) -> Option<Let> {
+        self.gamma_by_id_safe(id)
+            .map(|(i, ty)| Let::new(ty.clone(), DeBruijn::from_dbi(i)))
+            .or_else(|| self.let_by_id_safe(id).cloned())
+    }
+
+    fn let_by_id_safe(&self, id: UID) -> Option<&Let> {
+        self.lets.iter().find(|b| b.bind.name == id)
+    }
+
+    fn gamma_by_id_safe(&self, id: UID) -> Option<(DBI, &Bind)> {
         (self.gamma.iter().enumerate())
             .find(|(_, b)| b.name == id)
             .map(|(ix, bind)| (DBI(ix), bind))

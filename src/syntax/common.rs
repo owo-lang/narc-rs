@@ -14,17 +14,18 @@ pub struct Bind<T> {
     pub licit: Plicit,
     pub name: UID,
     pub ty: T,
-    pub val: Option<T>,
+}
+
+/// Let binding.
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub struct Let<T> {
+    pub bind: Bind<T>,
+    pub val: T,
 }
 
 impl<T> Bind<T> {
-    pub fn new(licit: Plicit, name: UID, ty: T, val: Option<T>) -> Self {
-        Self {
-            licit,
-            name,
-            ty,
-            val,
-        }
+    pub fn new(licit: Plicit, name: UID, ty: T) -> Self {
+        Self { licit, name, ty }
     }
 
     pub fn is_implicit(&self) -> bool {
@@ -37,20 +38,26 @@ impl<T> Bind<T> {
     }
 
     pub fn boxed(self) -> Bind<Box<T>> {
-        Bind::boxing(self.licit, self.name, self.ty, self.val)
+        Bind::boxing(self.licit, self.name, self.ty)
     }
 
-    pub fn map_term<R>(self, f: impl FnOnce(T) -> R, g: impl FnOnce(T) -> Option<R>) -> Bind<R> {
-        Bind::new(self.licit, self.name, f(self.ty), self.val.and_then(g))
+    pub fn map_term<R>(self, f: impl FnOnce(T) -> R) -> Bind<R> {
+        Bind::new(self.licit, self.name, f(self.ty))
     }
 }
 
 impl<T> Bind<Box<T>> {
-    pub fn boxing(licit: Plicit, name: UID, ty: T, val: Option<T>) -> Self {
-        Self::new(licit, name, Box::new(ty), val.map(Box::new))
+    pub fn boxing(licit: Plicit, name: UID, term: T) -> Self {
+        Self::new(licit, name, Box::new(term))
     }
 
     pub fn unboxed(self) -> Bind<T> {
-        self.map_term(|t| *t, |v| Some(*v))
+        self.map_term(|t| *t)
+    }
+}
+
+impl<T> Let<T> {
+    pub fn new(bind: Bind<T>, val: T) -> Self {
+        Self { bind, val }
     }
 }
