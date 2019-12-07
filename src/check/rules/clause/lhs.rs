@@ -57,7 +57,8 @@ pub fn user_variable_names(tele: &TeleS, mut pat_vars: PatVars) -> (Vec<Option<U
         let ids = pat_vars.remove(&ix).unwrap_or_default();
         names.push(ids.first().copied());
         for uid in ids {
-            let as_bind = AsBind::new(uid, DeBruijn::from_dbi(ix), bind.ty.clone());
+            let ty = bind.ty.clone().reduce_dbi(&Subst::raise(ix + 1));
+            let as_bind = AsBind::new(uid, DeBruijn::from_dbi(ix), ty);
             as_binds.push(as_bind)
         }
     }
