@@ -8,8 +8,8 @@ use crate::check::rules::clause::{AsBind, PatVars};
 use crate::check::rules::term::is_eta_var_borrow;
 use crate::syntax::abs::Abs;
 use crate::syntax::core::subst::{DeBruijn, RedEx, Subst};
-use crate::syntax::core::{Pat, Tele, TeleS, Term};
-use crate::syntax::pat::{Copat, PatCommon};
+use crate::syntax::core::{Pat as CorePat, Tele, TeleS, Term};
+use crate::syntax::pat::{Copat, Pat, PatCommon};
 
 use super::super::ERROR_TAKE;
 use super::{classify_eqs, LhsState};
@@ -24,7 +24,7 @@ pub struct Lhs {
     /// Whether the LHS has at least one absurd pattern.
     pub has_absurd: bool,
     /// The patterns in internal syntax.
-    pub pats: Vec<Pat>,
+    pub pats: Vec<CorePat>,
     /// The type of the body. Is $b~\sigma$ if $\Gamma$ is defined.
     pub ty: Term,
     /// Substitution version of `pats`, only up to the first projection pattern.
@@ -155,16 +155,22 @@ pub fn final_check(tcs: TCS, mut lhs: LhsState) -> TCMS<Lhs> {
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.LHS.html).
 pub fn check_lhs(mut tcs: TCS, lhs: LhsState) -> TCMS<Lhs> {
     for split in (lhs.problem.equations.iter()).filter(|e| e.in_pat.is_split()) {
+        use Copat::{App, Proj};
+        use Pat::{Absurd, Forced};
         if lhs.problem.is_all_solved() {
             return final_check(tcs, lhs);
         }
         let (is_eta, tcs0) = is_eta_var_borrow(tcs, &split.inst, &split.ty)?;
         tcs = tcs0;
-        let ix =
-            is_eta.ok_or_else(|| TCE::split_on_non_var(split.inst.clone(), split.ty.clone()))?;
+        let e = || TCE::split_on_non_var(split.inst.clone(), split.ty.clone());
+        let ix = is_eta.ok_or_else(e)?;
         let pos = lhs.tele.len() - ix.0 + 1;
         let (delta1, delta2) = lhs.tele.split_at(pos);
-        unimplemented!()
+        match &split.in_pat {
+            App(Pat::Refl) => unimplemented!(),
+            App(Pat::Cons(c, a, b)) => unimplemented!(),
+            App(Pat::Var(..)) | App(Absurd) | App(Forced(..)) | Proj(..) => unreachable!(),
+        }
     }
     debug_assert!(lhs.problem.is_all_solved());
     final_check(tcs, lhs)
