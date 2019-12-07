@@ -14,15 +14,12 @@ mod state;
 
 /// Bind as patterns
 pub fn bind_as_pats<T>(mut tcs: TCS, asb: Vec<AsBind>, f: impl FnOnce(TCS) -> TCMS<T>) -> TCMS<T> {
-    let to_pop = asb.len();
+    let init_len = tcs.gamma.len();
     for bind in asb {
         tcs.gamma.push(bind.into());
     }
     let (thing, mut tcs) = f(tcs)?;
-    for _ in 0..to_pop {
-        let len = tcs.gamma.len();
-        tcs.gamma.remove(len - 1);
-    }
+    tcs.gamma.split_off(init_len);
     Ok((thing, tcs))
 }
 
