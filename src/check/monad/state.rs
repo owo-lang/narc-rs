@@ -47,9 +47,10 @@ impl TCS {
     }
 
     pub fn local_by_id_safe(&self, id: UID) -> Option<Let> {
-        self.gamma_by_id_safe(id)
-            .map(|(i, ty)| Let::new(ty.clone(), DeBruijn::from_dbi(i)))
-            .or_else(|| self.let_by_id_safe(id).cloned())
+        self.let_by_id_safe(id).cloned().or_else(|| {
+            self.gamma_by_id_safe(id)
+                .map(|(i, ty)| Let::new(ty.clone(), DeBruijn::from_dbi(i)))
+        })
     }
 
     fn let_by_id_safe(&self, id: UID) -> Option<&Let> {
@@ -57,9 +58,10 @@ impl TCS {
     }
 
     fn gamma_by_id_safe(&self, id: UID) -> Option<(DBI, &Bind)> {
+        let gamma_len = self.gamma.len();
         (self.gamma.iter().enumerate())
             .find(|(_, b)| b.name == id)
-            .map(|(ix, bind)| (DBI(ix), bind))
+            .map(|(ix, bind)| (DBI(gamma_len - ix - 1), bind))
     }
 
     pub fn mut_def(&mut self, ix: GI) -> &mut Decl {
