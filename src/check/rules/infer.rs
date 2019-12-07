@@ -122,7 +122,7 @@ pub fn type_of_decl(tcs: &TCS, decl: GI) -> TCM<TermInfo> {
             let ident = tcs.def(*codata).def_name().clone();
             let elims = range.rev().map(DBI).map(Elim::from_dbi).collect();
             let codata = Term::def(*codata, ident, elims);
-            let bind = Bind::new(Plicit::Ex, unsafe { next_uid() }, codata, None);
+            let bind = Bind::new(Plicit::Ex, unsafe { next_uid() }, codata);
             let tele = (data_tele.iter().cloned())
                 // Or maybe we shouldn't?
                 .map(Bind::into_implicit)
