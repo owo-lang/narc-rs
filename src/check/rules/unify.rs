@@ -102,6 +102,7 @@ impl Unify for Val {
     }
 }
 
+#[allow(clippy::many_single_char_names)]
 fn unify_val(mut tcs: TCS, left: &Val, right: &Val) -> TCM {
     use Val::*;
     match (left, right) {
