@@ -14,3 +14,7 @@ clause flip f a b = f b a;
 definition flip' : {A B C : Type}
    -> (A -> B -> C) -> B -> A -> C;
 clause flip' f a b = f b a;
+
+// definition flip'' : {A : Type}
+//    -> (A -> A -> A) -> A -> A -> A;
+// clause flip'' f a b = flip' f a b;

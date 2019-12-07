@@ -1,7 +1,8 @@
-use voile_util::meta::MI;
+use voile_util::meta::{MetaSolution, MI};
 use voile_util::uid::GI;
 
 use crate::check::monad::{TCE, TCM, TCS};
+use crate::check::rules::whnf::simplify;
 use crate::syntax::core::{Closure, Elim, FoldVal, Term, Val};
 
 fn check_solution(meta: MI, rhs: &Val) -> TCM<()> {
@@ -102,6 +103,22 @@ impl Unify for Val {
     }
 }
 
+fn unify_meta_with(mut tcs: TCS, term: &Val, mi: MI) -> TCM {
+    match &tcs.meta_context.solution(mi) {
+        MetaSolution::Unsolved => {
+            check_solution(mi, term)?;
+            tcs.meta_context.solve_meta(mi, Term::Whnf(term.clone()));
+            Ok(tcs)
+        }
+        MetaSolution::Solved(solution) => {
+            let solution = *solution.clone();
+            let (val, tcs) = simplify(tcs, solution)?;
+            Unify::unify(tcs, &val, term)
+        }
+        MetaSolution::Inlined => unreachable!(),
+    }
+}
+
 #[allow(clippy::many_single_char_names)]
 fn unify_val(mut tcs: TCS, left: &Val, right: &Val) -> TCM {
     use Val::*;
@@ -120,11 +137,7 @@ fn unify_val(mut tcs: TCS, left: &Val, right: &Val) -> TCM {
         }
         (Axiom(i), Axiom(j)) if i == j => Ok(tcs),
         (Meta(i, a), Meta(j, b)) if i == j => Unify::unify(tcs, a.as_slice(), b.as_slice()),
-        (Meta(i, a), b) | (b, Meta(i, a)) if a.is_empty() => {
-            check_solution(*i, b)?;
-            tcs.meta_context.solve_meta(*i, Term::Whnf(b.clone()));
-            Ok(tcs)
-        }
+        (Meta(i, a), b) | (b, Meta(i, a)) if a.is_empty() => unify_meta_with(tcs, b, *i),
         (Var(i, a), Var(j, b)) if i == j => Unify::unify(tcs, a.as_slice(), b.as_slice()),
         (Id(a, b, c), Id(x, y, z)) => {
             tcs = Unify::unify(tcs, &**a, &**x)?;
