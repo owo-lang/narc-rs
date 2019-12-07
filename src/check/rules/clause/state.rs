@@ -50,13 +50,14 @@ impl LhsState {
 pub fn init_lhs_state(pats: Vec<AbsCopat>, ty: Term) -> TCM<LhsState> {
     let (tele, target) = ty.tele_view();
     let mut pats_iter = pats.into_iter();
-    let mut equations = Vec::with_capacity(tele.len());
+    let tele_len = tele.len();
+    let mut equations = Vec::with_capacity(tele_len);
     for (i, bind) in tele.iter().enumerate() {
-        let mut f = |pat: AbsCopat| {
+        let mut f = |in_pat: AbsCopat| {
             let equation = Equation {
-                in_pat: pat,
+                in_pat,
                 // DBI is from right to left
-                inst: Term::from_dbi(DBI(tele.len() - i - 1)),
+                inst: Term::from_dbi(DBI(tele_len - i - 1)),
                 ty: bind.ty.clone(),
             };
             equations.push(equation);
@@ -75,7 +76,7 @@ pub fn init_lhs_state(pats: Vec<AbsCopat>, ty: Term) -> TCM<LhsState> {
         todo_pats: pats_iter.collect(),
         equations,
     };
-    let tele_dbi = (0..tele.len()).rev().map(DBI).map(Pat::var).collect();
+    let tele_dbi = (0..tele_len).rev().map(DBI).map(Pat::var).collect();
     let state = LhsState {
         tele,
         pats: tele_dbi,

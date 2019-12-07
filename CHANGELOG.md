@@ -3,7 +3,10 @@
 # 0.0.6
 
 + Fix a bunch of index-relevant problems
+  + Add local DBI lifting
+  + Lift DBI when generate `AsBind`
 + Add Agda's `AddContext Telescope` instance (`TCS::under`)
++ Lhs-splitting now support variables
 
 # 0.0.5
 
