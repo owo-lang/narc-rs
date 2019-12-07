@@ -49,15 +49,14 @@ impl LhsState {
 /// [auxiliary function](https://hackage.haskell.org/package/Agda-2.5.4/docs/src/Agda.TypeChecking.Rules.LHS.ProblemRest.html#updateProblemRest).
 pub fn init_lhs_state(pats: Vec<AbsCopat>, ty: Term) -> TCM<LhsState> {
     let (tele, target) = ty.tele_view();
-    let pats_len = pats.len();
     let mut pats_iter = pats.into_iter();
-    let mut equations = Vec::with_capacity(pats_len);
+    let mut equations = Vec::with_capacity(tele.len());
     for (i, bind) in tele.iter().enumerate() {
         let mut f = |pat: AbsCopat| {
             let equation = Equation {
                 in_pat: pat,
                 // DBI is from right to left
-                inst: Term::from_dbi(DBI(pats_len - i)),
+                inst: Term::from_dbi(DBI(tele.len() - i - 1)),
                 ty: bind.ty.clone(),
             };
             equations.push(equation);
