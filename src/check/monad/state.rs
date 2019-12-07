@@ -39,7 +39,8 @@ impl TCS {
     }
 
     pub fn local(&self, ix: DBI) -> &Bind {
-        &self.gamma[ix.0]
+        let len = self.gamma.len();
+        &self.gamma[len - ix.0 - 1]
     }
 
     pub fn local_by_id(&self, id: UID) -> Let {
@@ -47,10 +48,12 @@ impl TCS {
     }
 
     pub fn local_by_id_safe(&self, id: UID) -> Option<Let> {
-        self.let_by_id_safe(id).cloned().or_else(|| {
-            self.gamma_by_id_safe(id)
-                .map(|(i, ty)| Let::new(ty.clone(), DeBruijn::from_dbi(i)))
-        })
+        let lookup_let = || self.let_by_id_safe(id).cloned();
+        let lookup_gamma = || {
+            let (i, ty) = self.gamma_by_id_safe(id)?;
+            Some(Let::new(ty.clone(), DeBruijn::from_dbi(i)))
+        };
+        lookup_let().or_else(lookup_gamma)
     }
 
     fn let_by_id_safe(&self, id: UID) -> Option<&Let> {

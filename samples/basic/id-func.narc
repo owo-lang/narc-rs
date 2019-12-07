@@ -8,4 +8,4 @@ definition id : {A : Type} -> A -> A;
 clause id a = a;
 
 definition flip : {A : Type} -> (A -> A -> A) -> A -> A -> A;
-// clause flip f a b = f b a;
+clause flip f a b = f b a;
