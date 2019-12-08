@@ -101,6 +101,7 @@ fn compare_closure(
     tcs = match (left, right) {
         (Plain(a), Plain(b)) => term_cmp(tcs, &**a, &**b)?,
     };
+    tcs.meta_context.mut_solutions().clear();
     tcs.meta_context.mut_solutions().append(&mut backup);
     Ok(tcs)
 }

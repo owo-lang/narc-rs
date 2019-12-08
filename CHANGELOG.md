@@ -7,6 +7,7 @@
   + Lift DBI when generate `AsBind`
 + Add Agda's `AddContext Telescope` instance (`TCS::under`)
 + Lhs-splitting now support variables
++ Pretty print `Abs`
 
 # 0.0.5
 

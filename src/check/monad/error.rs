@@ -75,8 +75,7 @@ impl Display for TCE {
                 "Codata `{}` does not have field `{}` (at {}).",
                 codata, field, loc
             ),
-            // TODO: Display
-            TCE::NotHead(abs) => write!(f, "`{:?}` is not a head (at {}).", abs, abs.loc()),
+            TCE::NotHead(abs) => write!(f, "`{}` is not a head (at {}).", abs, abs.loc()),
             TCE::NotPi(term, loc) => write!(f, "`{}` is not a pi type (at {}).", term, loc),
             TCE::NotProj(abs) => write!(f, "`{:?}` is not a projection (at {}).", abs, abs.loc()),
             TCE::NotTerm(proj) => write!(f, "Cannot project `{}` on a datatype.", proj),
