@@ -1,7 +1,7 @@
 use std::fmt::{Display, Error as FmtError, Formatter};
 
 use voile_util::level::Level;
-use voile_util::loc::{Loc, ToLoc};
+use voile_util::loc::{Ident, Loc, ToLoc};
 use voile_util::meta::MI;
 
 use crate::syntax::abs::Abs;
@@ -33,7 +33,7 @@ pub enum TCE {
     // === Different* === //
     DifferentTerm(Box<Term>, Box<Term>),
     DifferentElim(Box<Elim>, Box<Elim>),
-    DifferentName(String, String),
+    DifferentName(Ident, Ident),
 }
 
 impl TCE {
@@ -90,8 +90,8 @@ impl Display for TCE {
             TCE::DifferentElim(a, b) => write!(f, "Failed to unify `{}` and `{}`.", a, b),
             TCE::DifferentName(a, b) => write!(
                 f,
-                "`{}` and `{}` are different (conversion check is not structural in Narc).",
-                a, b
+                "`{}` (at {}) and `{}` (at {}) are different (conversion check is not structural in Narc).",
+                a.text, a.loc, b.text, b.loc
             ),
         }
     }
