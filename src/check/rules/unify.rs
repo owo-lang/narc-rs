@@ -17,7 +17,7 @@ pub fn subtype(mut tcs: TCS, sub: &Val, sup: &Val) -> TCM {
     match (sub, sup) {
         (Type(sub_l), Type(sup_l)) if sub_l <= sup_l => Ok(tcs),
         (Pi(a, c0), Pi(b, c1)) if a.licit == b.licit => {
-            tcs = Unify::unify(tcs, &*a.ty, &*b.ty)?;
+            tcs = Unify::unify(tcs, &a.ty, &b.ty)?;
             compare_closure(tcs, c0, c1, |tcs, a, b| match (a, b) {
                 // Covariance
                 (Term::Whnf(left), Term::Whnf(right)) => subtype(tcs, left, right),
@@ -39,6 +39,12 @@ impl<T: Unify> Unify for [T] {
             tcs = Unify::unify(tcs, a, b)?;
         }
         Ok(tcs)
+    }
+}
+
+impl<T: Unify> Unify for Box<T> {
+    fn unify(mut tcs: TCS, left: &Self, right: &Self) -> TCM {
+        Unify::unify(tcs, &**left, &**right)
     }
 }
 
@@ -73,7 +79,7 @@ impl Unify for Elim {
         use Elim::*;
         match (left, right) {
             (Proj(a), Proj(b)) if a == b => Ok(tcs),
-            (App(a), App(b)) => Unify::unify(tcs, &**a, &**b),
+            (App(a), App(b)) => Unify::unify(tcs, a, b),
             (a, b) => Err(TCE::different_elim(a.clone(), b.clone())),
         }
     }
@@ -129,7 +135,7 @@ fn unify_val(mut tcs: TCS, left: &Val, right: &Val) -> TCM {
             Unify::unify(tcs, a.as_slice(), b.as_slice())
         }
         (Pi(a, c0), Pi(b, c1)) if a.licit == b.licit => {
-            tcs = Unify::unify(tcs, &*a.ty, &*b.ty)?;
+            tcs = Unify::unify(tcs, &a.ty, &b.ty)?;
             Unify::unify(tcs, c0, c1)
         }
         (Cons(c0, a), Cons(c1, b)) if c0.name == c1.name => {
@@ -140,9 +146,9 @@ fn unify_val(mut tcs: TCS, left: &Val, right: &Val) -> TCM {
         (Meta(i, a), b) | (b, Meta(i, a)) if a.is_empty() => unify_meta_with(tcs, b, *i),
         (Var(i, a), Var(j, b)) if i == j => Unify::unify(tcs, a.as_slice(), b.as_slice()),
         (Id(a, b, c), Id(x, y, z)) => {
-            tcs = Unify::unify(tcs, &**a, &**x)?;
-            tcs = Unify::unify(tcs, &**b, &**y)?;
-            Unify::unify(tcs, &**c, &**z)
+            tcs = Unify::unify(tcs, a, x)?;
+            tcs = Unify::unify(tcs, b, y)?;
+            Unify::unify(tcs, c, z)
         }
         // Uniqueness of identity proof??
         (Refl, Refl) => Ok(tcs),
