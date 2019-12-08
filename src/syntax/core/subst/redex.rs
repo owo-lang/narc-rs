@@ -1,3 +1,5 @@
+use voile_util::meta::MetaSolution;
+
 use crate::syntax::common::{Bind, Let};
 use crate::syntax::pat::{Copat, Pat};
 
@@ -25,6 +27,16 @@ impl RedEx for Elim {
         match self {
             Elim::App(term) => Elim::app(term.reduce_dbi(subst)),
             e => e,
+        }
+    }
+}
+
+impl<R, T: RedEx<R>> RedEx<MetaSolution<R>> for MetaSolution<T> {
+    fn reduce_dbi(self, subst: &Subst) -> MetaSolution<R> {
+        match self {
+            MetaSolution::Solved(t) => MetaSolution::Solved(Box::new(t.reduce_dbi(subst))),
+            MetaSolution::Inlined => MetaSolution::Inlined,
+            MetaSolution::Unsolved => MetaSolution::Unsolved,
         }
     }
 }
@@ -73,6 +85,7 @@ impl RedEx for Closure {
     }
 }
 
+/// For `Tele`.
 impl<R, T: RedEx<R>> RedEx<Vec<R>> for Vec<T> {
     fn reduce_dbi(self, subst: &Subst) -> Vec<R> {
         self.into_iter().map(|e| e.reduce_dbi(subst)).collect()

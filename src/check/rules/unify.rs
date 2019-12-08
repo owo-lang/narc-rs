@@ -1,8 +1,9 @@
 use voile_util::meta::{MetaSolution, MI};
-use voile_util::uid::GI;
+use voile_util::uid::{DBI, GI};
 
 use crate::check::monad::{TCE, TCM, TCS};
 use crate::check::rules::whnf::simplify;
+use crate::syntax::core::subst::{RedEx, Subst};
 use crate::syntax::core::{Closure, Elim, FoldVal, Term, Val};
 
 fn check_solution(meta: MI, rhs: &Val) -> TCM<()> {
@@ -43,7 +44,7 @@ impl<T: Unify> Unify for [T] {
 }
 
 impl<T: Unify> Unify for Box<T> {
-    fn unify(mut tcs: TCS, left: &Self, right: &Self) -> TCM {
+    fn unify(tcs: TCS, left: &Self, right: &Self) -> TCM {
         Unify::unify(tcs, &**left, &**right)
     }
 }
@@ -86,15 +87,22 @@ impl Unify for Elim {
 }
 
 fn compare_closure(
-    tcs: TCS,
+    mut tcs: TCS,
     left: &Closure,
     right: &Closure,
     term_cmp: impl FnOnce(TCS, &Term, &Term) -> TCM,
 ) -> TCM {
     use Closure::*;
-    match (left, right) {
-        (Plain(a), Plain(b)) => term_cmp(tcs, &**a, &**b),
-    }
+    let mut backup = tcs.meta_context.solutions().to_vec();
+    let mut meta_ctx = Vec::with_capacity(tcs.meta_context.solutions().len());
+    meta_ctx.append(tcs.meta_context.mut_solutions());
+    meta_ctx = meta_ctx.reduce_dbi(&Subst::raise(DBI(1)));
+    tcs.meta_context.mut_solutions().append(&mut meta_ctx);
+    tcs = match (left, right) {
+        (Plain(a), Plain(b)) => term_cmp(tcs, &**a, &**b)?,
+    };
+    tcs.meta_context.mut_solutions().append(&mut backup);
+    Ok(tcs)
 }
 
 impl Unify for Closure {
