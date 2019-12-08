@@ -16,7 +16,15 @@ use super::whnf::simplify;
 pub type InferTCM = TCM<(TermInfo, Term, TCS)>;
 
 /// Infer the type of the expression.
-pub fn infer(tcs: TCS, abs: &Abs) -> InferTCM {
+pub fn infer(mut tcs: TCS, abs: &Abs) -> InferTCM {
+    println!("{}Inferring {}", tcs.tc_depth_ws(), abs);
+    tcs.tc_deeper();
+    let (a, b, mut tcs) = infer_impl(tcs, abs)?;
+    tcs.tc_shallower();
+    Ok((a, b, tcs))
+}
+
+fn infer_impl(tcs: TCS, abs: &Abs) -> InferTCM {
     let abs = match abs {
         Abs::Type(id, level) => {
             let me = Term::universe(*level).at(id.loc);

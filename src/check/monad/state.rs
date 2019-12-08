@@ -3,6 +3,7 @@ use voile_util::uid::{DBI, GI, UID};
 
 use crate::syntax::core::subst::{DeBruijn, RedEx, Subst};
 use crate::syntax::core::{Bind, Decl, Let, LetList, Tele, Term};
+use std::iter::repeat;
 
 /// Typing context.
 pub type Sigma = Vec<Decl>;
@@ -12,6 +13,7 @@ const UNRESOLVED: &str = "Unresolved reference";
 /// Type-checking state.
 #[derive(Debug, Clone, Default)]
 pub struct TCS {
+    tc_depth: usize,
     /// Global context (definitions are attached with type annotations).
     pub sigma: Sigma,
     /// Local typing context.
@@ -23,6 +25,25 @@ pub struct TCS {
 }
 
 impl TCS {
+    /// For debugging purpose.
+    pub fn tc_depth_ws(&self) -> String {
+        repeat(' ').take(self.tc_depth).collect()
+    }
+
+    pub fn tc_deeper(&mut self) {
+        self.tc_depth += 1;
+    }
+
+    pub fn tc_shallower(&mut self) {
+        if self.tc_depth > 0 {
+            self.tc_depth -= 1;
+        }
+    }
+
+    pub fn tc_reset_depth(&mut self) {
+        self.tc_depth = 0;
+    }
+
     pub fn reserve_local_variables(&mut self, additional: usize) {
         self.gamma.reserve(additional);
         self.sigma.reserve(additional);
