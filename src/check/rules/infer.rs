@@ -16,14 +16,18 @@ use super::whnf::simplify;
 pub type InferTCM = TCM<(TermInfo, Term, TCS)>;
 
 /// Infer the type of the expression.
-pub fn infer(mut tcs: TCS, abs: &Abs) -> InferTCM {
-    let depth_ws = tcs.tc_depth_ws();
-    println!("{}Infer {}", depth_ws, abs);
+pub fn infer(mut tcs: TCS, input_term: &Abs) -> InferTCM {
     tcs.tc_deeper();
-    let (a, b, mut tcs) = infer_impl(tcs, abs)?;
-    println!("{}Inferred {} : {} \u{2191} {}", depth_ws, abs, b, a.ast);
+    let (evaluated, inferred_ty, mut tcs) = infer_impl(tcs, input_term)?;
+    println!(
+        "{}\u{22A2} {} : {} \u{2191} {}",
+        tcs.tc_depth_ws(),
+        input_term,
+        inferred_ty,
+        evaluated.ast
+    );
     tcs.tc_shallower();
-    Ok((a, b, tcs))
+    Ok((evaluated, inferred_ty, tcs))
 }
 
 fn infer_impl(tcs: TCS, abs: &Abs) -> InferTCM {

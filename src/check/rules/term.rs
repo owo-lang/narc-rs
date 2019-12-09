@@ -9,14 +9,15 @@ use super::infer::*;
 use super::unify::subtype;
 use super::whnf::simplify;
 
-pub fn check(mut tcs: TCS, abs: &Abs, against: &Val) -> TermTCM {
-    let depth_ws = tcs.tc_depth_ws();
-    println!("{}Check {} : {}", depth_ws, abs, against);
+pub fn check(mut tcs: TCS, input_term: &Abs, against: &Val) -> TermTCM {
     tcs.tc_deeper();
-    let (a, mut tcs) = check_impl(tcs, abs, against)?;
+    let (a, mut tcs) = check_impl(tcs, input_term, against)?;
     println!(
-        "{}Checked {} : {} \u{2193} {}",
-        depth_ws, abs, against, a.ast
+        "{}\u{22A2} {} : {} \u{2193} {}",
+        tcs.tc_depth_ws(),
+        input_term,
+        against,
+        a.ast
     );
     tcs.tc_shallower();
     Ok((a, tcs))

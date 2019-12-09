@@ -1,6 +1,7 @@
 use std::fmt::{Display, Error, Formatter};
 
 use voile_util::tags::Plicit;
+use voile_util::uid::UID;
 use Plicit::{Ex as Explicit, Im as Implicit};
 
 use crate::syntax::abs::{Abs, Bind};
@@ -10,7 +11,7 @@ impl Display for Abs {
         use Abs::*;
         match self {
             Def(id, _gi) => write!(f, "{}", id.text),
-            Var(id, _uid) => write!(f, "{}", id.text),
+            Var(id, UID(uid)) => write!(f, "{}_{:?}", id.text, uid),
             Meta(id, _mi) => write!(f, "?{}", id.text),
             App(a, args) => {
                 write!(f, "({} {}", a, args.head())?;
