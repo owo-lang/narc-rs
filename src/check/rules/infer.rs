@@ -17,9 +17,11 @@ pub type InferTCM = TCM<(TermInfo, Term, TCS)>;
 
 /// Infer the type of the expression.
 pub fn infer(mut tcs: TCS, abs: &Abs) -> InferTCM {
-    println!("{}Inferring {}", tcs.tc_depth_ws(), abs);
+    let depth_ws = tcs.tc_depth_ws();
+    println!("{}Infer {}", depth_ws, abs);
     tcs.tc_deeper();
     let (a, b, mut tcs) = infer_impl(tcs, abs)?;
+    println!("{}Inferred {} : {} \u{2191} {}", depth_ws, abs, b, a.ast);
     tcs.tc_shallower();
     Ok((a, b, tcs))
 }

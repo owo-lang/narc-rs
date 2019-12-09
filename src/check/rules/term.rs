@@ -10,9 +10,14 @@ use super::unify::subtype;
 use super::whnf::simplify;
 
 pub fn check(mut tcs: TCS, abs: &Abs, against: &Val) -> TermTCM {
-    println!("{}Checking {} against {}", tcs.tc_depth_ws(), abs, against);
+    let depth_ws = tcs.tc_depth_ws();
+    println!("{}Check {} : {}", depth_ws, abs, against);
     tcs.tc_deeper();
     let (a, mut tcs) = check_impl(tcs, abs, against)?;
+    println!(
+        "{}Checked {} : {} \u{2193} {}",
+        depth_ws, abs, against, a.ast
+    );
     tcs.tc_shallower();
     Ok((a, tcs))
 }
