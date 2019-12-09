@@ -15,13 +15,14 @@ pub fn check(mut tcs: TCS, input_term: &Abs, against: &Val) -> TermTCM {
     }
     // Continue with logging
     tcs.tc_deeper();
-    let (a, mut tcs) = check_impl(tcs, input_term, against)?;
+    let depth_ws = tcs.tc_depth_ws();
+    let (a, mut tcs) = check_impl(tcs, input_term, against).map_err(|e| {
+        println!("{}Checking {} : {}", depth_ws, input_term, against);
+        e
+    })?;
     println!(
         "{}\u{22A2} {} : {} \u{2193} {}",
-        tcs.tc_depth_ws(),
-        input_term,
-        against,
-        a.ast
+        depth_ws, input_term, against, a.ast
     );
     tcs.tc_shallower();
     Ok((a, tcs))

@@ -19,8 +19,12 @@ pub fn subtype(mut tcs: TCS, sub: &Val, sup: &Val) -> TCM {
     }
     // Continue with logging
     tcs.tc_deeper();
-    let mut tcs = subtype_impl(tcs, sub, sup)?;
-    println!("{}\u{22A2} {} <: {}", tcs.tc_depth_ws(), sub, sup,);
+    let depth_ws = tcs.tc_depth_ws();
+    let mut tcs = subtype_impl(tcs, sub, sup).map_err(|e| {
+        println!("{}Subtyping {} <: {}", depth_ws, sub, sup);
+        e
+    })?;
+    println!("{}\u{22A2} {} <: {}", depth_ws, sub, sup);
     tcs.tc_shallower();
     Ok(tcs)
 }

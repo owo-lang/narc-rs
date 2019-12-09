@@ -22,13 +22,14 @@ pub fn infer(mut tcs: TCS, input_term: &Abs) -> InferTCM {
     }
     // Continue with logging
     tcs.tc_deeper();
-    let (evaluated, inferred_ty, mut tcs) = infer_impl(tcs, input_term)?;
+    let depth_ws = tcs.tc_depth_ws();
+    let (evaluated, inferred_ty, mut tcs) = infer_impl(tcs, input_term).map_err(|e| {
+        println!("{}Inferring {}", depth_ws, input_term);
+        e
+    })?;
     println!(
         "{}\u{22A2} {} : {} \u{2191} {}",
-        tcs.tc_depth_ws(),
-        input_term,
-        inferred_ty,
-        evaluated.ast
+        depth_ws, input_term, inferred_ty, evaluated.ast
     );
     tcs.tc_shallower();
     Ok((evaluated, inferred_ty, tcs))

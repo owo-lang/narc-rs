@@ -8,6 +8,7 @@
 + Add Agda's `AddContext Telescope` instance (`TCS::under`)
 + Lhs-splitting now support variables
 + Pretty print `Abs`
++ Support tracing the type-checking process
 
 # 0.0.5
 
