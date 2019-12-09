@@ -21,8 +21,8 @@ pub fn infer(mut tcs: TCS, input_term: &Abs) -> InferTCM {
         return infer_impl(tcs, input_term);
     }
     // Continue with logging
-    tcs.tc_deeper();
     let depth_ws = tcs.tc_depth_ws();
+    tcs.tc_deeper();
     let (evaluated, inferred_ty, mut tcs) = infer_impl(tcs, input_term).map_err(|e| {
         println!("{}Inferring {}", depth_ws, input_term);
         e

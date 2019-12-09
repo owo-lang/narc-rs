@@ -18,8 +18,8 @@ pub fn subtype(mut tcs: TCS, sub: &Val, sup: &Val) -> TCM {
         return subtype_impl(tcs, sub, sup);
     }
     // Continue with logging
-    tcs.tc_deeper();
     let depth_ws = tcs.tc_depth_ws();
+    tcs.tc_deeper();
     let mut tcs = subtype_impl(tcs, sub, sup).map_err(|e| {
         println!("{}Subtyping {} <: {}", depth_ws, sub, sup);
         e

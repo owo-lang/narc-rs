@@ -5,6 +5,7 @@
 + Fix a bunch of index-relevant problems
   + Add local DBI lifting
   + Lift DBI when generate `AsBind`
+  + Lift meta context during unification
 + Add Agda's `AddContext Telescope` instance (`TCS::under`)
 + Lhs-splitting now support variables
 + Pretty print `Abs`

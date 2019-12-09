@@ -14,8 +14,8 @@ pub fn check(mut tcs: TCS, input_term: &Abs, against: &Val) -> TermTCM {
         return check_impl(tcs, input_term, against);
     }
     // Continue with logging
-    tcs.tc_deeper();
     let depth_ws = tcs.tc_depth_ws();
+    tcs.tc_deeper();
     let (a, mut tcs) = check_impl(tcs, input_term, against).map_err(|e| {
         println!("{}Checking {} : {}", depth_ws, input_term, against);
         e
