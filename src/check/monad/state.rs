@@ -14,6 +14,8 @@ const UNRESOLVED: &str = "Unresolved reference";
 #[derive(Debug, Clone, Default)]
 pub struct TCS {
     tc_depth: usize,
+    indentation_size: usize,
+    pub trace_tc: bool,
     /// Global context (definitions are attached with type annotations).
     pub sigma: Sigma,
     /// Local typing context.
@@ -27,7 +29,13 @@ pub struct TCS {
 impl TCS {
     /// For debugging purpose.
     pub fn tc_depth_ws(&self) -> String {
-        repeat(' ').take(self.tc_depth).collect()
+        repeat(' ')
+            .take(self.tc_depth * self.indentation_size)
+            .collect()
+    }
+
+    pub fn indentation_size(&mut self, size: usize) {
+        self.indentation_size = size;
     }
 
     pub fn tc_deeper(&mut self) {

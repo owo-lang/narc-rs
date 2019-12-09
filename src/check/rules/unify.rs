@@ -14,6 +14,18 @@ fn check_solution(meta: MI, rhs: &Val) -> TCM<()> {
 }
 
 pub fn subtype(mut tcs: TCS, sub: &Val, sup: &Val) -> TCM {
+    if !tcs.trace_tc {
+        return subtype_impl(tcs, sub, sup);
+    }
+    // Continue with logging
+    tcs.tc_deeper();
+    let mut tcs = subtype_impl(tcs, sub, sup)?;
+    println!("{}\u{22A2} {} <: {}", tcs.tc_depth_ws(), sub, sup,);
+    tcs.tc_shallower();
+    Ok(tcs)
+}
+
+fn subtype_impl(mut tcs: TCS, sub: &Val, sup: &Val) -> TCM {
     use Val::*;
     match (sub, sup) {
         (Type(sub_l), Type(sup_l)) if sub_l <= sup_l => Ok(tcs),

@@ -13,6 +13,14 @@ pub struct CliOptions {
     #[structopt(name = "FILE")]
     pub file: Option<String>,
 
+    /// Print type-checking traces.
+    #[structopt(long)]
+    pub trace: bool,
+
+    /// Size of indentation in type-checking traces.
+    #[structopt(long)]
+    pub indent_size: Option<usize>,
+
     /// Parses but do not type-check the input file
     #[structopt(short = "p", long)]
     pub parse_only: bool,

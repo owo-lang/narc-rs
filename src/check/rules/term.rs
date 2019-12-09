@@ -10,6 +10,10 @@ use super::unify::subtype;
 use super::whnf::simplify;
 
 pub fn check(mut tcs: TCS, input_term: &Abs, against: &Val) -> TermTCM {
+    if !tcs.trace_tc {
+        return check_impl(tcs, input_term, against);
+    }
+    // Continue with logging
     tcs.tc_deeper();
     let (a, mut tcs) = check_impl(tcs, input_term, against)?;
     println!(

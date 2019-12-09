@@ -24,7 +24,7 @@ impl Display for Abs {
                 Explicit => write!(f, "({} -> {})", ty, clos),
                 Implicit => write!(f, "({{{}}} -> {})", ty, clos),
             },
-            Type(_, l) => write!(f, "Type{}", l),
+            Type(_, l) => write!(f, "set{}", l),
             Cons(id, _gi) => write!(f, "{}", id.text),
             Proj(id, _gi) => write!(f, "{}", id.text),
         }

@@ -2,6 +2,8 @@ use nar::check::monad::TCS;
 use nar::check::rules::check_decls;
 use nar::syntax::abs::desugar::{desugar_main, DesugarState};
 
+use crate::args::CliOptions;
+
 mod args;
 mod util;
 
@@ -11,12 +13,11 @@ fn success(quiet: bool) {
     }
 }
 
-fn main_file(
-    file_ref: Option<&String>,
-    quiet: bool,
-    parse_only: bool,
-) -> Option<(TCS, DesugarState)> {
-    let decls = util::parse_file(file_ref?)?;
+fn main_file(args: CliOptions) -> Option<(TCS, DesugarState)> {
+    let quiet = args.quiet;
+    let parse_only = args.parse_only;
+    let indentation = args.indent_size.unwrap_or(2);
+    let decls = util::parse_file(args.file.as_ref()?)?;
     if parse_only {
         success(quiet);
         return None;
@@ -33,6 +34,8 @@ fn main_file(
     let mut tcs = TCS::default();
     tcs.meta_context
         .expand_with_fresh_meta(abs_decls.meta_count);
+    tcs.indentation_size(indentation);
+    tcs.trace_tc = args.trace;
     tcs.reserve_local_variables(abs_decls.decls.len());
     let checked = check_decls(tcs, abs_decls.decls.clone()).unwrap_or_else(|err| {
         eprintln!("{}", err);
@@ -47,7 +50,7 @@ fn main_file(
 fn main() {
     let args = args::pre();
 
-    let checked = main_file(args.file.as_ref(), args.quiet, args.parse_only).unwrap_or_default();
+    let checked = main_file(args).unwrap_or_default();
 
     // Don't yet need to use this -- it's for the REPL.
     drop(checked);

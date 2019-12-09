@@ -17,6 +17,10 @@ pub type InferTCM = TCM<(TermInfo, Term, TCS)>;
 
 /// Infer the type of the expression.
 pub fn infer(mut tcs: TCS, input_term: &Abs) -> InferTCM {
+    if !tcs.trace_tc {
+        return infer_impl(tcs, input_term);
+    }
+    // Continue with logging
     tcs.tc_deeper();
     let (evaluated, inferred_ty, mut tcs) = infer_impl(tcs, input_term)?;
     println!(
