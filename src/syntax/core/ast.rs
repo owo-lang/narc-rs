@@ -97,6 +97,6 @@ impl Closure {
 
     pub fn instantiate_safe(self, arg: Term) -> Result<Term, Term> {
         let Closure::Plain(body) = self;
-        Ok(body.reduce_dbi(&Subst::one(arg)))
+        Ok(body.reduce_dbi(Subst::one(arg)))
     }
 }

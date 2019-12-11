@@ -112,7 +112,7 @@ fn compare_closure(
     let mut backup = tcs.meta_context.solutions().to_vec();
     let mut meta_ctx = Vec::with_capacity(tcs.meta_context.solutions().len());
     meta_ctx.append(tcs.meta_context.mut_solutions());
-    meta_ctx = meta_ctx.reduce_dbi(&Subst::raise(DBI(1)));
+    meta_ctx = meta_ctx.reduce_dbi(Subst::raise(DBI(1)));
     tcs.meta_context.mut_solutions().append(&mut meta_ctx);
     tcs = match (left, right) {
         (Plain(a), Plain(b)) => term_cmp(tcs, &**a, &**b)?,

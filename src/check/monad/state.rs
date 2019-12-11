@@ -80,7 +80,7 @@ impl TCS {
         let lookup_let = || self.let_by_id_safe(id).cloned();
         let lookup_gamma = || {
             let (i, ty) = self.gamma_by_id_safe(id)?;
-            let ty = ty.clone().reduce_dbi(&Subst::raise(i + 1));
+            let ty = ty.clone().reduce_dbi(Subst::raise(i + 1));
             Some(Let::new(ty, DeBruijn::from_dbi(i)))
         };
         lookup_let().or_else(lookup_gamma)

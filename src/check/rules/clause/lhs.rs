@@ -57,7 +57,7 @@ pub fn user_variable_names(tele: &TeleS, mut pat_vars: PatVars) -> (Vec<Option<U
         let ids = pat_vars.remove(&ix).unwrap_or_default();
         names.push(ids.first().copied());
         for uid in ids {
-            let ty = bind.ty.clone().reduce_dbi(&Subst::raise(ix + 1));
+            let ty = bind.ty.clone().reduce_dbi(Subst::raise(ix + 1));
             let as_bind = AsBind::new(uid, DeBruijn::from_dbi(ix), ty);
             as_binds.push(as_bind)
         }
@@ -141,7 +141,7 @@ pub fn final_check(tcs: TCS, mut lhs: LhsState) -> TCMS<Lhs> {
     let lhs_result = Lhs {
         tele: lhs.tele,
         has_absurd: classified.absurd_count > 0,
-        pats: lhs.pats.reduce_dbi(&ren),
+        pats: lhs.pats.reduce_dbi(ren),
         ty: lhs.target,
         pat_sub,
         as_binds,

@@ -1,3 +1,4 @@
+use std::rc::Rc;
 use voile_util::meta::MetaSolution;
 
 use crate::syntax::common::{Bind, Let};
@@ -10,20 +11,20 @@ use super::{def_app, Subst};
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#Subst).
 pub trait RedEx<T: Sized = Self>: Sized {
     /// Apply a substitution to a redex.
-    fn reduce_dbi(self, subst: &Subst) -> T;
+    fn reduce_dbi(self, subst: Rc<Subst>) -> T;
 }
 
 impl RedEx for Term {
-    fn reduce_dbi(self, subst: &Subst) -> Term {
+    fn reduce_dbi(self, subst: Rc<Subst>) -> Term {
         match self {
             Term::Whnf(n) => n.reduce_dbi(subst),
-            Term::Redex(f, id, args) => def_app(f, id, vec![], args.reduce_dbi(&subst)),
+            Term::Redex(f, id, args) => def_app(f, id, vec![], args.reduce_dbi(subst)),
         }
     }
 }
 
 impl RedEx for Elim {
-    fn reduce_dbi(self, subst: &Subst) -> Elim {
+    fn reduce_dbi(self, subst: Rc<Subst>) -> Elim {
         match self {
             Elim::App(term) => Elim::app(term.reduce_dbi(subst)),
             e => e,
@@ -32,7 +33,7 @@ impl RedEx for Elim {
 }
 
 impl<R, T: RedEx<R>> RedEx<MetaSolution<R>> for MetaSolution<T> {
-    fn reduce_dbi(self, subst: &Subst) -> MetaSolution<R> {
+    fn reduce_dbi(self, subst: Rc<Subst>) -> MetaSolution<R> {
         match self {
             MetaSolution::Solved(t) => MetaSolution::Solved(Box::new(t.reduce_dbi(subst))),
             MetaSolution::Inlined => MetaSolution::Inlined,
@@ -42,35 +43,34 @@ impl<R, T: RedEx<R>> RedEx<MetaSolution<R>> for MetaSolution<T> {
 }
 
 impl<R, T: RedEx<R>> RedEx<Bind<R>> for Bind<T> {
-    fn reduce_dbi(self, subst: &Subst) -> Bind<R> {
+    fn reduce_dbi(self, subst: Rc<Subst>) -> Bind<R> {
         self.map_term(|t| t.reduce_dbi(subst))
     }
 }
 
 impl<R, T: RedEx<R>> RedEx<Let<R>> for Let<T> {
-    fn reduce_dbi(self, subst: &Subst) -> Let<R> {
-        Let::new(self.bind.reduce_dbi(subst), self.val.reduce_dbi(subst))
+    fn reduce_dbi(self, subst: Rc<Subst>) -> Let<R> {
+        Let::new(self.bind.reduce_dbi(subst.clone()), self.val.reduce_dbi(subst))
     }
 }
 
 impl RedEx<Term> for Val {
-    fn reduce_dbi(self, subst: &Subst) -> Term {
-        let reduce_vec = |a: Vec<Term>| a.into_iter().map(|a| a.reduce_dbi(&subst)).collect();
+    fn reduce_dbi(self, subst: Rc<Subst>) -> Term {
         match self {
             Val::Pi(arg, closure) => Term::pi2(
-                arg.unboxed().reduce_dbi(subst).boxed(),
+                arg.unboxed().reduce_dbi(subst.clone()).boxed(),
                 closure.reduce_dbi(subst),
             ),
-            Val::Cons(name, a) => Term::cons(name, reduce_vec(a)),
+            Val::Cons(name, a) => Term::cons(name, a.reduce_dbi(subst)),
             Val::Type(n) => Term::universe(n),
-            Val::Data(kind, gi, a) => Term::data(kind, gi, reduce_vec(a)),
-            Val::Meta(m, a) => Term::meta(m, a.reduce_dbi(&subst)),
+            Val::Data(kind, gi, a) => Term::data(kind, gi, a.reduce_dbi(subst)),
+            Val::Meta(m, a) => Term::meta(m, a.reduce_dbi(subst)),
             Val::Var(f, args) => subst.lookup(f).apply_elim(args.reduce_dbi(subst)),
             Val::Axiom(a) => Term::Whnf(Val::Axiom(a)),
             Val::Refl => Term::reflexivity(),
             Val::Id(ty, a, b) => Term::identity(
-                ty.reduce_dbi(subst),
-                a.reduce_dbi(subst),
+                ty.reduce_dbi(subst.clone()),
+                a.reduce_dbi(subst.clone()),
                 b.reduce_dbi(subst),
             ),
         }
@@ -78,7 +78,7 @@ impl RedEx<Term> for Val {
 }
 
 impl RedEx for Closure {
-    fn reduce_dbi(self, subst: &Subst) -> Self {
+    fn reduce_dbi(self, subst: Rc<Subst>) -> Self {
         use Closure::*;
         let Plain(body) = self;
         Self::plain(body.reduce_dbi(subst))
@@ -87,20 +87,20 @@ impl RedEx for Closure {
 
 /// For `Tele`.
 impl<R, T: RedEx<R>> RedEx<Vec<R>> for Vec<T> {
-    fn reduce_dbi(self, subst: &Subst) -> Vec<R> {
-        self.into_iter().map(|e| e.reduce_dbi(subst)).collect()
+    fn reduce_dbi(self, subst: Rc<Subst>) -> Vec<R> {
+        self.into_iter().map(|e| e.reduce_dbi(subst.clone())).collect()
     }
 }
 
 impl<A, B, X: RedEx<A>, Y: RedEx<B>> RedEx<(A, B)> for (X, Y) {
-    fn reduce_dbi(self, subst: &Subst) -> (A, B) {
+    fn reduce_dbi(self, subst: Rc<Subst>) -> (A, B) {
         let (x, y) = self;
-        (x.reduce_dbi(subst), y.reduce_dbi(subst))
+        (x.reduce_dbi(subst.clone()), y.reduce_dbi(subst))
     }
 }
 
 impl<Ix, R, T: RedEx<R>> RedEx<Copat<Ix, R>> for Copat<Ix, T> {
-    fn reduce_dbi(self, subst: &Subst) -> Copat<Ix, R> {
+    fn reduce_dbi(self, subst: Rc<Subst>) -> Copat<Ix, R> {
         match self {
             Copat::App(a) => Copat::App(a.reduce_dbi(subst)),
             Copat::Proj(p) => Copat::Proj(p),
@@ -109,7 +109,7 @@ impl<Ix, R, T: RedEx<R>> RedEx<Copat<Ix, R>> for Copat<Ix, T> {
 }
 
 impl<Ix, R, T: RedEx<R>> RedEx<Pat<Ix, R>> for Pat<Ix, T> {
-    fn reduce_dbi(self, subst: &Subst) -> Pat<Ix, R> {
+    fn reduce_dbi(self, subst: Rc<Subst>) -> Pat<Ix, R> {
         match self {
             Pat::Refl => Pat::Refl,
             Pat::Absurd => Pat::Absurd,
