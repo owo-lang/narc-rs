@@ -154,7 +154,26 @@ pub fn type_of_decl(tcs: &TCS, decl: GI) -> TCM<TermInfo> {
     }
 }
 
-pub fn infer_head(tcs: TCS, abs: &Abs) -> InferTCM {
+pub fn infer_head(mut tcs: TCS, input_term: &Abs) -> InferTCM {
+    if !tcs.trace_tc {
+        return infer_head_impl(tcs, input_term);
+    }
+    // Continue with logging
+    let depth_ws = tcs.tc_depth_ws();
+    tcs.tc_deeper();
+    let (evaluated, inferred_ty, mut tcs) = infer_head_impl(tcs, input_term).map_err(|e| {
+        println!("{}Head-inferring {}", depth_ws, input_term);
+        e
+    })?;
+    println!(
+        "{}\u{22A2} {} : {} \u{2192} {}",
+        depth_ws, input_term, inferred_ty, evaluated.ast
+    );
+    tcs.tc_shallower();
+    Ok((evaluated, inferred_ty, tcs))
+}
+
+fn infer_head_impl(tcs: TCS, abs: &Abs) -> InferTCM {
     use Abs::*;
     match abs {
         Proj(id, def) | Cons(id, def) | Def(id, def) => type_of_decl(&tcs, *def)
