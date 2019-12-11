@@ -6,6 +6,7 @@
   + Add local DBI lifting
   + Lift DBI when generate `AsBind`
   + Lift meta context during unification
+  + Lift DBI when substituting inside `Closure`
 + Add Agda's `AddContext Telescope` instance (`TCS::under`)
 + Lhs-splitting now support variables
 + Pretty print `Abs`

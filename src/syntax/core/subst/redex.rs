@@ -1,5 +1,6 @@
 use std::rc::Rc;
 use voile_util::meta::MetaSolution;
+use voile_util::uid::DBI;
 
 use crate::syntax::common::{Bind, Let};
 use crate::syntax::pat::{Copat, Pat};
@@ -50,7 +51,10 @@ impl<R, T: RedEx<R>> RedEx<Bind<R>> for Bind<T> {
 
 impl<R, T: RedEx<R>> RedEx<Let<R>> for Let<T> {
     fn reduce_dbi(self, subst: Rc<Subst>) -> Let<R> {
-        Let::new(self.bind.reduce_dbi(subst.clone()), self.val.reduce_dbi(subst))
+        Let::new(
+            self.bind.reduce_dbi(subst.clone()),
+            self.val.reduce_dbi(subst),
+        )
     }
 }
 
@@ -81,6 +85,7 @@ impl RedEx for Closure {
     fn reduce_dbi(self, subst: Rc<Subst>) -> Self {
         use Closure::*;
         let Plain(body) = self;
+        let subst = Subst::lift_by(subst, DBI(1));
         Self::plain(body.reduce_dbi(subst))
     }
 }
@@ -88,7 +93,9 @@ impl RedEx for Closure {
 /// For `Tele`.
 impl<R, T: RedEx<R>> RedEx<Vec<R>> for Vec<T> {
     fn reduce_dbi(self, subst: Rc<Subst>) -> Vec<R> {
-        self.into_iter().map(|e| e.reduce_dbi(subst.clone())).collect()
+        self.into_iter()
+            .map(|e| e.reduce_dbi(subst.clone()))
+            .collect()
     }
 }
 
