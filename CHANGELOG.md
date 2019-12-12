@@ -1,5 +1,7 @@
 # Change Log
 
+# 0.0.7
+
 # 0.0.6
 
 + Fix a bunch of index-relevant problems
