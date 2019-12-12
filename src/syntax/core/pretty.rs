@@ -79,9 +79,13 @@ fn pretty_application(
     fun: &impl Display,
     a: &[impl Display],
 ) -> Result<(), Error> {
-    write!(f, "({}", fun)?;
-    for x in a {
-        write!(f, " {}", x)?;
+    if a.is_empty() {
+        fun.fmt(f)
+    } else {
+        write!(f, "({}", fun)?;
+        for x in a {
+            write!(f, " {}", x)?;
+        }
+        f.write_str(")")
     }
-    f.write_str(")")
 }
