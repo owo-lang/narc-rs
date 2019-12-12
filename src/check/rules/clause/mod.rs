@@ -2,7 +2,7 @@ use crate::check::monad::{TCMS, TCS};
 use crate::syntax::abs::AbsClause;
 use crate::syntax::core::{Clause, Tele, Term};
 
-use super::term::{check, simplify};
+use super::term::{check, simplify, HasMeta};
 
 pub use self::eqs::*;
 pub use self::lhs::*;
@@ -49,8 +49,9 @@ pub fn clause(tcs: TCS, cls: AbsClause, against: Term) -> TCMS<Clause> {
         } else {
             let (ty, new_tcs) = simplify(tcs, ty)?;
             let (term, new_tcs) = check(new_tcs, &body, &ty)?;
+            let (term, new_tcs) = term.ast.inline_meta(new_tcs)?;
             tcs = new_tcs;
-            Some(term.ast)
+            Some(term)
         };
         let clause = Clause {
             pat_tele,

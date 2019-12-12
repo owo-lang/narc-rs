@@ -14,7 +14,7 @@ pub fn check_tele(mut tcs: TCS, tele: AbsTele, ty: &Val) -> TCM {
     Ok(tcs)
 }
 
-pub fn check_cons(tcs: TCS, cons: AbsConsInfo, ty: &Val) -> TCM<(TCS, ConsInfo)> {
+fn check_cons(tcs: TCS, cons: AbsConsInfo, ty: &Val) -> TCM<(TCS, ConsInfo)> {
     let param_len = tcs.gamma.len();
     let mut tcs = check_tele(tcs, cons.tele, ty)?;
     let info = ConsInfo {

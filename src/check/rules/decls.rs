@@ -3,7 +3,7 @@ use voile_util::uid::GI;
 use crate::check::monad::{TCM, TCS};
 use crate::check::rules::clause::clause;
 use crate::check::rules::data::check_data;
-use crate::check::rules::term::check;
+use crate::check::rules::term::{check, HasMeta};
 use crate::syntax::abs::AbsDecl;
 use crate::syntax::core::{Decl, FuncInfo, TYPE_OMEGA};
 
@@ -28,16 +28,18 @@ pub fn check_decls(mut tcs: TCS, decls: Vec<AbsDecl>) -> TCM {
                         _ => unreachable!(ERROR_TAKE),
                     })
                     .collect();
+                // TODO: Inline meta??
                 tcs = check_data(tcs, i, cs)?;
             }
             AbsDecl::Cons(_) => unreachable!(ERROR_TAKE),
             AbsDecl::Defn(i) => {
                 let (ty, new_tcs) = check(tcs, &i.ty, &TYPE_OMEGA)?;
+                let (signature, new_tcs) = ty.ast.inline_meta(new_tcs)?;
                 tcs = new_tcs;
                 let func = FuncInfo {
                     loc: i.source,
                     name: i.name,
-                    signature: ty.ast,
+                    signature,
                     clauses: Vec::with_capacity(2),
                 };
                 tcs.sigma.push(Decl::Func(func));

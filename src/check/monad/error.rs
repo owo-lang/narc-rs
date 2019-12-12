@@ -29,6 +29,7 @@ pub enum TCE {
 
     // === Meta* === //
     MetaRecursion(MI),
+    MetaUnsolved(MI),
 
     // === Different* === //
     DifferentTerm(Box<Term>, Box<Term>),
@@ -84,6 +85,9 @@ impl Display for TCE {
             }
             TCE::MetaRecursion(mi) => {
                 write!(f, "Trying to solve a recursive meta of index {}.", mi)
+            }
+            TCE::MetaUnsolved(mi) => {
+                write!(f, "Unsolved meta of index {}.", mi)
             }
             TCE::DifferentTerm(a, b) => write!(f, "Failed to unify `{}` and `{}`.", a, b),
             TCE::DifferentElim(a, b) => write!(f, "Failed to unify `{}` and `{}`.", a, b),
