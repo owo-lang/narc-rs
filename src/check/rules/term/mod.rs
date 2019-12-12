@@ -12,7 +12,7 @@ pub use self::whnf::simplify;
 /// Synthesize the type and its well-typed form from an abstract term.
 mod infer;
 /// Solves meta variables inside a term and things.
-//mod meta;
+mod meta;
 /// Conversion check.
 mod unify;
 /// Find the weak-head-normal-form (semi-normalization) of an expression.

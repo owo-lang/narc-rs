@@ -60,8 +60,12 @@ impl Term {
         Term::Whnf(Val::Type(level))
     }
 
+    pub fn identity_val(ty: Self, a: Self, b: Self) -> Val {
+        Val::Id(Box::new(ty), Box::new(a), Box::new(b))
+    }
+
     pub fn identity(ty: Self, a: Self, b: Self) -> Self {
-        Term::Whnf(Val::Id(Box::new(ty), Box::new(a), Box::new(b)))
+        Term::Whnf(Self::identity_val(ty, a, b))
     }
 
     pub fn fresh_axiom() -> Self {
