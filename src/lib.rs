@@ -11,6 +11,8 @@ in [this paper][paper].
  [Agda]: http://hackage.haskell.org/package/Agda-2.6.0.1
 
 The implementation is heavily inspired from [Agda version 2.6.0.1][Agda].
+Special thanks to Jesper Cockx for answering my questions about the Agda
+codebase during the development of Narc.
 
 I want this language to have:
 

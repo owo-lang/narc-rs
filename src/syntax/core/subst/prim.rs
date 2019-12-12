@@ -63,33 +63,30 @@ impl PrimSubst<Term> {
 
     /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#raiseFrom).
     pub fn raise_from(n: DBI, k: DBI, term: Term) -> Term {
-        term.reduce_dbi(Self::lift_by(Self::raise(k), n))
+        term.reduce_dbi(Self::raise(k).lift_by(n))
     }
 
     /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#composeS).
-    pub fn compose(rho: Rc<Self>, sgm: Rc<Self>) -> Rc<Self> {
+    pub fn compose(self: Rc<Self>, sgm: Rc<Self>) -> Rc<Self> {
         use PrimSubst::*;
-        match (&*rho, &*sgm) {
-            (_, IdS) => rho,
+        match (&*self, &*sgm) {
+            (_, IdS) => self,
             (IdS, _) => sgm,
-            // rho, EmptyS(err) => EmptyS(err)
-            (_, Weak(n, sgm)) => Self::compose(Self::drop_by(rho, *n), sgm.clone()),
+            // self, EmptyS(err) => EmptyS(err)
+            (_, Weak(n, sgm)) => self.drop_by(*n).compose(sgm.clone()),
             (_, Cons(u, sgm)) => Rc::new(Cons(
-                u.clone().reduce_dbi(rho.clone()),
-                Self::compose(rho, sgm.clone()),
+                u.clone().reduce_dbi(self.clone()),
+                self.compose(sgm.clone()),
             )),
-            (_, Succ(sgm)) => Rc::new(Succ(Self::compose(rho, sgm.clone()))),
+            (_, Succ(sgm)) => Rc::new(Succ(self.compose(sgm.clone()))),
             (_, Lift(DBI(0), _sgm)) => unreachable!(),
             (Cons(u, rho), Lift(n, sgm)) => Rc::new(Cons(
                 u.clone(),
-                Self::compose(rho.clone(), Self::lift_by(sgm.clone(), *n - 1)),
+                rho.clone().compose(sgm.clone().lift_by(*n - 1)),
             )),
             (_, Lift(n, sgm)) => Rc::new(Cons(
-                rho.lookup(DBI(0)),
-                Self::compose(
-                    rho.clone(),
-                    Self::weaken(Self::lift_by(sgm.clone(), *n - 1), DBI(1)),
-                ),
+                self.lookup(DBI(0)),
+                self.compose(sgm.clone().lift_by(*n - 1).weaken(DBI(1))),
             )),
         }
     }
@@ -100,7 +97,7 @@ impl PrimSubst<Term> {
         use Either::*;
         use PrimSubst::*;
         match self {
-            IdS => Right(Term::from_dbi(dbi)),
+            IdS => Right(DeBruijn::from_dbi(dbi)),
             Cons(o, rest) => match dbi.nat() {
                 None => Left(o),
                 Some(dbi) => rest.lookup_impl(dbi),
@@ -110,7 +107,7 @@ impl PrimSubst<Term> {
                 IdS => Right(Term::from_dbi(dbi + *i)),
                 rho => Right(rho.lookup(*i).reduce_dbi(Self::raise(*i))),
             },
-            Lift(n, _) if dbi < *n => Right(Term::from_dbi(dbi)),
+            Lift(n, _) if dbi < *n => Right(DeBruijn::from_dbi(dbi)),
             Lift(n, rest) => Right(Self::raise_term(*n, rest.lookup(dbi - *n))),
         }
     }
@@ -124,42 +121,39 @@ impl<T> PrimSubst<T> {
 
     /// Lift a substitution under k binders.
     /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#dropS).
-    pub fn drop_by(me: Rc<Self>, drop_by: DBI) -> Rc<Self> {
+    pub fn drop_by(self: Rc<Self>, drop_by: DBI) -> Rc<Self> {
         use PrimSubst::*;
-        match (drop_by, &*me) {
-            (DBI(0), _) => me,
+        match (drop_by, &*self) {
+            (DBI(0), _) => self,
             (n, IdS) => Self::raise(n),
-            (n, Weak(m, rho)) => Self::weaken(Self::drop_by(rho.clone(), n - 1), *m),
-            (n, Cons(_, rho)) | (n, Succ(rho)) => Self::drop_by(rho.clone(), n - 1),
+            (n, Weak(m, rho)) => rho.clone().drop_by(n - 1).weaken(*m),
+            (n, Cons(_, rho)) | (n, Succ(rho)) => rho.clone().drop_by(n - 1),
             // n, EmptyS(err) => absurd(err)
             (n, Lift(DBI(0), _rho)) => unreachable!(&format!("n = {:?}", n)),
-            (n, Lift(m, rho)) => Self::weaken(
-                Self::drop_by(Self::lift_by(rho.clone(), *m - 1), n - 1),
-                DBI(1),
-            ),
+            (n, Lift(m, rho)) => rho.clone().lift_by(*m - 1).drop_by(n - 1).weaken(DBI(1)),
         }
     }
 
     /// Lift a substitution under k binders.
     /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#liftS).
-    pub fn lift_by(me: Rc<Self>, lift_by: DBI) -> Rc<Self> {
+    pub fn lift_by(self: Rc<Self>, lift_by: DBI) -> Rc<Self> {
         use PrimSubst::*;
-        match (lift_by, &*me) {
-            (DBI(0), _) => me,
+        match (lift_by, &*self) {
+            (DBI(0), _) => self,
             (_, IdS) => Default::default(),
             (k, Lift(n, rho)) => Rc::new(Lift(*n + k, rho.clone())),
-            (k, _) => Rc::new(Lift(k, me)),
+            (k, _) => Rc::new(Lift(k, self)),
         }
     }
 
     /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#wkS).
-    pub fn weaken(me: Rc<Self>, weaken_by: DBI) -> Rc<Self> {
+    pub fn weaken(self: Rc<Self>, weaken_by: DBI) -> Rc<Self> {
         use PrimSubst::*;
-        match (weaken_by, &*me) {
-            (DBI(0), _) => me,
+        match (weaken_by, &*self) {
+            (DBI(0), _) => self,
             (n, Weak(m, rho)) => Rc::new(Weak(n + *m, rho.clone())),
             // n, EmptyS(err) => EmptyS(err)
-            (n, _) => Rc::new(Weak(n, me)),
+            (n, _) => Rc::new(Weak(n, self)),
         }
     }
 
