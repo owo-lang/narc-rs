@@ -66,7 +66,7 @@ fn solve_meta(tcs: TCS, mi: MI, elims: Vec<Elim>) -> TCMS<Term> {
     use MetaSolution::*;
     let sol = match tcs.meta_context.solution(mi) {
         Solved(sol) => sol.clone(),
-        Unsolved => Err(TCE::MetaUnsolved(mi))?,
+        Unsolved => return Err(TCE::MetaUnsolved(mi)),
         Inlined => unreachable!(),
     };
     let (elims, tcs) = elims.inline_meta(tcs)?;

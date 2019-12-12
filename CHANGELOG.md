@@ -3,6 +3,7 @@
 # 0.0.7
 
 + The implementations of `Subst` is no longer bound to `Term`
++ Functions of `Subst` are now `self`-based methods
 
 # 0.0.6
 
