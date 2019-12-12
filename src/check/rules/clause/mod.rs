@@ -34,7 +34,28 @@ pub fn bind_as_and_tele<T>(
 
 /// Checking an abstract clause.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.Def.html#checkClause).
-pub fn clause(tcs: TCS, cls: AbsClause, against: Term) -> TCMS<Clause> {
+pub fn clause(mut tcs: TCS, cls: AbsClause, against: Term) -> TCMS<Clause> {
+    if !tcs.trace_tc {
+        return clause_impl(tcs, cls, against);
+    }
+    // Continue with logging
+    let depth_ws = tcs.tc_depth_ws();
+    tcs.tc_deeper();
+    let cls_name = cls.name.text.clone();
+    let (clause, mut tcs) = clause_impl(tcs, cls, against).map_err(|e| {
+        println!("{}Clause {}", depth_ws, cls_name);
+        e
+    })?;
+    // Print patterns?
+    match &clause.body {
+        None => println!("{}\u{22A2} clause {} ()", depth_ws, cls_name,),
+        Some(t) => println!("{}\u{22A2} clause {} = {}", depth_ws, cls_name, t),
+    }
+    tcs.tc_shallower();
+    Ok((clause, tcs))
+}
+
+fn clause_impl(tcs: TCS, cls: AbsClause, against: Term) -> TCMS<Clause> {
     let body = cls.body;
     // Expand pattern synonyms here once we support it.
     let lhs_state = init_lhs_state(cls.patterns, against)?;

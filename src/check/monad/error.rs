@@ -83,12 +83,8 @@ impl Display for TCE {
             TCE::SplitOnNonVar(term, ty) => {
                 write!(f, "Splitting on non variable `{}` (of type `{}`)", term, ty)
             }
-            TCE::MetaRecursion(mi) => {
-                write!(f, "Trying to solve a recursive meta of index {}.", mi)
-            }
-            TCE::MetaUnsolved(mi) => {
-                write!(f, "Unsolved meta of index {}.", mi)
-            }
+            TCE::MetaRecursion(mi) => write!(f, "Trying to solve a recursive meta of index {}.", mi),
+            TCE::MetaUnsolved(mi) => write!(f, "Unsolved meta of index {}.", mi),
             TCE::DifferentTerm(a, b) => write!(f, "Failed to unify `{}` and `{}`.", a, b),
             TCE::DifferentElim(a, b) => write!(f, "Failed to unify `{}` and `{}`.", a, b),
             TCE::DifferentName(a, b) => write!(
