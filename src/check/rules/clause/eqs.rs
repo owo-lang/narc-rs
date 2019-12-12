@@ -15,7 +15,7 @@ use super::super::term::is_eta_var_borrow;
 /// after splitting is complete.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.Syntax.Abstract.html#ProblemEq).
 #[derive(Debug, PartialEq, Eq, Clone)]
-pub struct Equation {
+pub(super) struct Equation {
     /// The pattern causes this problem.
     pub in_pat: AbsCopat,
     pub inst: Term,
@@ -30,10 +30,10 @@ impl PatCommon for Equation {
 
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.LHS.Problem.html#AsBinding).
 #[derive(Debug, Clone)]
-pub struct AsBind {
-    pub name: UID,
-    pub term: Term,
-    pub ty: Term,
+pub(super) struct AsBind {
+    name: UID,
+    term: Term,
+    ty: Term,
 }
 
 impl From<AsBind> for Let {
@@ -44,7 +44,7 @@ impl From<AsBind> for Let {
 }
 
 impl AsBind {
-    pub fn new(name: UID, term: Term, ty: Term) -> Self {
+    pub(super) fn new(name: UID, term: Term, ty: Term) -> Self {
         Self { name, term, ty }
     }
 }
@@ -52,13 +52,13 @@ impl AsBind {
 /// Classified patterns, called `LeftoverPatterns` in Agda.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.LHS.html#LeftoverPatterns).
 #[derive(Debug, Clone)]
-pub struct PatClass {
+pub(super) struct PatClass {
     /// Number of absurd patterns.
-    pub absurd_count: usize,
-    pub as_binds: Vec<AsBind>,
-    pub other_pats: Vec<AbsCopat>,
+    pub(super) absurd_count: usize,
+    pub(super) as_binds: Vec<AsBind>,
+    pub(super) other_pats: Vec<AbsCopat>,
     /// Supposed to be an `IntMap`.
-    pub pat_vars: PatVars,
+    pub(super) pat_vars: PatVars,
 }
 
 impl Add for PatClass {
@@ -79,9 +79,9 @@ impl Add for PatClass {
     }
 }
 
-pub type PatVars = HashMap<DBI, Vec<UID>>;
+pub(super) type PatVars = HashMap<DBI, Vec<UID>>;
 
-pub fn classify_eqs(mut tcs: TCS, eqs: Vec<Equation>) -> TCMS<PatClass> {
+pub(super) fn classify_eqs(mut tcs: TCS, eqs: Vec<Equation>) -> TCMS<PatClass> {
     let mut pat_vars = PatVars::new();
     let mut other_pats = Vec::with_capacity(eqs.len());
     let mut as_binds = Vec::with_capacity(eqs.len());

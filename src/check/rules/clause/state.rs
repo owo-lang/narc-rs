@@ -9,36 +9,36 @@ use crate::syntax::pat::PatCommon;
 use super::Equation;
 
 #[derive(Debug, Clone)]
-pub struct Problem {
+pub(super) struct Problem {
     /// List of user patterns which could not yet be typed.
-    pub todo_pats: Vec<AbsCopat>,
+    pub(super) todo_pats: Vec<AbsCopat>,
     /// User patterns' unification problems.
-    pub equations: Vec<Equation>,
+    pub(super) equations: Vec<Equation>,
 }
 
 impl Problem {
-    pub fn is_all_solved(&self) -> bool {
+    pub(super) fn is_all_solved(&self) -> bool {
         self.todo_pats.is_empty() && self.equations.iter().all(|eq| eq.is_solved())
     }
 }
 
 /// State worked on during lhs checking.
 #[derive(Clone)]
-pub struct LhsState {
+pub(super) struct LhsState {
     /// Pattern variables' types.
-    pub tele: Tele,
+    pub(super) tele: Tele,
     /// Patterns after splitting.
     /// Indices are positioned from right to left.
-    pub pats: Vec<Pat>,
+    pub(super) pats: Vec<Pat>,
     /// Yet solved pattern matching.
-    pub problem: Problem,
+    pub(super) problem: Problem,
     /// Type eliminated by `problem`.
-    pub target: Term,
+    pub(super) target: Term,
 }
 
 impl LhsState {
     /// Number of patterns.
-    pub fn len_pats(&self) -> usize {
+    pub(super) fn len_pats(&self) -> usize {
         self.pats.iter().take_while(|pat| !pat.is_proj()).count()
     }
 }
@@ -47,7 +47,7 @@ impl LhsState {
 /// [this function](https://hackage.haskell.org/package/Agda-2.5.4/docs/src/Agda.TypeChecking.Rules.LHS.ProblemRest.html#initLHSState)
 /// is implemented via an
 /// [auxiliary function](https://hackage.haskell.org/package/Agda-2.5.4/docs/src/Agda.TypeChecking.Rules.LHS.ProblemRest.html#updateProblemRest).
-pub fn init_lhs_state(pats: Vec<AbsCopat>, ty: Term) -> TCM<LhsState> {
+pub(super) fn init_lhs_state(pats: Vec<AbsCopat>, ty: Term) -> TCM<LhsState> {
     let (tele, target) = ty.tele_view();
     let mut pats_iter = pats.into_iter();
     let tele_len = tele.len();

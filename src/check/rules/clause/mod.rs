@@ -4,16 +4,16 @@ use crate::syntax::core::{Clause, Tele, Term};
 
 use super::term::{check, simplify, HasMeta};
 
-pub use self::eqs::*;
-pub use self::lhs::*;
-pub use self::state::*;
+use self::eqs::*;
+use self::lhs::*;
+use self::state::*;
 
 mod eqs;
 mod lhs;
 mod state;
 
 /// Bind as patterns
-pub fn bind_as_and_tele<T>(
+fn bind_as_and_tele<T>(
     mut tcs: TCS,
     as_binds: Vec<AsBind>,
     mut tele: Tele,

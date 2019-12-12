@@ -4,38 +4,37 @@ use std::rc::Rc;
 use voile_util::uid::{DBI, UID};
 
 use crate::check::monad::{TCE, TCMS, TCS};
-use crate::check::rules::clause::{AsBind, PatVars};
-use crate::check::rules::term::is_eta_var_borrow;
 use crate::syntax::core::subst::{DeBruijn, RedEx, Subst};
 use crate::syntax::core::{Pat as CorePat, Tele, TeleS, Term};
 use crate::syntax::pat::{Copat, Pat, PatCommon};
 
+use super::super::term::is_eta_var_borrow;
 use super::super::ERROR_TAKE;
-use super::{classify_eqs, LhsState};
+use super::{classify_eqs, AsBind, LhsState, PatVars};
 
 /// Result of checking the LHS of a clause.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.LHS.html#LHSResult).
 #[derive(Clone)]
-pub struct Lhs {
+pub(super) struct Lhs {
     /// $\Delta$: The types of the pattern variables, in internal dependency order.
     /// Corresponds to `clauseTel` (in Agda).
-    pub tele: Tele,
+    pub(super) tele: Tele,
     /// Whether the LHS has at least one absurd pattern.
-    pub has_absurd: bool,
+    pub(super) has_absurd: bool,
     /// The patterns in internal syntax.
-    pub pats: Vec<CorePat>,
+    pub(super) pats: Vec<CorePat>,
     /// The type of the body. Is $b~\sigma$ if $\Gamma$ is defined.
-    pub ty: Term,
+    pub(super) ty: Term,
     /// Substitution version of `pats`, only up to the first projection pattern.
     /// $\Delta \vdash \text{pat\_subst} : \Gamma$.
     /// Where $\Gamma$ is the argument telescope of the function.
     /// This is used to update inherited dot patterns in
     /// with-function clauses.
-    pub pat_sub: Rc<Subst>,
+    pub(super) pat_sub: Rc<Subst>,
     /// As-bindings from the left-hand side.
     /// Return instead of bound since we
     /// want them in where's and right-hand sides, but not in with-clauses
-    pub as_binds: Vec<AsBind>,
+    pub(super) as_binds: Vec<AsBind>,
 }
 
 /// Build a renaming for the internal patterns using variable names from
@@ -49,7 +48,7 @@ pub struct Lhs {
 /// + `tele`: The telescope of pattern variables
 /// + `pat_vars`: The list of user names for each pattern variable
 ///
-pub fn user_variable_names(tele: &TeleS, mut pat_vars: PatVars) -> (Vec<Option<UID>>, Vec<AsBind>) {
+fn user_variable_names(tele: &TeleS, mut pat_vars: PatVars) -> (Vec<Option<UID>>, Vec<AsBind>) {
     let len_rng = 0..tele.len();
     let mut as_binds = Vec::with_capacity(pat_vars.len());
     let mut names = Vec::with_capacity(tele.len());
@@ -111,7 +110,7 @@ To compute $\Theta$ we can look at the arity of the with-function
 and compare it to numPats. This works since the with-function
 type is fully reduced.
 */
-pub fn final_check(tcs: TCS, mut lhs: LhsState) -> TCMS<Lhs> {
+fn final_check(tcs: TCS, mut lhs: LhsState) -> TCMS<Lhs> {
     debug_assert!(lhs.problem.todo_pats.is_empty());
     let len_pats = lhs.len_pats();
     // It should be `len_pats - ctx.len()`,
@@ -153,7 +152,7 @@ pub fn final_check(tcs: TCS, mut lhs: LhsState) -> TCMS<Lhs> {
 
 /// Checking a pattern matching lhs recursively.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.LHS.html).
-pub fn check_lhs(mut tcs: TCS, lhs: LhsState) -> TCMS<Lhs> {
+pub(super) fn check_lhs(mut tcs: TCS, lhs: LhsState) -> TCMS<Lhs> {
     for split in (lhs.problem.equations.iter()).filter(|e| e.in_pat.is_split()) {
         use Copat::{App, Proj};
         use Pat::{Absurd, Forced};
