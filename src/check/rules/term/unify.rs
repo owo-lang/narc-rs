@@ -46,7 +46,7 @@ fn subtype_impl(mut tcs: TCS, sub: &Val, sup: &Val) -> TCM {
     }
 }
 
-pub trait Unify {
+trait Unify {
     /// Conversion check, maybe can solve metas.
     fn unify(tcs: TCS, left: &Self, right: &Self) -> TCM;
 }

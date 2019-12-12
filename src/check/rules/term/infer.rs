@@ -13,7 +13,7 @@ use crate::syntax::core::{Bind, CodataInfo, DataInfo, Decl, Elim, Term, TermInfo
 use super::check;
 use super::whnf::simplify;
 
-pub type InferTCM = TCM<(TermInfo, Term, TCS)>;
+type InferTCM = TCM<(TermInfo, Term, TCS)>;
 
 /// Infer the type of the expression.
 pub fn infer(mut tcs: TCS, input_term: &Abs) -> InferTCM {
@@ -154,7 +154,7 @@ pub fn type_of_decl(tcs: &TCS, decl: GI) -> TCM<TermInfo> {
     }
 }
 
-pub fn infer_head(mut tcs: TCS, input_term: &Abs) -> InferTCM {
+fn infer_head(mut tcs: TCS, input_term: &Abs) -> InferTCM {
     if !tcs.trace_tc {
         return infer_head_impl(tcs, input_term);
     }

@@ -5,7 +5,7 @@ use crate::check::monad::{TermTCM, TCE, TCMS, TCS};
 use crate::syntax::abs::Abs;
 use crate::syntax::core::{Bind, Closure, Term, Val};
 
-pub use self::infer::infer;
+pub use self::infer::{infer, type_of_decl};
 pub use self::meta::HasMeta;
 pub use self::unify::subtype;
 pub use self::whnf::simplify;
