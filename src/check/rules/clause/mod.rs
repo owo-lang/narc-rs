@@ -1,8 +1,8 @@
 use crate::check::monad::{TCMS, TCS};
-use crate::check::rules::term::check;
-use crate::check::rules::whnf::simplify;
 use crate::syntax::abs::AbsClause;
 use crate::syntax::core::{Clause, Tele, Term};
+
+use super::term::{check, simplify};
 
 pub use self::eqs::*;
 pub use self::lhs::*;

@@ -2,9 +2,10 @@ use voile_util::meta::{MetaSolution, MI};
 use voile_util::uid::{DBI, GI};
 
 use crate::check::monad::{TCE, TCM, TCS};
-use crate::check::rules::whnf::simplify;
 use crate::syntax::core::subst::{RedEx, Subst};
 use crate::syntax::core::{Closure, Elim, FoldVal, Term, Val};
+
+use super::simplify;
 
 fn check_solution(meta: MI, rhs: &Val) -> TCM<()> {
     rhs.try_fold_val((), |(), v| match v {

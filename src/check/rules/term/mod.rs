@@ -5,9 +5,19 @@ use crate::check::monad::{TermTCM, TCE, TCMS, TCS};
 use crate::syntax::abs::Abs;
 use crate::syntax::core::{Bind, Closure, Term, Val};
 
-use super::infer::*;
-use super::unify::subtype;
-use super::whnf::simplify;
+pub use self::infer::infer;
+pub use self::unify::subtype;
+pub use self::whnf::simplify;
+
+/// Synthesize the type and its well-typed form from an abstract term.
+mod infer;
+/// Solves meta variables inside a term and things.
+//mod meta;
+/// Conversion check.
+mod unify;
+/// Find the weak-head-normal-form (semi-normalization) of an expression.
+/// TODO: Unfolds declarations.
+mod whnf;
 
 pub fn check(mut tcs: TCS, input_term: &Abs, against: &Val) -> TermTCM {
     if !tcs.trace_tc {

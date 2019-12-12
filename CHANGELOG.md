@@ -11,6 +11,7 @@
 + Lhs-splitting now support variables
 + Pretty print `Abs`
 + Support tracing the type-checking process
++ Put `infer`, `unify` and `whnf` under `check::rules::term`
 
 # 0.0.5
 

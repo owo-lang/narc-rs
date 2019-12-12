@@ -10,7 +10,7 @@ use crate::syntax::abs::Abs;
 use crate::syntax::core::subst::DeBruijn;
 use crate::syntax::core::{Bind, CodataInfo, DataInfo, Decl, Elim, Term, TermInfo, Val};
 
-use super::term::check;
+use super::check;
 use super::whnf::simplify;
 
 pub type InferTCM = TCM<(TermInfo, Term, TCS)>;
