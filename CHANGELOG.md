@@ -2,6 +2,8 @@
 
 # 0.0.7
 
++ The implementations of `Subst` is no longer bound to `Term`
+
 # 0.0.6
 
 + Fix a bunch of index-relevant problems

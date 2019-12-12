@@ -68,7 +68,7 @@ impl<T: DeBruijn> PrimSubst<T> {
     pub fn cons(t: T, rho: Rc<Self>) -> Rc<Self> {
         match (t.dbi_view(), &*rho) {
             (Some(n), PrimSubst::Weak(m, rho)) if n + 1 == *m => {
-                Self::weaken(Self::lift_by(rho.clone(), DBI(1)), *m - 1)
+                rho.clone().lift_by(DBI(1)).weaken(*m - 1)
             }
             _ => Rc::new(PrimSubst::Cons(t, rho)),
         }

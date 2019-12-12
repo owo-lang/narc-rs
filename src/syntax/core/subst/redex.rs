@@ -1,4 +1,5 @@
 use std::rc::Rc;
+
 use voile_util::meta::MetaSolution;
 use voile_util::uid::DBI;
 
@@ -6,13 +7,13 @@ use crate::syntax::common::{Bind, Let};
 use crate::syntax::pat::{Copat, Pat};
 
 use super::super::{Closure, Elim, Term, Val};
-use super::{def_app, Subst};
+use super::{def_app, PrimSubst, Subst};
 
 /// Reducible expressions.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#Subst).
-pub trait RedEx<T: Sized = Self>: Sized {
+pub trait RedEx<T: Sized = Self, A = Term>: Sized {
     /// Apply a substitution to a redex.
-    fn reduce_dbi(self, subst: Rc<Subst>) -> T;
+    fn reduce_dbi(self, subst: Rc<PrimSubst<A>>) -> T;
 }
 
 impl RedEx for Term {
@@ -83,10 +84,7 @@ impl RedEx<Term> for Val {
 impl RedEx for Closure {
     fn reduce_dbi(self, subst: Rc<Subst>) -> Self {
         match self {
-            Closure::Plain(body) => {
-                let subst = Subst::lift_by(subst, DBI(1));
-                Self::plain(body.reduce_dbi(subst))
-            }
+            Closure::Plain(body) => Self::plain(body.reduce_dbi(subst.lift_by(DBI(1)))),
         }
     }
 }

@@ -5,8 +5,6 @@ use voile_util::uid::DBI;
 
 use crate::syntax::core::subst::{DeBruijn, RedEx};
 
-use super::super::{Pat, Term};
-
 /// Substitution type.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.Syntax.Internal.html#Substitution%27).
 #[derive(Clone)]
@@ -51,7 +49,7 @@ impl<T> Default for PrimSubst<T> {
     }
 }
 
-impl PrimSubst<Term> {
+impl<Term: DeBruijn + RedEx<Term, Term> + Clone> PrimSubst<Term> {
     pub fn lookup(&self, dbi: DBI) -> Term {
         self.lookup_impl(dbi).map_left(Clone::clone).into_inner()
     }
@@ -161,6 +159,3 @@ impl<T> PrimSubst<T> {
         Rc::new(PrimSubst::Cons(t, Default::default()))
     }
 }
-
-pub type Subst = PrimSubst<Term>;
-pub type PatSubst = PrimSubst<Pat>;
