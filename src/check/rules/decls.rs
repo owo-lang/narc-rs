@@ -1,5 +1,3 @@
-use std::hint::unreachable_unchecked;
-
 use voile_util::uid::GI;
 
 use crate::check::monad::{TCM, TCS};
@@ -54,7 +52,7 @@ pub fn check_decls(mut tcs: TCS, decls: Vec<AbsDecl>) -> TCM {
                 tcs = new_tcs;
                 match tcs.mut_def(def_ix) {
                     Decl::Func(f) => f.clauses.push(cls),
-                    _ => unsafe { unreachable_unchecked() },
+                    _ => unreachable!(),
                 };
                 tcs.sigma.push(Decl::ClausePlaceholder);
             }

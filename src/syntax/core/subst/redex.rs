@@ -35,10 +35,11 @@ impl RedEx for Elim {
 
 impl<R, T: RedEx<R>> RedEx<MetaSolution<R>> for MetaSolution<T> {
     fn reduce_dbi(self, subst: Rc<Subst>) -> MetaSolution<R> {
+        use MetaSolution::*;
         match self {
-            MetaSolution::Solved(t) => MetaSolution::Solved(Box::new(t.reduce_dbi(subst))),
-            MetaSolution::Inlined => MetaSolution::Inlined,
-            MetaSolution::Unsolved => MetaSolution::Unsolved,
+            Solved(t) => Solved(Box::new(t.reduce_dbi(subst))),
+            Inlined => Inlined,
+            Unsolved => Unsolved,
         }
     }
 }
@@ -51,10 +52,8 @@ impl<R, T: RedEx<R>> RedEx<Bind<R>> for Bind<T> {
 
 impl<R, T: RedEx<R>> RedEx<Let<R>> for Let<T> {
     fn reduce_dbi(self, subst: Rc<Subst>) -> Let<R> {
-        Let::new(
-            self.bind.reduce_dbi(subst.clone()),
-            self.val.reduce_dbi(subst),
-        )
+        let bind = self.bind.reduce_dbi(subst.clone());
+        Let::new(bind, self.val.reduce_dbi(subst))
     }
 }
 
@@ -83,10 +82,12 @@ impl RedEx<Term> for Val {
 
 impl RedEx for Closure {
     fn reduce_dbi(self, subst: Rc<Subst>) -> Self {
-        use Closure::*;
-        let Plain(body) = self;
-        let subst = Subst::lift_by(subst, DBI(1));
-        Self::plain(body.reduce_dbi(subst))
+        match self {
+            Closure::Plain(body) => {
+                let subst = Subst::lift_by(subst, DBI(1));
+                Self::plain(body.reduce_dbi(subst))
+            }
+        }
     }
 }
 

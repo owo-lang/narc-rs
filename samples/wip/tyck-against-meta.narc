@@ -1,0 +1,11 @@
+//
+// Created by Dependently-Typed Lambda Calculus on 2019-12-12
+// tyck-against-meta
+// Author: ice10
+//
+
+definition id : {A : Type} -> A -> A;
+clause id a = a;
+
+definition useMeta : {A : _t} -> A -> A;
+clause useMeta a = id a;
