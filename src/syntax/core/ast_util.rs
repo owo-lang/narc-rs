@@ -32,20 +32,28 @@ impl Term {
         }
     }
 
-    pub fn cons(name: ConHead, params: Vec<Term>) -> Self {
+    pub fn cons(name: ConHead, params: Vec<Self>) -> Self {
         Term::Whnf(Val::Cons(name, params))
     }
 
-    pub fn data(kind: VarRec, ix: GI, params: Vec<Term>) -> Self {
+    pub fn data(kind: VarRec, ix: GI, params: Vec<Self>) -> Self {
         Term::Whnf(Val::Data(kind, ix, params))
     }
 
-    pub fn inductive(ix: GI, params: Vec<Term>) -> Self {
+    pub fn inductive(ix: GI, params: Vec<Self>) -> Self {
         Self::data(VarRec::Variant, ix, params)
     }
 
-    pub fn coinductive(ix: GI, params: Vec<Term>) -> Self {
+    pub fn inductive_val(ix: GI, params: Vec<Self>) -> Val {
+        Val::Data(VarRec::Variant, ix, params)
+    }
+
+    pub fn coinductive(ix: GI, params: Vec<Self>) -> Self {
         Self::data(VarRec::Record, ix, params)
+    }
+
+    pub fn coinductive_val(ix: GI, params: Vec<Self>) -> Val {
+        Val::Data(VarRec::Record, ix, params)
     }
 
     pub fn meta(index: MI, params: Vec<Elim>) -> Self {
