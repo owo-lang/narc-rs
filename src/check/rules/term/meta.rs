@@ -95,7 +95,7 @@ impl HasMeta for Val {
                 let (t, tcs) = t.inline_meta(tcs)?;
                 let (a, tcs) = a.inline_meta(tcs)?;
                 let (b, tcs) = b.inline_meta(tcs)?;
-                Ok((Term::identity_val(t, a, b), tcs))
+                Ok((Val::identity(t, a, b), tcs))
             }
             Refl => Ok((Refl, tcs)),
         }

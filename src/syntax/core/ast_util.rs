@@ -10,6 +10,20 @@ use super::{Closure, ConHead, Elim, Term, Val};
 
 pub const TYPE_OMEGA: Val = Val::Type(Level::Omega);
 
+impl Val {
+    pub fn inductive(ix: GI, params: Vec<Term>) -> Self {
+        Val::Data(VarRec::Variant, ix, params)
+    }
+
+    pub fn identity(ty: Term, a: Term, b: Term) -> Self {
+        Val::Id(Box::new(ty), Box::new(a), Box::new(b))
+    }
+
+    pub fn coinductive(ix: GI, params: Vec<Term>) -> Self {
+        Val::Data(VarRec::Record, ix, params)
+    }
+}
+
 /// Constructors and traversal functions.
 impl Term {
     pub fn is_type(&self) -> bool {
@@ -44,16 +58,8 @@ impl Term {
         Self::data(VarRec::Variant, ix, params)
     }
 
-    pub fn inductive_val(ix: GI, params: Vec<Self>) -> Val {
-        Val::Data(VarRec::Variant, ix, params)
-    }
-
     pub fn coinductive(ix: GI, params: Vec<Self>) -> Self {
         Self::data(VarRec::Record, ix, params)
-    }
-
-    pub fn coinductive_val(ix: GI, params: Vec<Self>) -> Val {
-        Val::Data(VarRec::Record, ix, params)
     }
 
     pub fn meta(index: MI, params: Vec<Elim>) -> Self {
@@ -68,12 +74,8 @@ impl Term {
         Term::Whnf(Val::Type(level))
     }
 
-    pub fn identity_val(ty: Self, a: Self, b: Self) -> Val {
-        Val::Id(Box::new(ty), Box::new(a), Box::new(b))
-    }
-
     pub fn identity(ty: Self, a: Self, b: Self) -> Self {
-        Term::Whnf(Self::identity_val(ty, a, b))
+        Term::Whnf(Val::identity(ty, a, b))
     }
 
     pub fn fresh_axiom() -> Self {
