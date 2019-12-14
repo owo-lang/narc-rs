@@ -24,7 +24,10 @@ pub fn simplify(tcs: TCS, term: Term) -> ValTCM {
             Decl::Proj { .. } => unimplemented!(),
             Decl::Func(func) => {
                 let clauses = (func.clauses.iter())
-                    .filter(|clause| elims.len() < clause.patterns.len())
+                    // Our elims should be enough
+                    .filter(|clause| elims.len() >= clause.patterns.len())
+                    // Should not be an absurd clause
+                    .filter(|clause| !clause.is_absurd())
                     .cloned()
                     .collect();
                 unfold_func(id, clauses, tcs, elims)

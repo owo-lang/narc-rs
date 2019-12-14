@@ -105,3 +105,9 @@ pub struct Clause {
     pub body: Option<Term>,
     // TODO: case-trees.
 }
+
+impl Clause {
+    pub fn is_absurd(&self) -> bool {
+        self.body.is_none()
+    }
+}
