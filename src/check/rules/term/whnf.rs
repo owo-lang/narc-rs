@@ -1,10 +1,11 @@
 use std::collections::HashMap;
 
+use voile_util::loc::Ident;
 use voile_util::uid::DBI;
 
 use crate::check::monad::{ValTCM, TCE, TCM, TCS};
 use crate::syntax::common::{ConHead, Ductive};
-use crate::syntax::core::{Decl, Elim, FuncInfo, Term, Val};
+use crate::syntax::core::{Clause, Decl, Elim, Term, Val};
 
 pub fn simplify(tcs: TCS, term: Term) -> ValTCM {
     match term {
@@ -21,7 +22,7 @@ pub fn simplify(tcs: TCS, term: Term) -> ValTCM {
                 Ok((Val::Cons(head, elims_to_terms(elims)?), tcs))
             }
             Decl::Proj { .. } => unimplemented!(),
-            Decl::Func(func) => unfold_func(func.clone(), tcs, elims),
+            Decl::Func(func) => unfold_func(id, func.clauses.clone(), tcs, elims),
             Decl::ClausePlaceholder => unreachable!(),
         },
     }
@@ -49,8 +50,14 @@ impl Into<Option<HashMap<DBI, Term>>> for Match {
 }
 
 /// Build up a substitution and unfold the declaration.
-fn unfold_func(func: FuncInfo, tcs: TCS, elims: Vec<Elim>) -> ValTCM {
-    unimplemented!()
+fn unfold_func(f: Ident, clauses: Vec<Clause>, tcs: TCS, elims: Vec<Elim>) -> ValTCM {
+    for clause in clauses {
+        if elims.len() < clause.patterns.len() {
+            continue;
+        }
+        unimplemented!()
+    }
+    Err(TCE::CantFindPattern(f))
 }
 
 fn elims_to_terms(elims: Vec<Elim>) -> TCM<Vec<Term>> {

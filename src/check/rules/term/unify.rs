@@ -111,7 +111,7 @@ fn compare_closure(
 ) -> TCM {
     use Closure::*;
     let mut backup = tcs.meta_context.solutions().to_vec();
-    let mut meta_ctx = Vec::with_capacity(tcs.meta_context.solutions().len());
+    let mut meta_ctx = Vec::with_capacity(backup.len());
     meta_ctx.append(tcs.meta_context.mut_solutions());
     meta_ctx = meta_ctx.reduce_dbi(Subst::raise(DBI(1)));
     tcs.meta_context.mut_solutions().append(&mut meta_ctx);

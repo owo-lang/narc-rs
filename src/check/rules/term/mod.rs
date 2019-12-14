@@ -45,7 +45,7 @@ fn check_impl(tcs: TCS, abs: &Abs, against: &Val) -> TermTCM {
             if upper > lower {
                 Ok((Term::universe(*lower).at(info.loc), tcs))
             } else {
-                Err(TCE::LevelMismatch(abs.loc(), *lower + 1, *upper))
+                Err(TCE::DifferentLevel(abs.loc(), *lower + 1, *upper))
             }
         }
         (Abs::Pi(info, bind, ret), Val::Type(..)) => {

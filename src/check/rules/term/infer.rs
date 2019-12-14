@@ -83,7 +83,7 @@ fn infer_impl(tcs: TCS, abs: &Abs) -> InferTCM {
                         _ => unreachable!(),
                     };
                     if !codata_fields.contains(&proj_def) {
-                        return Err(TCE::FieldCodataMismatch(
+                        return Err(TCE::DifferentFieldCodata(
                             ident.loc,
                             codata_name.text.clone(),
                             ident.text,

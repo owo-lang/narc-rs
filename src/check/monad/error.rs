@@ -12,11 +12,6 @@ pub enum TCE {
     Textual(String),
     Wrapped(Box<Self>, Loc),
 
-    // === *Mismatch === //
-    // Existing: second. Bad thing: first.
-    LevelMismatch(Loc, Level, Level),
-    FieldCodataMismatch(Loc, String, String),
-
     // === Not* === //
     NotHead(Abs),
     NotPi(Term, Loc),
@@ -27,11 +22,16 @@ pub enum TCE {
     // === Split* === //
     SplitOnNonVar(Box<Term>, Box<Term>),
 
+    // === Cant* === //
+    CantFindPattern(Ident),
+
     // === Meta* === //
     MetaRecursion(MI),
     MetaUnsolved(MI),
 
     // === Different* === //
+    DifferentLevel(Loc, Level, Level),
+    DifferentFieldCodata(Loc, String, String),
     DifferentTerm(Box<Term>, Box<Term>),
     DifferentElim(Box<Elim>, Box<Elim>),
     DifferentName(Ident, Ident),
@@ -66,16 +66,6 @@ impl Display for TCE {
             TCE::Wrapped(inner, info) => {
                 write!(f, "{}\nWhen checking the expression at: {}.", inner, info)
             }
-            TCE::LevelMismatch(expr, expected_to_be_small, big) => write!(
-                f,
-                "Expression `{}` has level {}, which is not smaller than {}.",
-                expr, expected_to_be_small, big
-            ),
-            TCE::FieldCodataMismatch(loc, field, codata) => write!(
-                f,
-                "Codata `{}` does not have field `{}` (at {}).",
-                codata, field, loc
-            ),
             TCE::NotHead(abs) => write!(f, "`{}` is not a head (at {}).", abs, abs.loc()),
             TCE::NotPi(term, loc) => write!(f, "`{}` is not a pi type (at {}).", term, loc),
             TCE::NotProj(abs) => write!(f, "`{:?}` is not a projection (at {}).", abs, abs.loc()),
@@ -83,8 +73,19 @@ impl Display for TCE {
             TCE::SplitOnNonVar(term, ty) => {
                 write!(f, "Splitting on non variable `{}` (of type `{}`)", term, ty)
             }
+            TCE::CantFindPattern(call) => write!(f, "Didn't find a matchable pattern for `{}` (at {})", call.text, call.loc),
             TCE::MetaRecursion(mi) => write!(f, "Trying to solve a recursive meta of index {}.", mi),
             TCE::MetaUnsolved(mi) => write!(f, "Unsolved meta of index {}.", mi),
+            TCE::DifferentLevel(expr, expected_to_be_small, big) => write!(
+                f,
+                "Expression `{}` has level {}, which is not smaller than {}.",
+                expr, expected_to_be_small, big
+            ),
+            TCE::DifferentFieldCodata(loc, field, codata) => write!(
+                f,
+                "Codata `{}` does not have field `{}` (at {}).",
+                codata, field, loc
+            ),
             TCE::DifferentTerm(a, b) => write!(f, "Failed to unify `{}` and `{}`.", a, b),
             TCE::DifferentElim(a, b) => write!(f, "Failed to unify `{}` and `{}`.", a, b),
             TCE::DifferentName(a, b) => write!(
