@@ -22,7 +22,13 @@ pub fn simplify(tcs: TCS, term: Term) -> ValTCM {
                 Ok((Val::Cons(head, elims_to_terms(elims)?), tcs))
             }
             Decl::Proj { .. } => unimplemented!(),
-            Decl::Func(func) => unfold_func(id, func.clauses.clone(), tcs, elims),
+            Decl::Func(func) => {
+                let clauses = (func.clauses.iter())
+                    .filter(|clause| elims.len() < clause.patterns.len())
+                    .cloned()
+                    .collect();
+                unfold_func(id, clauses, tcs, elims)
+            }
             Decl::ClausePlaceholder => unreachable!(),
         },
     }
@@ -52,9 +58,6 @@ impl Into<Option<HashMap<DBI, Term>>> for Match {
 /// Build up a substitution and unfold the declaration.
 fn unfold_func(f: Ident, clauses: Vec<Clause>, tcs: TCS, elims: Vec<Elim>) -> ValTCM {
     for clause in clauses {
-        if elims.len() < clause.patterns.len() {
-            continue;
-        }
         unimplemented!()
     }
     Err(TCE::CantFindPattern(f))
