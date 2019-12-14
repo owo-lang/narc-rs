@@ -1,6 +1,6 @@
 use crate::check::monad::{ValTCM, TCE, TCM, TCS};
-use crate::syntax::common::Ductive;
-use crate::syntax::core::{ConHead, Decl, Elim, FuncInfo, Term, Val};
+use crate::syntax::common::{ConHead, Ductive};
+use crate::syntax::core::{Decl, Elim, FuncInfo, Term, Val};
 
 pub fn simplify(tcs: TCS, term: Term) -> ValTCM {
     match term {

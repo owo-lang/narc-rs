@@ -3,7 +3,7 @@ use voile_util::loc::Ident;
 use voile_util::pest_util::{end_of_rule, strict_parse};
 use voile_util::tags::Plicit;
 
-use crate::syntax::core::ConHead;
+use crate::syntax::common::ConHead;
 use crate::syntax::pat::{Copat, Pat};
 use crate::syntax::surf::{
     Expr, ExprCons, ExprCopat, ExprDecl, ExprPat, ExprProj, NamedTele, Param,

@@ -4,9 +4,10 @@ use voile_util::meta::MI;
 use voile_util::tags::{Plicit, VarRec};
 use voile_util::uid::*;
 
+use crate::syntax::common::ConHead;
 use crate::syntax::core::{Bind, Tele};
 
-use super::{Closure, ConHead, Elim, Term, Val};
+use super::{Closure, Elim, Term, Val};
 
 pub const TYPE_OMEGA: Val = Val::Type(Level::Omega);
 
