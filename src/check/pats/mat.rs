@@ -1,14 +1,16 @@
 use std::collections::HashMap;
+use std::hash::BuildHasher;
 use std::ops::Add;
 
 use voile_util::uid::DBI;
 
+use crate::check::rules::ERROR_MSG;
 use crate::syntax::core::Term;
 
 /// `Simplification` in
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Monad.Base.html#Simplification).
 #[derive(Ord, PartialOrd, Eq, PartialEq, Copy, Clone, Debug, Hash)]
-enum Simpl {
+pub enum Simpl {
     Yes,
     No,
 }
@@ -50,7 +52,7 @@ impl Add for Simpl {
 }
 
 #[derive(Debug, Clone)]
-enum Match {
+pub enum Match {
     Yes(Simpl, HashMap<DBI, Term>),
     No,
 }
@@ -74,4 +76,12 @@ impl Add for Match {
             }
         }
     }
+}
+
+/// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Patterns.Match.html#matchedArgs).
+pub fn matched<Term, H: BuildHasher>(mut map: HashMap<DBI, Term, H>, DBI(max): DBI) -> Vec<Term> {
+    (0..max)
+        .map(DBI)
+        .map(|i| map.remove(&i).expect(ERROR_MSG))
+        .collect()
 }
