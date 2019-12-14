@@ -24,6 +24,7 @@ pub enum TCE {
 
     // === Cant* === //
     CantFindPattern(Ident),
+    CantSimplify(Ident),
 
     // === Meta* === //
     MetaRecursion(MI),
@@ -74,6 +75,7 @@ impl Display for TCE {
                 write!(f, "Splitting on non variable `{}` (of type `{}`)", term, ty)
             }
             TCE::CantFindPattern(call) => write!(f, "Didn't find a matchable pattern for `{}` (at {})", call.text, call.loc),
+            TCE::CantSimplify(call) => write!(f, "Can't simplify a call to `{}` (at {})", call.text, call.loc),
             TCE::MetaRecursion(mi) => write!(f, "Trying to solve a recursive meta of index {}.", mi),
             TCE::MetaUnsolved(mi) => write!(f, "Unsolved meta of index {}.", mi),
             TCE::DifferentLevel(expr, expected_to_be_small, big) => write!(

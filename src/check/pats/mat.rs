@@ -89,19 +89,19 @@ impl Match {
 }
 
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Patterns.Match.html#buildSubstitution).
-pub fn build_subst<H: BuildHasher>(map: HashMap<DBI, Term, H>, max: DBI) -> Rc<Subst> {
+pub fn build_subst<H: BuildHasher>(map: HashMap<DBI, Term, H>, max: usize) -> Rc<Subst> {
     Subst::parallel(matched(map, max).into_iter())
 }
 
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Patterns.Match.html#matchedArgs).
-fn matched<T, H: BuildHasher>(mut map: HashMap<DBI, T, H>, DBI(max): DBI) -> Vec<T> {
+fn matched<T, H: BuildHasher>(mut map: HashMap<DBI, T, H>, max: usize) -> Vec<T> {
     (0..max)
         .map(DBI)
         .map(|i| map.remove(&i).expect(ERROR_MSG))
         .collect()
 }
 
-fn match_copats(mut p: impl ExactSizeIterator<Item = (CoreCopat, Elim)>) -> (Match, Vec<Elim>) {
+pub fn match_copats(mut p: impl ExactSizeIterator<Item = (CoreCopat, Elim)>) -> (Match, Vec<Elim>) {
     let mut mat = Match::with_capacity(p.len());
     let mut elims = Vec::with_capacity(p.len());
     while let Some((copat, elim)) = p.next() {

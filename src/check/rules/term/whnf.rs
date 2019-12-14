@@ -1,7 +1,10 @@
 use voile_util::loc::Ident;
 
 use crate::check::monad::{ValTCM, TCE, TCM, TCS};
+use crate::check::pats::{build_subst, match_copats, Match};
+use crate::check::rules::ERROR_MSG;
 use crate::syntax::common::{ConHead, Ductive};
+use crate::syntax::core::subst::RedEx;
 use crate::syntax::core::{Clause, Decl, Elim, Term, Val};
 
 pub fn simplify(tcs: TCS, term: Term) -> ValTCM {
@@ -27,7 +30,8 @@ pub fn simplify(tcs: TCS, term: Term) -> ValTCM {
                     .filter(|clause| !clause.is_absurd())
                     .cloned()
                     .collect();
-                unfold_func(id, clauses, tcs, elims)
+                let term = unfold_func(id, clauses, elims)?;
+                simplify(tcs, term)
             }
             Decl::ClausePlaceholder => unreachable!(),
         },
@@ -35,9 +39,28 @@ pub fn simplify(tcs: TCS, term: Term) -> ValTCM {
 }
 
 /// Build up a substitution and unfold the declaration.
-fn unfold_func(f: Ident, clauses: Vec<Clause>, tcs: TCS, elims: Vec<Elim>) -> ValTCM {
+fn unfold_func(f: Ident, clauses: Vec<Clause>, mut elims: Vec<Elim>) -> TCM<Term> {
     for clause in clauses {
-        unimplemented!()
+        let mut es = elims;
+        let pat_len = clause.patterns.len();
+        let mut rest = es.split_off(pat_len);
+        let (m, es) = match_copats(clause.patterns.into_iter().zip(es.into_iter()));
+        match m {
+            Match::Yes(s, vs) => {
+                let subst = build_subst(vs, pat_len);
+                let body = clause.body.expect(ERROR_MSG);
+                return if s.into() {
+                    Ok(body.reduce_dbi(subst).apply_elim(rest))
+                } else {
+                    Err(TCE::CantSimplify(f))
+                };
+            }
+            // continue to next clause
+            Match::No => {
+                elims = es;
+                elims.append(&mut rest);
+            }
+        }
     }
     Err(TCE::CantFindPattern(f))
 }
