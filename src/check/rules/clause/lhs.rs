@@ -9,7 +9,7 @@ use crate::syntax::core::{Pat as CorePat, Tele, TeleS, Term};
 use crate::syntax::pat::{Copat, Pat, PatCommon};
 
 use super::super::term::is_eta_var_borrow;
-use super::super::ERROR_TAKE;
+use super::super::ERROR_MSG;
 use super::{classify_eqs, AsBind, LhsState, PatVars};
 
 /// Result of checking the LHS of a clause.
@@ -120,7 +120,7 @@ fn final_check(tcs: TCS, mut lhs: LhsState) -> TCMS<Lhs> {
     let pat_sub = Subst::parallel(
         (lhs.pats.iter().take(len_pats).rev().cloned())
             .map(Term::try_from)
-            .map(|t| t.expect(ERROR_TAKE)),
+            .map(|t| t.expect(ERROR_MSG)),
     );
     // let with_sub = Default::default();
     // let param_sub = Subst::compose(Subst::compose(pat_sub.clone(), weak_sub), with_sub);

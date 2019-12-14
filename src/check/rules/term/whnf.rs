@@ -1,7 +1,4 @@
-use std::collections::HashMap;
-
 use voile_util::loc::Ident;
-use voile_util::uid::DBI;
 
 use crate::check::monad::{ValTCM, TCE, TCM, TCS};
 use crate::syntax::common::{ConHead, Ductive};
@@ -34,27 +31,6 @@ pub fn simplify(tcs: TCS, term: Term) -> ValTCM {
             }
             Decl::ClausePlaceholder => unreachable!(),
         },
-    }
-}
-
-#[derive(Debug, Clone)]
-enum Match {
-    Yes(HashMap<DBI, Term>),
-    No,
-}
-
-impl From<Option<HashMap<DBI, Term>>> for Match {
-    fn from(src: Option<HashMap<DBI, Term>>) -> Self {
-        src.map_or(Match::No, Match::Yes)
-    }
-}
-
-impl Into<Option<HashMap<DBI, Term>>> for Match {
-    fn into(self) -> Option<HashMap<DBI, Term>> {
-        match self {
-            Match::Yes(o) => Some(o),
-            Match::No => None,
-        }
     }
 }
 

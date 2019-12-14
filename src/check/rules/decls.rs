@@ -7,12 +7,12 @@ use crate::check::rules::term::{check, HasMeta};
 use crate::syntax::abs::AbsDecl;
 use crate::syntax::core::{Decl, FuncInfo, TYPE_OMEGA};
 
-use super::ERROR_TAKE;
+use super::ERROR_MSG;
 
 pub fn check_decls(mut tcs: TCS, decls: Vec<AbsDecl>) -> TCM {
     let mut decls = decls.into_iter().map(Some).collect::<Vec<_>>();
     let range = 0..decls.len();
-    let take = |decls: &mut [Option<AbsDecl>], i: usize| decls[i].take().expect(ERROR_TAKE);
+    let take = |decls: &mut [Option<AbsDecl>], i: usize| decls[i].take().expect(ERROR_MSG);
 
     for i in range {
         if decls[i].is_none() {
@@ -25,13 +25,13 @@ pub fn check_decls(mut tcs: TCS, decls: Vec<AbsDecl>) -> TCM {
                 let cs = (i.conses.iter())
                     .map(|GI(j)| match take(&mut decls, *j) {
                         AbsDecl::Cons(i) => i,
-                        _ => unreachable!(ERROR_TAKE),
+                        _ => unreachable!(ERROR_MSG),
                     })
                     .collect();
                 // TODO: Inline meta??
                 tcs = check_data(tcs, i, cs)?;
             }
-            AbsDecl::Cons(_) => unreachable!(ERROR_TAKE),
+            AbsDecl::Cons(_) => unreachable!(ERROR_MSG),
             AbsDecl::Defn(i) => {
                 let (ty, new_tcs) = check(tcs, &i.ty, &TYPE_OMEGA)?;
                 let (signature, new_tcs) = ty.ast.inline_meta(new_tcs)?;

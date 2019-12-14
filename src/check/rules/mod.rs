@@ -1,6 +1,6 @@
 pub use self::decls::*;
 
-pub(self) const ERROR_TAKE: &str = "Please report this as a bug.";
+pub(self) const ERROR_MSG: &str = "Please report this as a bug.";
 
 /// Type check a function clause.
 mod clause;
