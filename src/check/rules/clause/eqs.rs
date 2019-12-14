@@ -82,7 +82,7 @@ impl Add for PatClass {
 pub(super) type PatVars = HashMap<DBI, Vec<UID>>;
 
 pub(super) fn classify_eqs(mut tcs: TCS, eqs: Vec<Equation>) -> TCMS<PatClass> {
-    let mut pat_vars = PatVars::new();
+    let mut pat_vars = PatVars::with_capacity(eqs.len() * 3 / 2);
     let mut other_pats = Vec::with_capacity(eqs.len());
     let mut as_binds = Vec::with_capacity(eqs.len());
     let mut absurd_count = 0usize;
