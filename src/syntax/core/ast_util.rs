@@ -136,6 +136,13 @@ impl Elim {
         Elim::App(Box::new(term))
     }
 
+    pub fn is_proj(&self) -> bool {
+        match self {
+            Elim::App(..) => false,
+            Elim::Proj(..) => true,
+        }
+    }
+
     pub fn into_app(self) -> Term {
         self.try_into_app().unwrap()
     }
