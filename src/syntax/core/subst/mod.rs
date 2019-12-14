@@ -4,7 +4,6 @@ pub use self::prim::*;
 pub use self::redex::*;
 
 pub type Subst = PrimSubst<crate::syntax::core::Term>;
-pub type PatSubst = PrimSubst<crate::syntax::core::Pat>;
 
 /// Eliminate something with something else.
 mod apply;

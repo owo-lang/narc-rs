@@ -5,7 +5,6 @@ pub use self::ast_fold::*;
 pub use self::ast_util::*;
 pub use self::decl::*;
 pub use self::decl_impl::*;
-pub use self::pat::*;
 pub use self::pretty::*;
 
 /// Core language syntax definitions.
@@ -23,8 +22,6 @@ mod ast_util;
 mod decl;
 /// Declarations' trivial trait implementations.
 mod decl_impl;
-/// Patterns and its operations.
-mod pat;
 /// Pretty printing things.
 mod pretty;
 /// Substitution is a mapping.

@@ -3,30 +3,28 @@ use std::convert::TryFrom;
 use voile_util::uid::DBI;
 
 use crate::syntax::core::subst::DeBruijn;
-use crate::syntax::core::Elim;
+use crate::syntax::core::{Elim, Term};
 use crate::syntax::pat;
 
-use super::Term;
+pub type CoreCopat = pat::Copat<DBI, Term>;
+pub type CorePat = pat::Pat<DBI, Term>;
 
-pub type Pat = pat::Copat<DBI, Term>;
-pub type APat = pat::Pat<DBI, Term>;
-
-impl TryFrom<Pat> for Term {
+impl TryFrom<CoreCopat> for Term {
     type Error = String;
-    fn try_from(p: Pat) -> Result<Term, String> {
+    fn try_from(p: CoreCopat) -> Result<Term, String> {
         Elim::from(p).try_into_app()
     }
 }
 
-impl TryFrom<APat> for Term {
+impl TryFrom<CorePat> for Term {
     type Error = String;
-    fn try_from(p: APat) -> Result<Term, String> {
+    fn try_from(p: CorePat) -> Result<Term, String> {
         Term::try_from(pat::Copat::App(p))
     }
 }
 
-impl From<Pat> for Elim {
-    fn from(p: Pat) -> Elim {
+impl From<CoreCopat> for Elim {
+    fn from(p: CoreCopat) -> Elim {
         use pat::Copat::*;
         match p {
             Proj(field) => Elim::Proj(field),
@@ -35,8 +33,8 @@ impl From<Pat> for Elim {
     }
 }
 
-impl From<APat> for Elim {
-    fn from(p: APat) -> Elim {
+impl From<CorePat> for Elim {
+    fn from(p: CorePat) -> Elim {
         use pat::Pat::*;
         match p {
             Var(ix) => Elim::from_dbi(ix),

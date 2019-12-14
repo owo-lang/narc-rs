@@ -5,6 +5,7 @@
 + The implementations of `Subst` is no longer bound to `Term`
 + Functions of `Subst` are now `self`-based methods
 + Move `ConHead` to `syntax::common`
++ Move `syntax::core::pat` to `check::pats::core`
 
 # 0.0.6
 

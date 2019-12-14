@@ -4,8 +4,9 @@ use std::rc::Rc;
 use voile_util::uid::{DBI, UID};
 
 use crate::check::monad::{TCE, TCMS, TCS};
+use crate::check::pats::CoreCopat;
 use crate::syntax::core::subst::{DeBruijn, RedEx, Subst};
-use crate::syntax::core::{Pat as CorePat, Tele, TeleS, Term};
+use crate::syntax::core::{Tele, TeleS, Term};
 use crate::syntax::pat::{Copat, Pat, PatCommon};
 
 use super::super::term::is_eta_var_borrow;
@@ -22,7 +23,7 @@ pub(super) struct Lhs {
     /// Whether the LHS has at least one absurd pattern.
     pub(super) has_absurd: bool,
     /// The patterns in internal syntax.
-    pub(super) pats: Vec<CorePat>,
+    pub(super) pats: Vec<CoreCopat>,
     /// The type of the body. Is $b~\sigma$ if $\Gamma$ is defined.
     pub(super) ty: Term,
     /// Substitution version of `pats`, only up to the first projection pattern.

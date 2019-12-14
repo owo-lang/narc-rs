@@ -1,9 +1,10 @@
 use voile_util::uid::DBI;
 
 use crate::check::monad::TCM;
+use crate::check::pats::CoreCopat;
 use crate::syntax::abs::AbsCopat;
 use crate::syntax::core::subst::DeBruijn;
-use crate::syntax::core::{Pat, Tele, Term};
+use crate::syntax::core::{Tele, Term};
 use crate::syntax::pat::PatCommon;
 
 use super::Equation;
@@ -29,7 +30,7 @@ pub(super) struct LhsState {
     pub(super) tele: Tele,
     /// Patterns after splitting.
     /// Indices are positioned from right to left.
-    pub(super) pats: Vec<Pat>,
+    pub(super) pats: Vec<CoreCopat>,
     /// Yet solved pattern matching.
     pub(super) problem: Problem,
     /// Type eliminated by `problem`.
@@ -76,7 +77,7 @@ pub(super) fn init_lhs_state(pats: Vec<AbsCopat>, ty: Term) -> TCM<LhsState> {
         todo_pats: pats_iter.collect(),
         equations,
     };
-    let tele_dbi = (0..tele_len).rev().map(DBI).map(Pat::var).collect();
+    let tele_dbi = (0..tele_len).rev().map(DBI).map(CoreCopat::var).collect();
     let state = LhsState {
         tele,
         pats: tele_dbi,
