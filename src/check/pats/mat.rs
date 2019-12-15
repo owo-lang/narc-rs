@@ -57,7 +57,7 @@ impl Add for Simpl {
 
 #[derive(Debug, Clone)]
 pub enum Match {
-    Yes(Simpl, HashMap<DBI, Term>),
+    Yes(HashMap<DBI, Term>),
     No,
 }
 
@@ -74,9 +74,16 @@ impl Add for Match {
         match (self, rhs) {
             (Match::No, o) => o,
             (o, Match::No) => o,
-            (Match::Yes(s0, mut m0), Match::Yes(s1, m1)) => {
-                m0.extend(m1.into_iter());
-                Match::Yes(s0 + s1, m0)
+            (Match::Yes(mut m0), Match::Yes(mut m1)) => {
+                // A little heuristic optimization
+                let m = if m0.len() > m1.len() {
+                    m0.extend(m1.into_iter());
+                    m0
+                } else {
+                    m1.extend(m0.into_iter());
+                    m1
+                };
+                Match::Yes(m)
             }
         }
     }
@@ -84,7 +91,7 @@ impl Add for Match {
 
 impl Match {
     pub fn with_capacity(capacity: usize) -> Self {
-        Match::Yes(Default::default(), HashMap::with_capacity(capacity))
+        Match::Yes(HashMap::with_capacity(capacity))
     }
 }
 
@@ -132,7 +139,7 @@ fn match_copat(p: CoreCopat, e: Elim) -> (Match, Elim) {
     match (p, e) {
         (Copat::Proj(s0), Elim::Proj(s1)) => {
             if s0 == s1 {
-                (Match::Yes(Simpl::Yes, Default::default()), Elim::Proj(s1))
+                (Match::Yes(Default::default()), Elim::Proj(s1))
             } else {
                 (Match::No, Elim::Proj(s1))
             }

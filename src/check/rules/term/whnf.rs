@@ -46,14 +46,10 @@ fn unfold_func(f: Ident, clauses: Vec<Clause>, mut elims: Vec<Elim>) -> TCM<Term
         let mut rest = es.split_off(pat_len);
         let (m, es) = match_copats(clause.patterns.into_iter().zip(es.into_iter()));
         match m {
-            Match::Yes(s, vs) => {
+            Match::Yes(vs) => {
                 let subst = build_subst(vs, pat_len);
                 let body = clause.body.expect(ERROR_MSG);
-                return if s.into() {
-                    Ok(body.reduce_dbi(subst).apply_elim(rest))
-                } else {
-                    Err(TCE::CantSimplify(f))
-                };
+                return Ok(body.reduce_dbi(subst).apply_elim(rest));
             }
             // continue to next clause
             Match::No => {
