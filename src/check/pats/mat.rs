@@ -5,55 +5,12 @@ use std::rc::Rc;
 
 use voile_util::uid::DBI;
 
-use crate::check::pats::CoreCopat;
 use crate::check::rules::ERROR_MSG;
 use crate::syntax::core::subst::Subst;
 use crate::syntax::core::{Elim, Term};
 use crate::syntax::pat::Copat;
 
-/// `Simplification` in
-/// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Monad.Base.html#Simplification).
-#[derive(Ord, PartialOrd, Eq, PartialEq, Copy, Clone, Debug, Hash)]
-pub enum Simpl {
-    Yes,
-    No,
-}
-
-impl From<bool> for Simpl {
-    fn from(b: bool) -> Self {
-        if b {
-            Simpl::Yes
-        } else {
-            Simpl::No
-        }
-    }
-}
-
-impl Into<bool> for Simpl {
-    fn into(self) -> bool {
-        match self {
-            Simpl::Yes => true,
-            Simpl::No => false,
-        }
-    }
-}
-
-impl Default for Simpl {
-    fn default() -> Self {
-        Simpl::No
-    }
-}
-
-impl Add for Simpl {
-    type Output = Simpl;
-
-    fn add(self, rhs: Self) -> Self::Output {
-        match self {
-            Simpl::Yes => Simpl::Yes,
-            Simpl::No => rhs,
-        }
-    }
-}
+use super::{CoreCopat, Simpl};
 
 #[derive(Debug, Clone)]
 pub enum Match {
@@ -114,9 +71,10 @@ pub fn match_copats(mut p: impl ExactSizeIterator<Item = (CoreCopat, Elim)>) -> 
             }
             Match::No => {
                 let copy = p.collect::<Vec<_>>();
-                let (m, _) = match_copats(copy.clone().into_iter());
+                let mut copied_elims = copy.iter().map(|(_, e)| e).cloned().collect();
+                let (m, _) = match_copats(copy.into_iter());
                 mat = m;
-                elims.append(&mut copy.into_iter().map(|(_, e)| e).collect());
+                elims.append(&mut copied_elims);
                 break;
             }
             yes => {
