@@ -10,11 +10,15 @@ use crate::syntax::core::subst::Subst;
 use crate::syntax::core::{Elim, Term};
 use crate::syntax::pat::Copat;
 
-use super::{CoreCopat, Simpl};
+use super::{Blocked, CoreCopat, Simpl};
 
+/// If matching is inconclusive ([`Dunno`](self::Match::Dunno)) we want to know whether
+/// it is due to a particular meta variable.
 #[derive(Debug, Clone)]
 pub enum Match {
     Yes(Simpl, HashMap<DBI, Term>),
+    /// Don't know.
+    Dunno(Blocked<()>),
     No,
 }
 
@@ -29,8 +33,8 @@ impl Add for Match {
 
     fn add(self, rhs: Self) -> Self::Output {
         match (self, rhs) {
-            (Match::No, o) => o,
-            (o, Match::No) => o,
+            (_, Match::Dunno(b)) | (Match::Dunno(b), _) => Match::Dunno(b),
+            (o, Match::No) | (Match::No, o) => o,
             (Match::Yes(s0, mut m0), Match::Yes(s1, m1)) => {
                 m0.extend(m1.into_iter());
                 Match::Yes(s0 + s1, m0)

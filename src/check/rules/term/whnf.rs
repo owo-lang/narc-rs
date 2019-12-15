@@ -68,6 +68,12 @@ pub fn unfold_func(
                 };
                 return Ok((s, body.reduce_dbi(subst).apply_elim(rest)));
             }
+            Match::Dunno(b) => {
+                elims = es;
+                elims.append(&mut rest);
+                let blocked = Term::def(def, func_name, elims);
+                return Err(Blocked::new(b.stuck, blocked));
+            }
             // continue to next clause
             Match::No => {
                 elims = es;
