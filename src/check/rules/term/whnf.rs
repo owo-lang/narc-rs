@@ -1,6 +1,6 @@
 use voile_util::loc::Ident;
 
-use crate::check::monad::{ValTCM, TCE, TCM, TCS};
+use crate::check::monad::{ValTCM, TCE, TCM, TCMS, TCS};
 use crate::check::pats::{build_subst, match_copats, Match};
 use crate::check::rules::ERROR_MSG;
 use crate::syntax::common::{ConHead, Ductive};
@@ -30,7 +30,7 @@ pub fn simplify(tcs: TCS, term: Term) -> ValTCM {
                     .filter(|clause| !clause.is_absurd())
                     .cloned()
                     .collect();
-                let term = unfold_func(id, clauses, elims)?;
+                let (term, tcs) = unfold_func(tcs, id, clauses, elims)?;
                 simplify(tcs, term)
             }
             Decl::ClausePlaceholder => unreachable!(),
@@ -39,7 +39,7 @@ pub fn simplify(tcs: TCS, term: Term) -> ValTCM {
 }
 
 /// Build up a substitution and unfold the declaration.
-fn unfold_func(f: Ident, clauses: Vec<Clause>, mut elims: Vec<Elim>) -> TCM<Term> {
+fn unfold_func(tcs: TCS, f: Ident, clauses: Vec<Clause>, mut elims: Vec<Elim>) -> TCMS<Term> {
     for clause in clauses {
         let mut es = elims;
         let pat_len = clause.patterns.len();
@@ -50,7 +50,7 @@ fn unfold_func(f: Ident, clauses: Vec<Clause>, mut elims: Vec<Elim>) -> TCM<Term
                 let subst = build_subst(vs, pat_len);
                 let body = clause.body.expect(ERROR_MSG);
                 return if s.into() {
-                    Ok(body.reduce_dbi(subst).apply_elim(rest))
+                    Ok((body.reduce_dbi(subst).apply_elim(rest), tcs))
                 } else {
                     Err(TCE::CantSimplify(f))
                 };
