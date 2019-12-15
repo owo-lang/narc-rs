@@ -43,4 +43,11 @@ impl<T> Blocked<T> {
     pub fn is_meta(&self) -> Option<MI> {
         self.stuck.is_meta()
     }
+
+    pub fn new(stuck: Stuck, ignore_blocking: T) -> Self {
+        Self {
+            stuck,
+            ignore_blocking,
+        }
+    }
 }

@@ -1,8 +1,8 @@
 use voile_util::loc::Ident;
+use voile_util::uid::GI;
 
-use crate::check::monad::{ValTCM, TCE, TCM, TCMS, TCS};
-use crate::check::pats::{build_subst, match_copats, Match};
-use crate::check::rules::ERROR_MSG;
+use crate::check::monad::{ValTCM, TCE, TCM, TCS};
+use crate::check::pats::{build_subst, match_copats, Blocked, Match, RedM, Stuck};
 use crate::syntax::common::{ConHead, Ductive};
 use crate::syntax::core::subst::RedEx;
 use crate::syntax::core::{Clause, Decl, Elim, Term, Val};
@@ -30,8 +30,10 @@ pub fn simplify(tcs: TCS, term: Term) -> ValTCM {
                     .filter(|clause| !clause.is_absurd())
                     .cloned()
                     .collect();
-                let (term, tcs) = unfold_func(tcs, id, clauses, elims)?;
-                simplify(tcs, term)
+                match unfold_func(&tcs, def, id, clauses, elims) {
+                    Ok((_, term)) => simplify(tcs, term),
+                    Err(blockage) => unimplemented!(),
+                }
             }
             Decl::ClausePlaceholder => unreachable!(),
         },
@@ -39,12 +41,13 @@ pub fn simplify(tcs: TCS, term: Term) -> ValTCM {
 }
 
 /// Build up a substitution and unfold the declaration.
-fn unfold_func(
-    tcs: TCS,
+pub fn unfold_func(
+    tcs: &TCS,
+    def: GI,
     func_name: Ident,
     clauses: Vec<Clause>,
     mut elims: Vec<Elim>,
-) -> TCMS<Term> {
+) -> RedM<Term, Blocked<Term>> {
     for clause in clauses {
         let mut es = elims;
         let pat_len = clause.patterns.len();
@@ -54,12 +57,16 @@ fn unfold_func(
         match m {
             Match::Yes(s, vs) => {
                 let subst = build_subst(vs, pat_len);
-                let body = clause.body.expect(ERROR_MSG);
-                return if s.into() {
-                    Ok((body.reduce_dbi(subst).apply_elim(rest), tcs))
-                } else {
-                    Err(TCE::CantSimplify(func_name))
+                let body = match clause.body {
+                    None => {
+                        elims = es;
+                        elims.append(&mut rest);
+                        let blocked = Term::def(def, func_name, elims);
+                        return Err(Blocked::new(Stuck::AbsurdMatch, blocked));
+                    }
+                    Some(body) => body,
                 };
+                return Ok((s, body.reduce_dbi(subst).apply_elim(rest)));
             }
             // continue to next clause
             Match::No => {
@@ -68,7 +75,8 @@ fn unfold_func(
             }
         }
     }
-    Err(TCE::CantFindPattern(func_name))
+    let term = Term::def(def, func_name, elims);
+    Err(Blocked::new(Stuck::MissingClauses, term))
 }
 
 fn elims_to_terms(elims: Vec<Elim>) -> TCM<Vec<Term>> {
