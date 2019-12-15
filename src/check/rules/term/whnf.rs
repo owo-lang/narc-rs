@@ -53,7 +53,7 @@ pub fn unfold_func(
         let pat_len = clause.patterns.len();
         let mut rest = es.split_off(pat_len);
         let copats = clause.patterns.into_iter().zip(es.into_iter());
-        let (m, es) = match_copats(copats);
+        let (m, es) = match_copats(tcs, copats);
         match m {
             Match::Yes(s, vs) => {
                 let subst = build_subst(vs, pat_len);

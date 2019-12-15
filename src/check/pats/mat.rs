@@ -5,6 +5,7 @@ use std::rc::Rc;
 
 use voile_util::uid::DBI;
 
+use crate::check::monad::TCS;
 use crate::check::rules::ERROR_MSG;
 use crate::syntax::core::subst::Subst;
 use crate::syntax::core::{Elim, Term};
@@ -62,11 +63,14 @@ fn matched<T, H: BuildHasher>(mut map: HashMap<DBI, T, H>, max: usize) -> Vec<T>
         .collect()
 }
 
-pub fn match_copats(mut p: impl ExactSizeIterator<Item = (CoreCopat, Elim)>) -> (Match, Vec<Elim>) {
+pub fn match_copats(
+    tcs: &TCS,
+    mut p: impl ExactSizeIterator<Item = (CoreCopat, Elim)>,
+) -> (Match, Vec<Elim>) {
     let mut mat = Match::with_capacity(p.len());
     let mut elims = Vec::with_capacity(p.len());
     while let Some((copat, elim)) = p.next() {
-        let (m, e) = match_copat(copat, elim);
+        let (m, e) = match_copat(tcs, copat, elim);
         match m {
             Match::No if e.is_proj() => {
                 elims.push(e);
@@ -76,7 +80,7 @@ pub fn match_copats(mut p: impl ExactSizeIterator<Item = (CoreCopat, Elim)>) -> 
             Match::No => {
                 let copy = p.collect::<Vec<_>>();
                 let mut copied_elims = copy.iter().map(|(_, e)| e).cloned().collect();
-                let (m, _) = match_copats(copy.into_iter());
+                let (m, _) = match_copats(tcs, copy.into_iter());
                 mat = m;
                 elims.append(&mut copied_elims);
                 break;
@@ -95,7 +99,7 @@ pub fn match_copats(mut p: impl ExactSizeIterator<Item = (CoreCopat, Elim)>) -> 
     (mat, elims)
 }
 
-fn match_copat(p: CoreCopat, e: Elim) -> (Match, Elim) {
+fn match_copat(tcs: &TCS, p: CoreCopat, e: Elim) -> (Match, Elim) {
     match (p, e) {
         (Copat::Proj(s0), Elim::Proj(s1)) => {
             if s0 == s1 {
