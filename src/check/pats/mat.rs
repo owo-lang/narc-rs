@@ -29,7 +29,7 @@ impl Default for Match {
 }
 
 impl Add for Match {
-    type Output = Match;
+    type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
         match (self, rhs) {

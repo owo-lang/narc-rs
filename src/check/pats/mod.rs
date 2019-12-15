@@ -42,7 +42,7 @@ impl Default for Simpl {
 }
 
 impl std::ops::Add for Simpl {
-    type Output = Simpl;
+    type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
         match self {
