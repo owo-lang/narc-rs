@@ -39,12 +39,18 @@ pub fn simplify(tcs: TCS, term: Term) -> ValTCM {
 }
 
 /// Build up a substitution and unfold the declaration.
-fn unfold_func(tcs: TCS, f: Ident, clauses: Vec<Clause>, mut elims: Vec<Elim>) -> TCMS<Term> {
+fn unfold_func(
+    tcs: TCS,
+    func_name: Ident,
+    clauses: Vec<Clause>,
+    mut elims: Vec<Elim>,
+) -> TCMS<Term> {
     for clause in clauses {
         let mut es = elims;
         let pat_len = clause.patterns.len();
         let mut rest = es.split_off(pat_len);
-        let (m, es) = match_copats(clause.patterns.into_iter().zip(es.into_iter()));
+        let copats = clause.patterns.into_iter().zip(es.into_iter());
+        let (m, es) = match_copats(copats);
         match m {
             Match::Yes(s, vs) => {
                 let subst = build_subst(vs, pat_len);
@@ -52,7 +58,7 @@ fn unfold_func(tcs: TCS, f: Ident, clauses: Vec<Clause>, mut elims: Vec<Elim>) -
                 return if s.into() {
                     Ok((body.reduce_dbi(subst).apply_elim(rest), tcs))
                 } else {
-                    Err(TCE::CantSimplify(f))
+                    Err(TCE::CantSimplify(func_name))
                 };
             }
             // continue to next clause
@@ -62,7 +68,7 @@ fn unfold_func(tcs: TCS, f: Ident, clauses: Vec<Clause>, mut elims: Vec<Elim>) -
             }
         }
     }
-    Err(TCE::CantFindPattern(f))
+    Err(TCE::CantFindPattern(func_name))
 }
 
 fn elims_to_terms(elims: Vec<Elim>) -> TCM<Vec<Term>> {

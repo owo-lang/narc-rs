@@ -1,9 +1,10 @@
+use std::iter::repeat;
+
 use voile_util::meta::MetaContext;
 use voile_util::uid::{DBI, GI, UID};
 
 use crate::syntax::core::subst::{DeBruijn, RedEx, Subst};
 use crate::syntax::core::{Bind, Decl, Let, LetList, Tele, Term};
-use std::iter::repeat;
 
 /// Typing context.
 pub type Sigma = Vec<Decl>;

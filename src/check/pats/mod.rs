@@ -1,6 +1,9 @@
+pub use self::block::*;
 pub use self::core::*;
 pub use self::mat::*;
 
+/// Reduction blocking status
+mod block;
 mod core;
 /// Match patterns.
 mod mat;
@@ -48,3 +51,6 @@ impl std::ops::Add for Simpl {
         }
     }
 }
+
+/// Reduce Monad.
+pub type RedM<Ok, Err> = Result<(Simpl, Ok), Err>;
