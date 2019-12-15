@@ -65,7 +65,8 @@ impl Stuck {
 #[derive(Debug, Clone, Default)]
 pub struct Blocked<T> {
     pub stuck: Stuck,
-    pub ignore_blocking: T,
+    /// The thing blocked by `stuck`.
+    pub anyway: T,
 }
 
 impl Add for Blocked<()> {
@@ -81,10 +82,11 @@ impl<T> Blocked<T> {
         self.stuck.is_meta()
     }
 
-    pub fn new(stuck: Stuck, ignore_blocking: T) -> Self {
-        Self {
-            stuck,
-            ignore_blocking,
-        }
+    pub fn new(stuck: Stuck, anyway: T) -> Self {
+        Self { stuck, anyway }
+    }
+
+    pub fn map_anyway<R>(self, f: impl FnOnce(T) -> R) -> Blocked<R> {
+        Blocked::new(self.stuck, f(self.anyway))
     }
 }

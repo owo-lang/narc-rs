@@ -61,8 +61,8 @@ pub fn unfold_func(
                     None => {
                         elims = es;
                         elims.append(&mut rest);
-                        let blocked = Term::def(def, func_name, elims);
-                        return Err(Blocked::new(Stuck::AbsurdMatch, blocked));
+                        let term = Term::def(def, func_name, elims);
+                        return Err(Blocked::new(Stuck::AbsurdMatch, term));
                     }
                     Some(body) => body,
                 };
@@ -71,8 +71,7 @@ pub fn unfold_func(
             Match::Dunno(b) => {
                 elims = es;
                 elims.append(&mut rest);
-                let blocked = Term::def(def, func_name, elims);
-                return Err(Blocked::new(b.stuck, blocked));
+                return Err(b.map_anyway(|()| Term::def(def, func_name, elims)));
             }
             // continue to next clause
             Match::No => {

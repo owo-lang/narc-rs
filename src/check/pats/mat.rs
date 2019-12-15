@@ -81,6 +81,11 @@ pub fn match_copats(mut p: impl ExactSizeIterator<Item = (CoreCopat, Elim)>) -> 
                 elims.append(&mut copied_elims);
                 break;
             }
+            Match::Dunno(d) => {
+                mat = Match::Dunno(d);
+                elims.append(&mut p.map(|(_, e)| e).collect());
+                break;
+            }
             yes => {
                 mat = mat + yes;
                 elims.push(e);
