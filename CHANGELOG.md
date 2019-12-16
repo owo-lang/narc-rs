@@ -6,6 +6,11 @@
 + Functions of `Subst` are now `self`-based methods
 + Move `ConHead` to `syntax::common`
 + Move `syntax::core::pat` to `check::pats::core`
++ Implement `simplify` for simple pattern match
+  + Implement `check::pats::mat` for generating matches
+  + Implement `unfold_func`
++ Group imports into a `use` tree (`merge_imports` in rustfmt)
++ Add icon
 
 # 0.0.6
 

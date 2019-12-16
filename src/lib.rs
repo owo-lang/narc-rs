@@ -1,3 +1,6 @@
+#![doc(
+    html_logo_url = "https://raw.githubusercontent.com/owo-lang/narc-rs/master/rustdoc/icon.svg?sanitize=true"
+)]
 /*!
 Narc is a dependently-typed programming language with Agda
 style dependent pattern matching.

@@ -24,6 +24,8 @@ For language description, please head to the [docs.rs][doc-rs] page.
 
 ## Resources
 
+![](https://raw.githubusercontent.com/owo-lang/narc-rs/master/rustdoc/icon.svg?sanitize=true)
+
 + [Original Paper][paper] that Narc is based on
 + [Docs.rs][doc-rs] documentation
 + [IntelliJ Plugin][plugin], which can export your code as clickable HTML
