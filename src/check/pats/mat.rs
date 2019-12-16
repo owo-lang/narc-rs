@@ -35,6 +35,7 @@ impl Add for Match {
 
     fn add(self, rhs: Self) -> Self::Output {
         match (self, rhs) {
+            (Match::Dunno(a), Match::Dunno(b)) => Match::Dunno(a + b),
             (_, Match::Dunno(b)) | (Match::Dunno(b), _) => Match::Dunno(b),
             (o, Match::No) | (Match::No, o) => o,
             (Match::Yes(s0, mut m0), Match::Yes(s1, m1)) => {
@@ -92,11 +93,11 @@ pub fn match_copats(
             }
             Match::Dunno(d) => {
                 mat = Match::Dunno(d);
-                elims.append(&mut p.map(|(_, e)| e).collect());
+                elims.extend(p.map(|(_, e)| e));
                 break;
             }
-            yes => {
-                mat = mat + yes;
+            Match::Yes(a, b) => {
+                mat = mat + Match::Yes(a, b);
                 elims.push(e);
             }
         }

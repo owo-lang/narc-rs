@@ -49,7 +49,7 @@ impl From<CorePat> for Elim {
                     .collect(),
             )),
             // what?
-            Absurd => unimplemented!(),
+            Absurd => unreachable!(),
         }
     }
 }
