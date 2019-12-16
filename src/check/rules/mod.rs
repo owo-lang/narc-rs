@@ -1,4 +1,7 @@
-pub use self::{decls::*, term::simplify};
+pub use self::{
+    decls::*,
+    term::{check, infer, simplify},
+};
 
 pub const ERROR_MSG: &str = "Please report this as a bug.";
 

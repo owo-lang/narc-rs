@@ -23,16 +23,17 @@ fn bind_as_and_tele<T>(
     mut tele: Tele,
     f: impl FnOnce(TCS) -> TCMS<T>,
 ) -> TCMS<T> {
+    use std::mem::swap;
     if tcs.lets.len() < as_binds.len() {
         tcs.lets.reserve(as_binds.len() - tcs.lets.len());
     }
     for bind in as_binds {
         tcs.lets.push(bind.into());
     }
-    std::mem::swap(&mut tcs.gamma, &mut tele);
+    swap(&mut tcs.gamma, &mut tele);
     let (thing, mut tcs) = f(tcs)?;
     tcs.lets.clear();
-    std::mem::swap(&mut tcs.gamma, &mut tele);
+    swap(&mut tcs.gamma, &mut tele);
     Ok((thing, tcs))
 }
 
