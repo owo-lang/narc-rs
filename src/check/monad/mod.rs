@@ -1,3 +1,4 @@
+use crate::syntax::abs::desugar::DesugarState;
 use crate::syntax::core::{Tele, TermInfo, Val};
 
 pub use self::error::*;
@@ -25,6 +26,13 @@ impl TCS {
         let mut tele_recover = tcs.gamma.split_off(gamma_init_len);
         tele.append(&mut tele_recover);
         Ok((res, tcs))
+    }
+
+    pub fn considerate_of(desugar: &DesugarState) -> Self {
+        let mut tcs = TCS::default();
+        tcs.meta_context.expand_with_fresh_meta(desugar.meta_count);
+        tcs.reserve_local_variables(desugar.decls.len());
+        tcs
     }
 }
 

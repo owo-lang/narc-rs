@@ -31,12 +31,9 @@ fn main_file(args: CliOptions) -> Option<(TCS, DesugarState)> {
     });
 
     // Type check
-    let mut tcs = TCS::default();
-    tcs.meta_context
-        .expand_with_fresh_meta(abs_decls.meta_count);
+    let mut tcs = TCS::considerate_of(&abs_decls);
     tcs.indentation_size(indentation);
     tcs.trace_tc = args.trace;
-    tcs.reserve_local_variables(abs_decls.decls.len());
     let checked = check_decls(tcs, abs_decls.decls.clone()).unwrap_or_else(|err| {
         eprintln!("{}", err);
         eprintln!("\u{1F528}");
