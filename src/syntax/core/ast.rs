@@ -6,9 +6,11 @@ use voile_util::{
     uid::{DBI, GI, UID},
 };
 
-use crate::syntax::common::{self, ConHead};
-
-use super::subst::{RedEx, Subst};
+use crate::syntax::{
+    common,
+    common::ConHead,
+    core::subst::{RedEx, Subst},
+};
 
 /// Weak-head-normal-form terms, canonical values.
 #[derive(Debug, PartialEq, Eq, Clone)]

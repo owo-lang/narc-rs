@@ -8,10 +8,8 @@ use voile_util::{
 
 use crate::syntax::{
     common::ConHead,
-    core::{Bind, Tele},
+    core::{Bind, Closure, Elim, Tele, Term, Val},
 };
-
-use super::{Closure, Elim, Term, Val};
 
 pub const TYPE_OMEGA: Val = Val::Type(Level::Omega);
 

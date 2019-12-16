@@ -1,5 +1,6 @@
-use super::super::{Elim, Term, Val};
 use voile_util::{loc::Ident, uid::GI};
+
+use crate::syntax::core::{Elim, Term, Val};
 
 impl Term {
     /// Use `Term` instead of `Self` to emphasize that it's not `Elim`.

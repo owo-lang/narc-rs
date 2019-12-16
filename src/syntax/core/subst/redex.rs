@@ -4,12 +4,11 @@ use voile_util::{meta::MetaSolution, uid::DBI};
 
 use crate::syntax::{
     common::{Bind, Let},
+    core::{
+        subst::{def_app, PrimSubst, Subst},
+        Closure, Elim, Term, Val,
+    },
     pat::{Copat, Pat},
-};
-
-use super::{
-    super::{Closure, Elim, Term, Val},
-    def_app, PrimSubst, Subst,
 };
 
 /// Reducible expressions.

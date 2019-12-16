@@ -4,14 +4,15 @@ use voile_util::{
 };
 
 use crate::{
-    check::monad::{TCE, TCM, TCS},
+    check::{
+        monad::{TCE, TCM, TCS},
+        rules::term::simplify,
+    },
     syntax::core::{
         subst::{RedEx, Subst},
         Closure, Elim, FoldVal, Term, Val,
     },
 };
-
-use super::simplify;
 
 fn check_solution(meta: MI, rhs: &Val) -> TCM<()> {
     rhs.try_fold_val((), |(), v| match v {

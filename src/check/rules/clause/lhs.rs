@@ -1,11 +1,15 @@
 use std::{convert::TryFrom, rc::Rc};
-
 use voile_util::uid::{DBI, UID};
 
 use crate::{
     check::{
         monad::{TCE, TCMS, TCS},
         pats::CoreCopat,
+        rules::{
+            clause::{classify_eqs, AsBind, LhsState, PatVars},
+            term::is_eta_var_borrow,
+            ERROR_MSG,
+        },
     },
     syntax::{
         core::{
@@ -14,11 +18,6 @@ use crate::{
         },
         pat::{Copat, Pat, PatCommon},
     },
-};
-
-use super::{
-    super::{term::is_eta_var_borrow, ERROR_MSG},
-    classify_eqs, AsBind, LhsState, PatVars,
 };
 
 /// Result of checking the LHS of a clause.

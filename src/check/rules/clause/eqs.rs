@@ -6,15 +6,16 @@ use voile_util::{
 };
 
 use crate::{
-    check::monad::{TCMS, TCS},
+    check::{
+        monad::{TCMS, TCS},
+        rules::term::is_eta_var_borrow,
+    },
     syntax::{
         abs::AbsCopat,
         core::{Bind, Let, Term},
         pat::{Copat, Pat, PatCommon},
     },
 };
-
-use super::super::term::is_eta_var_borrow;
 
 /// A user pattern and a core term that they should equal
 /// after splitting is complete.

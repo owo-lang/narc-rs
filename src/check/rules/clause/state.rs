@@ -1,15 +1,13 @@
 use voile_util::uid::DBI;
 
 use crate::{
-    check::{monad::TCM, pats::CoreCopat},
+    check::{monad::TCM, pats::CoreCopat, rules::clause::Equation},
     syntax::{
         abs::AbsCopat,
         core::{subst::DeBruijn, Tele, Term},
         pat::PatCommon,
     },
 };
-
-use super::Equation;
 
 #[derive(Debug, Clone)]
 pub(super) struct Problem {

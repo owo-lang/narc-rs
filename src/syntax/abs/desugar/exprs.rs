@@ -1,11 +1,12 @@
 use voile_util::loc::ToLoc;
 
 use crate::syntax::{
-    abs::{Abs, AbsDecl},
+    abs::{
+        desugar::{desugar_params, DesugarErr, DesugarM, DesugarState},
+        Abs, AbsDecl,
+    },
     surf::Expr,
 };
-
-use super::{desugar_params, DesugarErr, DesugarM, DesugarState};
 
 pub fn desugar_expr(state: DesugarState, expr: Expr) -> DesugarM<(Abs, DesugarState)> {
     match expr {

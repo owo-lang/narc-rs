@@ -3,9 +3,10 @@ use std::fmt::{Display, Error, Formatter};
 use voile_util::tags::{Plicit, VarRec};
 use Plicit::{Ex as Explicit, Im as Implicit};
 
-use crate::syntax::{common::ConHead, core::Bind};
-
-use super::{Closure, Elim, Term, TermInfo, Val};
+use crate::syntax::{
+    common::ConHead,
+    core::{Bind, Closure, Elim, Term, TermInfo, Val},
+};
 
 impl Display for Elim {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {

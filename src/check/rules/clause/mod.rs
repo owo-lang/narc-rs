@@ -1,14 +1,16 @@
 use crate::{
-    check::monad::{TCMS, TCS},
+    check::{
+        monad::{TCMS, TCS},
+        rules::{
+            clause::{eqs::*, lhs::*, state::*},
+            term::{check, simplify, HasMeta},
+        },
+    },
     syntax::{
         abs::AbsClause,
         core::{Clause, Tele, Term},
     },
 };
-
-use super::term::{check, simplify, HasMeta};
-
-use self::{eqs::*, lhs::*, state::*};
 
 mod eqs;
 mod lhs;

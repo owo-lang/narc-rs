@@ -1,4 +1,4 @@
-use super::{parse_expr_err_printed, parse_str_err_printed};
+use crate::syntax::surf::{parse_expr_err_printed, parse_str_err_printed};
 
 macro_rules! success {
     ($str:literal) => {

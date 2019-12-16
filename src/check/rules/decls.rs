@@ -7,6 +7,7 @@ use crate::{
             clause::clause,
             data::check_data,
             term::{check, HasMeta},
+            ERROR_MSG,
         },
     },
     syntax::{
@@ -14,8 +15,6 @@ use crate::{
         core::{Decl, FuncInfo, TYPE_OMEGA},
     },
 };
-
-use super::ERROR_MSG;
 
 pub fn check_decls(mut tcs: TCS, decls: Vec<AbsDecl>) -> TCM {
     let mut decls = decls.into_iter().map(Some).collect::<Vec<_>>();

@@ -8,14 +8,15 @@ use voile_util::{
 };
 
 use crate::{
-    check::monad::{TCE, TCM, TCS},
+    check::{
+        monad::{TCE, TCM, TCS},
+        rules::term::{check, whnf::simplify},
+    },
     syntax::{
         abs::Abs,
         core::{subst::DeBruijn, Bind, CodataInfo, DataInfo, Decl, Elim, Term, TermInfo, Val},
     },
 };
-
-use super::{check, whnf::simplify};
 
 type InferTCM = TCM<(TermInfo, Term, TCS)>;
 

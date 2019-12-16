@@ -1,4 +1,4 @@
-use super::*;
+use crate::syntax::core::*;
 
 macro_rules! simple_to_loc {
     ($name:ident) => {

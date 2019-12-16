@@ -1,6 +1,6 @@
 use voile_util::uid::{next_uid, UID};
 
-use super::common::ConHead;
+use crate::syntax::common::ConHead;
 
 /// Patterns.
 #[derive(Debug, PartialEq, Eq, Clone)]

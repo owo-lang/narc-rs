@@ -6,6 +6,7 @@ use voile_util::{
 
 use crate::syntax::{
     abs::{
+        desugar::{desugar_expr, DesugarErr, DesugarM, DesugarState},
         Abs, AbsClause, AbsCodataInfo, AbsConsInfo, AbsDataInfo, AbsDecl, AbsDefnInfo, AbsPat,
         AbsProjInfo, AbsTele, Bind,
     },
@@ -13,8 +14,6 @@ use crate::syntax::{
     pat::{Copat, Pat},
     surf::{Expr, ExprCopat, ExprDecl, ExprPat, NamedTele, Param},
 };
-
-use super::{desugar_expr, DesugarErr, DesugarM, DesugarState};
 
 type DeclM<T> = DesugarM<(T, DesugarState)>;
 

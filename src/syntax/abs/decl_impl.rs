@@ -1,6 +1,6 @@
 use voile_util::{level::Level, loc::*, uid::GI};
 
-use super::*;
+use crate::syntax::abs::*;
 
 impl AbsConsInfo {
     pub fn new(source: Loc, name: Ident, tele: AbsTele, data_index: GI) -> Self {

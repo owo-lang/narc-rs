@@ -5,9 +5,7 @@ use voile_util::{
     uid::{GI, UID},
 };
 
-use crate::syntax::abs::AbsDecl;
-
-use super::DesugarErr;
+use crate::syntax::abs::{desugar::DesugarErr, AbsDecl};
 
 /// Desugar Monad.
 pub type DesugarM<State = DesugarState> = Result<State, DesugarErr>;

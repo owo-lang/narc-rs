@@ -2,9 +2,7 @@ use std::rc::Rc;
 
 use voile_util::uid::DBI;
 
-use crate::syntax::core::{Elim, Term, Val};
-
-use super::PrimSubst;
+use crate::syntax::core::{subst::PrimSubst, Elim, Term, Val};
 
 pub trait DeBruijn {
     /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.DeBruijn.html#deBruijnView).

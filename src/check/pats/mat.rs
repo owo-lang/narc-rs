@@ -3,14 +3,16 @@ use std::{collections::HashMap, hash::BuildHasher, iter::once, ops::Add, rc::Rc}
 use voile_util::uid::DBI;
 
 use crate::{
-    check::{monad::TCS, rules::ERROR_MSG},
+    check::{
+        monad::TCS,
+        pats::{Blocked, CoreCopat, CorePat, Simpl},
+        rules::ERROR_MSG,
+    },
     syntax::{
         core::{subst::Subst, Elim, Term},
         pat::{Copat, Pat},
     },
 };
-
-use super::{Blocked, CoreCopat, CorePat, Simpl};
 
 /// If matching is inconclusive ([`Dunno`](self::Match::Dunno)) we want to know whether
 /// it is due to a particular meta variable.

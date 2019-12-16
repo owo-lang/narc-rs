@@ -1,8 +1,9 @@
 use voile_util::{level::Level, loc::*, uid::GI};
 
-use crate::check::pats::CoreCopat;
-
-use super::{Tele, Term};
+use crate::{
+    check::pats::CoreCopat,
+    syntax::core::{Tele, Term},
+};
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct CodataInfo {

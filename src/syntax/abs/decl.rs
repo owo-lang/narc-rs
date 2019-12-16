@@ -4,7 +4,7 @@ use voile_util::{
     uid::GI,
 };
 
-use super::{Abs, AbsCopat, AbsTele};
+use crate::syntax::abs::{Abs, AbsCopat, AbsTele};
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct AbsConsInfo {
