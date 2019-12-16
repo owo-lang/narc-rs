@@ -1,3 +1,4 @@
+use std::fmt::{Display, Error, Formatter};
 use std::ops::Add;
 
 use voile_util::meta::MI;
@@ -51,6 +52,19 @@ impl Add for Stuck {
     }
 }
 
+impl Display for Stuck {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        match self {
+            Stuck::OnMeta(MI(m)) => write!(f, "blocked by meta {:?}", m),
+            Stuck::OnElim(e) => write!(f, "blocked on argument `{}`", e),
+            Stuck::UnderApplied => write!(f, "missing necessary arguments"),
+            Stuck::AbsurdMatch => write!(f, "trying to instantiate an absurd match"),
+            Stuck::MissingClauses => write!(f, "cannot find a suitable clause"),
+            Stuck::NotBlocked => write!(f, "not blocked by anything, you may have found a bug"),
+        }
+    }
+}
+
 impl Stuck {
     pub fn is_meta(&self) -> Option<MI> {
         match self {
@@ -88,5 +102,11 @@ impl<T> Blocked<T> {
 
     pub fn map_anyway<R>(self, f: impl FnOnce(T) -> R) -> Blocked<R> {
         Blocked::new(self.stuck, f(self.anyway))
+    }
+}
+
+impl<T: Display> Display for Blocked<T> {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        write!(f, "I'm not sure if I should give `{}` because I'm {}.", self.anyway, self.stuck)
     }
 }

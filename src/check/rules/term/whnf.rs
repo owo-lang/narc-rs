@@ -32,7 +32,7 @@ pub fn simplify(tcs: TCS, term: Term) -> ValTCM {
                     .collect();
                 match unfold_func(&tcs, def, id, clauses, elims) {
                     Ok((_, term)) => simplify(tcs, term),
-                    Err(blockage) => unimplemented!(),
+                    Err(blockage) => Err(TCE::Blocked(blockage)),
                 }
             }
             Decl::ClausePlaceholder => unreachable!(),

@@ -78,6 +78,10 @@ pub fn match_copats(
                 break;
             }
             Match::No => {
+                // Agda#2964: Even when the first pattern doesn't match we should
+                // continue to the next patterns (and potentially block on them)
+                // because the splitting order in the case tree may not be
+                // left-to-right.
                 let copy = p.collect::<Vec<_>>();
                 let mut copied_elims = copy.iter().map(|(_, e)| e).cloned().collect();
                 let (m, _) = match_copats(tcs, copy.into_iter());

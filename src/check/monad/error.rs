@@ -4,6 +4,7 @@ use voile_util::level::Level;
 use voile_util::loc::{Ident, Loc, ToLoc};
 use voile_util::meta::MI;
 
+use crate::check::pats::Blocked;
 use crate::syntax::abs::Abs;
 use crate::syntax::core::{Elim, Term};
 
@@ -22,10 +23,6 @@ pub enum TCE {
     // === Split* === //
     SplitOnNonVar(Box<Term>, Box<Term>),
 
-    // === Cant* === //
-    CantFindPattern(Ident),
-    CantSimplify(Ident),
-
     // === Meta* === //
     MetaRecursion(MI),
     MetaUnsolved(MI),
@@ -36,6 +33,9 @@ pub enum TCE {
     DifferentTerm(Box<Term>, Box<Term>),
     DifferentElim(Box<Elim>, Box<Elim>),
     DifferentName(Ident, Ident),
+
+    // === Misc === //
+    Blocked(Blocked<Term>),
 }
 
 impl TCE {
@@ -74,8 +74,6 @@ impl Display for TCE {
             TCE::SplitOnNonVar(term, ty) => {
                 write!(f, "Splitting on non variable `{}` (of type `{}`)", term, ty)
             }
-            TCE::CantFindPattern(call) => write!(f, "Didn't find a matchable pattern for `{}` (at {})", call.text, call.loc),
-            TCE::CantSimplify(call) => write!(f, "Can't simplify a call to `{}` (at {})", call.text, call.loc),
             TCE::MetaRecursion(mi) => write!(f, "Trying to solve a recursive meta of index {}.", mi),
             TCE::MetaUnsolved(mi) => write!(f, "Unsolved meta of index {}.", mi),
             TCE::DifferentLevel(expr, expected_to_be_small, big) => write!(
@@ -95,6 +93,7 @@ impl Display for TCE {
                 "`{}` (at {}) and `{}` (at {}) are different (conversion check is not structural in Narc).",
                 a.text, a.loc, b.text, b.loc
             ),
+            TCE::Blocked(b) => b.fmt(f),
         }
     }
 }
