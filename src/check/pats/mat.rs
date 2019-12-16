@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::hash::BuildHasher;
+use std::iter::once;
 use std::ops::Add;
 use std::rc::Rc;
 
@@ -9,9 +10,9 @@ use crate::check::monad::TCS;
 use crate::check::rules::ERROR_MSG;
 use crate::syntax::core::subst::Subst;
 use crate::syntax::core::{Elim, Term};
-use crate::syntax::pat::Copat;
+use crate::syntax::pat::{Copat, Pat};
 
-use super::{Blocked, CoreCopat, Simpl};
+use super::{Blocked, CoreCopat, CorePat, Simpl};
 
 /// If matching is inconclusive ([`Dunno`](self::Match::Dunno)) we want to know whether
 /// it is due to a particular meta variable.
@@ -114,6 +115,18 @@ fn match_copat(tcs: &TCS, p: CoreCopat, e: Elim) -> (Match, Elim) {
         }
         (Copat::Proj(..), Elim::App(a)) => (Match::No, Elim::App(a)),
         (Copat::App(..), Elim::Proj(s)) => (Match::No, Elim::Proj(s)),
-        (Copat::App(a0), Elim::App(a1)) => unimplemented!(),
+        (Copat::App(p), Elim::App(t)) => {
+            let (m, t) = match_pat(tcs, p, *t);
+            (m, Elim::app(t))
+        }
+    }
+}
+
+fn match_pat(tcs: &TCS, p: CorePat, t: Term) -> (Match, Term) {
+    match (p, t) {
+        (Pat::Var(i), t) => (Match::Yes(Simpl::No, once((i, t.clone())).collect()), t),
+        (Pat::Forced(_), t) => (Match::Yes(Simpl::No, Default::default()), t),
+        (Pat::Absurd, _) => unreachable!(),
+        _ => unimplemented!(),
     }
 }
