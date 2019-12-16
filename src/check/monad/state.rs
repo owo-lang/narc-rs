@@ -68,6 +68,13 @@ impl TCS {
         &self.sigma[ix.0]
     }
 
+    #[cfg(test)]
+    pub fn take_sigma(&mut self, ix: GI) -> Decl {
+        let mut placeholder = Decl::ClausePlaceholder;
+        std::mem::swap(&mut placeholder, self.mut_def(ix));
+        placeholder
+    }
+
     pub fn local(&self, ix: DBI) -> &Bind {
         let len = self.gamma.len();
         &self.gamma[len - ix.0 - 1]
