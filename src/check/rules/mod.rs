@@ -1,4 +1,5 @@
 pub use self::decls::*;
+pub use self::term::simplify;
 
 pub const ERROR_MSG: &str = "Please report this as a bug.";
 

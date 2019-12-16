@@ -54,3 +54,6 @@ impl std::ops::Add for Simpl {
 
 /// Reduce Monad.
 pub type RedM<Ok, Err> = Result<(Simpl, Ok), Err>;
+
+#[cfg(test)]
+mod tests;

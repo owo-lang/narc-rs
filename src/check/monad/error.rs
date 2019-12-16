@@ -9,6 +9,7 @@ use crate::syntax::abs::Abs;
 use crate::syntax::core::{Elim, Term};
 
 /// Type-Checking Error.
+#[derive(Debug)]
 pub enum TCE {
     Textual(String),
     Wrapped(Box<Self>, Loc),
