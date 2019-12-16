@@ -1,5 +1,7 @@
 # Change Log
 
+# 0.0.8
+
 # 0.0.7
 
 + The implementations of `Subst` is no longer bound to `Term`
