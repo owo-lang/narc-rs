@@ -1,13 +1,18 @@
-use std::collections::HashMap;
-use std::ops::Add;
+use std::{collections::HashMap, ops::Add};
 
-use voile_util::tags::Plicit;
-use voile_util::uid::{DBI, UID};
+use voile_util::{
+    tags::Plicit,
+    uid::{DBI, UID},
+};
 
-use crate::check::monad::{TCMS, TCS};
-use crate::syntax::abs::AbsCopat;
-use crate::syntax::core::{Bind, Let, Term};
-use crate::syntax::pat::{Copat, Pat, PatCommon};
+use crate::{
+    check::monad::{TCMS, TCS},
+    syntax::{
+        abs::AbsCopat,
+        core::{Bind, Let, Term},
+        pat::{Copat, Pat, PatCommon},
+    },
+};
 
 use super::super::term::is_eta_var_borrow;
 

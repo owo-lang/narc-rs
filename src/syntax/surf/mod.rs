@@ -1,5 +1,4 @@
-pub use self::ast::*;
-pub use self::parse::*;
+pub use self::{ast::*, parse::*};
 
 /// Surface syntax tree.
 mod ast;

@@ -1,7 +1,4 @@
-pub use self::apply::*;
-pub use self::dbi::*;
-pub use self::prim::*;
-pub use self::redex::*;
+pub use self::{apply::*, dbi::*, prim::*, redex::*};
 
 pub type Subst = PrimSubst<crate::syntax::core::Term>;
 

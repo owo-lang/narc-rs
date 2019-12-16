@@ -1,8 +1,9 @@
-use crate::syntax::abs::desugar::DesugarState;
-use crate::syntax::core::{Tele, TermInfo, Val};
+use crate::syntax::{
+    abs::desugar::DesugarState,
+    core::{Tele, TermInfo, Val},
+};
 
-pub use self::error::*;
-pub use self::state::*;
+pub use self::{error::*, state::*};
 
 /// `Control.Monad.Except`, as type-checking error.
 mod error;

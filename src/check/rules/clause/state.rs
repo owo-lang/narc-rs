@@ -1,11 +1,13 @@
 use voile_util::uid::DBI;
 
-use crate::check::monad::TCM;
-use crate::check::pats::CoreCopat;
-use crate::syntax::abs::AbsCopat;
-use crate::syntax::core::subst::DeBruijn;
-use crate::syntax::core::{Tele, Term};
-use crate::syntax::pat::PatCommon;
+use crate::{
+    check::{monad::TCM, pats::CoreCopat},
+    syntax::{
+        abs::AbsCopat,
+        core::{subst::DeBruijn, Tele, Term},
+        pat::PatCommon,
+    },
+};
 
 use super::Equation;
 

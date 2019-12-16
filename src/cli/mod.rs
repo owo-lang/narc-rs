@@ -1,6 +1,7 @@
-use nar::check::monad::TCS;
-use nar::check::rules::check_decls;
-use nar::syntax::abs::desugar::{desugar_main, DesugarState};
+use nar::{
+    check::{monad::TCS, rules::check_decls},
+    syntax::abs::desugar::{desugar_main, DesugarState},
+};
 
 use crate::args::CliOptions;
 

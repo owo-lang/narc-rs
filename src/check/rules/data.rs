@@ -1,7 +1,13 @@
-use crate::check::monad::{TCM, TCS};
-use crate::check::rules::term::check;
-use crate::syntax::abs::{AbsConsInfo, AbsDataInfo, AbsTele};
-use crate::syntax::core::{ConsInfo, DataInfo, Decl, Val};
+use crate::{
+    check::{
+        monad::{TCM, TCS},
+        rules::term::check,
+    },
+    syntax::{
+        abs::{AbsConsInfo, AbsDataInfo, AbsTele},
+        core::{ConsInfo, DataInfo, Decl, Val},
+    },
+};
 
 /// The checked tele is put into the returned `tcs.gamma`.
 pub fn check_tele(mut tcs: TCS, tele: AbsTele, ty: &Val) -> TCM {

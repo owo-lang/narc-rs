@@ -1,11 +1,19 @@
 use voile_util::uid::GI;
 
-use crate::check::monad::{TCM, TCS};
-use crate::check::rules::clause::clause;
-use crate::check::rules::data::check_data;
-use crate::check::rules::term::{check, HasMeta};
-use crate::syntax::abs::AbsDecl;
-use crate::syntax::core::{Decl, FuncInfo, TYPE_OMEGA};
+use crate::{
+    check::{
+        monad::{TCM, TCS},
+        rules::{
+            clause::clause,
+            data::check_data,
+            term::{check, HasMeta},
+        },
+    },
+    syntax::{
+        abs::AbsDecl,
+        core::{Decl, FuncInfo, TYPE_OMEGA},
+    },
+};
 
 use super::ERROR_MSG;
 

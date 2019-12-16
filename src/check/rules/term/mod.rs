@@ -1,14 +1,19 @@
-use voile_util::loc::ToLoc;
-use voile_util::uid::DBI;
+use voile_util::{loc::ToLoc, uid::DBI};
 
-use crate::check::monad::{TermTCM, TCE, TCMS, TCS};
-use crate::syntax::abs::Abs;
-use crate::syntax::core::{Bind, Closure, Term, Val};
+use crate::{
+    check::monad::{TermTCM, TCE, TCMS, TCS},
+    syntax::{
+        abs::Abs,
+        core::{Bind, Closure, Term, Val},
+    },
+};
 
-pub use self::infer::{infer, type_of_decl};
-pub use self::meta::HasMeta;
-pub use self::unify::subtype;
-pub use self::whnf::simplify;
+pub use self::{
+    infer::{infer, type_of_decl},
+    meta::HasMeta,
+    unify::subtype,
+    whnf::simplify,
+};
 
 /// Synthesize the type and its well-typed form from an abstract term.
 mod infer;

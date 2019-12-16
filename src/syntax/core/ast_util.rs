@@ -1,11 +1,15 @@
-use voile_util::level::Level;
-use voile_util::loc::Ident;
-use voile_util::meta::MI;
-use voile_util::tags::{Plicit, VarRec};
-use voile_util::uid::*;
+use voile_util::{
+    level::Level,
+    loc::Ident,
+    meta::MI,
+    tags::{Plicit, VarRec},
+    uid::*,
+};
 
-use crate::syntax::common::ConHead;
-use crate::syntax::core::{Bind, Tele};
+use crate::syntax::{
+    common::ConHead,
+    core::{Bind, Tele},
+};
 
 use super::{Closure, Elim, Term, Val};
 

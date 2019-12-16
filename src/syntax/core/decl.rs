@@ -1,6 +1,4 @@
-use voile_util::level::Level;
-use voile_util::loc::*;
-use voile_util::uid::GI;
+use voile_util::{level::Level, loc::*, uid::GI};
 
 use crate::check::pats::CoreCopat;
 

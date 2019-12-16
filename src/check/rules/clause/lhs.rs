@@ -1,17 +1,25 @@
-use std::convert::TryFrom;
-use std::rc::Rc;
+use std::{convert::TryFrom, rc::Rc};
 
 use voile_util::uid::{DBI, UID};
 
-use crate::check::monad::{TCE, TCMS, TCS};
-use crate::check::pats::CoreCopat;
-use crate::syntax::core::subst::{DeBruijn, RedEx, Subst};
-use crate::syntax::core::{Tele, TeleS, Term};
-use crate::syntax::pat::{Copat, Pat, PatCommon};
+use crate::{
+    check::{
+        monad::{TCE, TCMS, TCS},
+        pats::CoreCopat,
+    },
+    syntax::{
+        core::{
+            subst::{DeBruijn, RedEx, Subst},
+            Tele, TeleS, Term,
+        },
+        pat::{Copat, Pat, PatCommon},
+    },
+};
 
-use super::super::term::is_eta_var_borrow;
-use super::super::ERROR_MSG;
-use super::{classify_eqs, AsBind, LhsState, PatVars};
+use super::{
+    super::{term::is_eta_var_borrow, ERROR_MSG},
+    classify_eqs, AsBind, LhsState, PatVars,
+};
 
 /// Result of checking the LHS of a clause.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.LHS.html#LHSResult).

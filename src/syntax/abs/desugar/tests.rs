@@ -1,10 +1,13 @@
-use voile_util::meta::MI;
-use voile_util::uid::{GI, UID};
+use voile_util::{
+    meta::MI,
+    uid::{GI, UID},
+};
 
-use crate::syntax::abs::desugar::desugar_main;
-use crate::syntax::abs::*;
-use crate::syntax::pat::{Copat, Pat};
-use crate::syntax::surf::parse_str;
+use crate::syntax::{
+    abs::{desugar::desugar_main, *},
+    pat::{Copat, Pat},
+    surf::parse_str,
+};
 
 macro_rules! make_expect_decl {
     ($name:ident, $pat:ident, $ret:ty) => {

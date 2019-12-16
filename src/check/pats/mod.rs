@@ -1,6 +1,4 @@
-pub use self::block::*;
-pub use self::core::*;
-pub use self::mat::*;
+pub use self::{block::*, core::*, mat::*};
 
 /// Reduction blocking status
 mod block;

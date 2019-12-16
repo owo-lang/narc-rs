@@ -2,9 +2,10 @@ use std::convert::TryFrom;
 
 use voile_util::uid::DBI;
 
-use crate::syntax::core::subst::DeBruijn;
-use crate::syntax::core::{Elim, Term};
-use crate::syntax::pat;
+use crate::syntax::{
+    core::{subst::DeBruijn, Elim, Term},
+    pat,
+};
 
 pub type CoreCopat = pat::Copat<DBI, Term>;
 pub type CorePat = pat::Pat<DBI, Term>;

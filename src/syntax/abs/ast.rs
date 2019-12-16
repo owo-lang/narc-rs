@@ -1,11 +1,12 @@
-use voile_util::level::Level;
-use voile_util::loc::{Ident, Loc, ToLoc};
-use voile_util::meta::MI;
-use voile_util::uid::{GI, UID};
-use voile_util::vec1::Vec1;
+use voile_util::{
+    level::Level,
+    loc::{Ident, Loc, ToLoc},
+    meta::MI,
+    uid::{GI, UID},
+    vec1::Vec1,
+};
 
-use crate::syntax::common;
-use crate::syntax::pat::*;
+use crate::syntax::{common, pat::*};
 
 /// The abstract syntax.
 #[derive(Debug, PartialEq, Eq, Clone)]

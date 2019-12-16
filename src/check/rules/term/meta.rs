@@ -1,9 +1,15 @@
 use voile_util::meta::{MetaSolution, MI};
 
-use crate::check::monad::{TCE, TCMS, TCS};
-use crate::check::rules::term::simplify;
-use crate::syntax::common::Bind;
-use crate::syntax::core::{Closure, Elim, Term, Val};
+use crate::{
+    check::{
+        monad::{TCE, TCMS, TCS},
+        rules::term::simplify,
+    },
+    syntax::{
+        common::Bind,
+        core::{Closure, Elim, Term, Val},
+    },
+};
 
 /// Somehow like
 /// [this](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Reduce.html#Instantiate)

@@ -1,7 +1,9 @@
 use voile_util::loc::ToLoc;
 
-use crate::syntax::abs::{Abs, AbsDecl};
-use crate::syntax::surf::Expr;
+use crate::syntax::{
+    abs::{Abs, AbsDecl},
+    surf::Expr,
+};
 
 use super::{desugar_params, DesugarErr, DesugarM, DesugarState};
 

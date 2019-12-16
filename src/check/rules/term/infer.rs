@@ -1,17 +1,21 @@
 use std::iter::once;
 
 use either::Either::{Left, Right};
-use voile_util::loc::*;
-use voile_util::tags::{Plicit, VarRec};
-use voile_util::uid::{next_uid, DBI, GI};
+use voile_util::{
+    loc::*,
+    tags::{Plicit, VarRec},
+    uid::{next_uid, DBI, GI},
+};
 
-use crate::check::monad::{TCE, TCM, TCS};
-use crate::syntax::abs::Abs;
-use crate::syntax::core::subst::DeBruijn;
-use crate::syntax::core::{Bind, CodataInfo, DataInfo, Decl, Elim, Term, TermInfo, Val};
+use crate::{
+    check::monad::{TCE, TCM, TCS},
+    syntax::{
+        abs::Abs,
+        core::{subst::DeBruijn, Bind, CodataInfo, DataInfo, Decl, Elim, Term, TermInfo, Val},
+    },
+};
 
-use super::check;
-use super::whnf::simplify;
+use super::{check, whnf::simplify};
 
 type InferTCM = TCM<(TermInfo, Term, TCS)>;
 

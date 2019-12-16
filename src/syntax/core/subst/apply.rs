@@ -1,6 +1,5 @@
 use super::super::{Elim, Term, Val};
-use voile_util::loc::Ident;
-use voile_util::uid::GI;
+use voile_util::{loc::Ident, uid::GI};
 
 impl Term {
     /// Use `Term` instead of `Self` to emphasize that it's not `Elim`.

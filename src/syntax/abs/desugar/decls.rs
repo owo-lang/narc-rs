@@ -1,14 +1,18 @@
-use voile_util::loc::{Ident, ToLoc};
-use voile_util::tags::Plicit;
-use voile_util::uid::{next_uid, GI};
-
-use crate::syntax::abs::{
-    Abs, AbsClause, AbsCodataInfo, AbsConsInfo, AbsDataInfo, AbsDecl, AbsDefnInfo, AbsPat,
-    AbsProjInfo, AbsTele, Bind,
+use voile_util::{
+    loc::{Ident, ToLoc},
+    tags::Plicit,
+    uid::{next_uid, GI},
 };
-use crate::syntax::common::Ductive;
-use crate::syntax::pat::{Copat, Pat};
-use crate::syntax::surf::{Expr, ExprCopat, ExprDecl, ExprPat, NamedTele, Param};
+
+use crate::syntax::{
+    abs::{
+        Abs, AbsClause, AbsCodataInfo, AbsConsInfo, AbsDataInfo, AbsDecl, AbsDefnInfo, AbsPat,
+        AbsProjInfo, AbsTele, Bind,
+    },
+    common::Ductive,
+    pat::{Copat, Pat},
+    surf::{Expr, ExprCopat, ExprDecl, ExprPat, NamedTele, Param},
+};
 
 use super::{desugar_expr, DesugarErr, DesugarM, DesugarState};
 

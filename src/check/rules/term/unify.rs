@@ -1,9 +1,15 @@
-use voile_util::meta::{MetaSolution, MI};
-use voile_util::uid::{DBI, GI};
+use voile_util::{
+    meta::{MetaSolution, MI},
+    uid::{DBI, GI},
+};
 
-use crate::check::monad::{TCE, TCM, TCS};
-use crate::syntax::core::subst::{RedEx, Subst};
-use crate::syntax::core::{Closure, Elim, FoldVal, Term, Val};
+use crate::{
+    check::monad::{TCE, TCM, TCS},
+    syntax::core::{
+        subst::{RedEx, Subst},
+        Closure, Elim, FoldVal, Term, Val,
+    },
+};
 
 use super::simplify;
 

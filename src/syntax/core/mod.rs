@@ -1,11 +1,6 @@
 use voile_util::loc::{Loc, ToLoc};
 
-pub use self::ast::*;
-pub use self::ast_fold::*;
-pub use self::ast_util::*;
-pub use self::decl::*;
-pub use self::decl_impl::*;
-pub use self::pretty::*;
+pub use self::{ast::*, ast_fold::*, ast_util::*, decl::*, decl_impl::*, pretty::*};
 
 /// Core language syntax definitions.
 mod ast;

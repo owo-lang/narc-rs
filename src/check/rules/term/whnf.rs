@@ -1,11 +1,15 @@
-use voile_util::loc::Ident;
-use voile_util::uid::GI;
+use voile_util::{loc::Ident, uid::GI};
 
-use crate::check::monad::{ValTCM, TCE, TCM, TCS};
-use crate::check::pats::{build_subst, match_copats, Blocked, Match, RedM, Stuck};
-use crate::syntax::common::{ConHead, Ductive};
-use crate::syntax::core::subst::RedEx;
-use crate::syntax::core::{Clause, Decl, Elim, Term, Val};
+use crate::{
+    check::{
+        monad::{ValTCM, TCE, TCM, TCS},
+        pats::{build_subst, match_copats, Blocked, Match, RedM, Stuck},
+    },
+    syntax::{
+        common::{ConHead, Ductive},
+        core::{subst::RedEx, Clause, Decl, Elim, Term, Val},
+    },
+};
 
 pub fn simplify(tcs: TCS, term: Term) -> ValTCM {
     match term {

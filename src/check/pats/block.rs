@@ -1,5 +1,7 @@
-use std::fmt::{Display, Error, Formatter};
-use std::ops::Add;
+use std::{
+    fmt::{Display, Error, Formatter},
+    ops::Add,
+};
 
 use voile_util::meta::MI;
 
@@ -107,6 +109,10 @@ impl<T> Blocked<T> {
 
 impl<T: Display> Display for Blocked<T> {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        write!(f, "I'm not sure if I should give `{}` because I'm {}.", self.anyway, self.stuck)
+        write!(
+            f,
+            "I'm not sure if I should give `{}` because I'm {}.",
+            self.anyway, self.stuck
+        )
     }
 }

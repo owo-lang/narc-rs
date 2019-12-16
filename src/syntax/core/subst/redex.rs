@@ -1,13 +1,16 @@
 use std::rc::Rc;
 
-use voile_util::meta::MetaSolution;
-use voile_util::uid::DBI;
+use voile_util::{meta::MetaSolution, uid::DBI};
 
-use crate::syntax::common::{Bind, Let};
-use crate::syntax::pat::{Copat, Pat};
+use crate::syntax::{
+    common::{Bind, Let},
+    pat::{Copat, Pat},
+};
 
-use super::super::{Closure, Elim, Term, Val};
-use super::{def_app, PrimSubst, Subst};
+use super::{
+    super::{Closure, Elim, Term, Val},
+    def_app, PrimSubst, Subst,
+};
 
 /// Reducible expressions.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#Subst).

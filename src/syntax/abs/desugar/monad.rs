@@ -1,7 +1,9 @@
 use std::collections::BTreeMap;
 
-use voile_util::meta::MI;
-use voile_util::uid::{GI, UID};
+use voile_util::{
+    meta::MI,
+    uid::{GI, UID},
+};
 
 use crate::syntax::abs::AbsDecl;
 

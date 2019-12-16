@@ -1,6 +1,8 @@
-use voile_util::loc::Ident;
-use voile_util::tags::Plicit;
-use voile_util::uid::{GI, UID};
+use voile_util::{
+    loc::Ident,
+    tags::Plicit,
+    uid::{GI, UID},
+};
 
 /// Inductive or coinductive?
 #[derive(Debug, PartialEq, Eq, Copy, Clone, Ord, PartialOrd, Hash)]

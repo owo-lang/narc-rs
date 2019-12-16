@@ -1,6 +1,8 @@
-use voile_util::loc::{Ident, Labelled};
-use voile_util::tags::Plicit;
-use voile_util::vec1::Vec1;
+use voile_util::{
+    loc::{Ident, Labelled},
+    tags::Plicit,
+    vec1::Vec1,
+};
 
 use crate::syntax::pat::{Copat, Pat};
 

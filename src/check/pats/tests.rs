@@ -1,11 +1,16 @@
 use voile_util::uid::{DBI, GI};
 
-use crate::check::monad::TCS;
-use crate::check::rules::{check_decls, simplify};
-use crate::syntax::abs::desugar::desugar_main;
-use crate::syntax::core::subst::DeBruijn;
-use crate::syntax::core::Decl;
-use crate::syntax::surf::parse_str;
+use crate::{
+    check::{
+        monad::TCS,
+        rules::{check_decls, simplify},
+    },
+    syntax::{
+        abs::desugar::desugar_main,
+        core::{subst::DeBruijn, Decl},
+        surf::parse_str,
+    },
+};
 
 #[test]
 fn simple_simplify() {

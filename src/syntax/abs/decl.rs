@@ -1,6 +1,8 @@
-use voile_util::level::Level;
-use voile_util::loc::{Ident, Loc, ToLoc};
-use voile_util::uid::GI;
+use voile_util::{
+    level::Level,
+    loc::{Ident, Loc, ToLoc},
+    uid::GI,
+};
 
 use super::{Abs, AbsCopat, AbsTele};
 

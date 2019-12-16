@@ -1,7 +1,6 @@
 use std::fmt::{Display, Error, Formatter};
 
-use voile_util::tags::Plicit;
-use voile_util::uid::UID;
+use voile_util::{tags::Plicit, uid::UID};
 use Plicit::{Ex as Explicit, Im as Implicit};
 
 use crate::syntax::abs::{Abs, Bind};

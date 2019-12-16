@@ -1,8 +1,10 @@
-use voile_util::level::Level;
-use voile_util::loc::Ident;
-use voile_util::meta::MI;
-use voile_util::tags::VarRec;
-use voile_util::uid::{DBI, GI, UID};
+use voile_util::{
+    level::Level,
+    loc::Ident,
+    meta::MI,
+    tags::VarRec,
+    uid::{DBI, GI, UID},
+};
 
 use crate::syntax::common::{self, ConHead};
 

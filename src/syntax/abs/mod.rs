@@ -1,7 +1,4 @@
-pub use self::ast::*;
-pub use self::decl::*;
-pub use self::decl_impl::*;
-pub use self::pretty::*;
+pub use self::{ast::*, decl::*, decl_impl::*, pretty::*};
 
 /// Abstract terms.
 mod ast;

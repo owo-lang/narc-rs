@@ -1,12 +1,18 @@
 use std::fmt::{Display, Error as FmtError, Formatter};
 
-use voile_util::level::Level;
-use voile_util::loc::{Ident, Loc, ToLoc};
-use voile_util::meta::MI;
+use voile_util::{
+    level::Level,
+    loc::{Ident, Loc, ToLoc},
+    meta::MI,
+};
 
-use crate::check::pats::Blocked;
-use crate::syntax::abs::Abs;
-use crate::syntax::core::{Elim, Term};
+use crate::{
+    check::pats::Blocked,
+    syntax::{
+        abs::Abs,
+        core::{Elim, Term},
+    },
+};
 
 /// Type-Checking Error.
 #[derive(Debug)]
