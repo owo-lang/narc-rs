@@ -117,6 +117,7 @@ fn compare_closure(
     term_cmp: impl FnOnce(TCS, &Term, &Term) -> TCM,
 ) -> TCM {
     use Closure::*;
+    use MetaSolution::*;
     let sol = tcs.mut_meta_ctx();
     let mut backup = sol.solutions().to_vec();
     let mut meta_ctx = Vec::with_capacity(backup.len());
@@ -127,8 +128,20 @@ fn compare_closure(
         (Plain(a), Plain(b)) => term_cmp(tcs, &**a, &**b)?,
     };
     let sol = tcs.mut_meta_ctx();
-    sol.mut_solutions().clear();
-    sol.mut_solutions().append(&mut backup);
+    // We got even more solutions
+    if sol.solutions().len() > backup.len() {
+        backup.resize_with(sol.solutions().len(), || Unsolved);
+    }
+    // Traverse through backup new solutions & solution list,
+    // Take new solutions into account, into the backup
+    for (new_sol, backup_sol) in sol.mut_solutions().iter_mut().zip(backup.iter_mut()) {
+        match (&*new_sol, &*backup_sol) {
+            (Solved(..), Unsolved) => std::mem::swap(new_sol, backup_sol),
+            _ => {}
+        }
+    }
+    // Now, backup goes back to where it was
+    std::mem::swap(sol.mut_solutions(), &mut backup);
     Ok(tcs)
 }
 
