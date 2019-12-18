@@ -53,12 +53,12 @@ impl DeBruijn for Term {
 
 impl<T: DeBruijn> PrimSubst<T> {
     /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#%2B%2B%23).
-    pub fn concat(ts: impl Iterator<Item = T>, to: Rc<Self>) -> Rc<Self> {
-        ts.fold(to, |to, t| Self::cons(t, to))
+    pub fn concat(ts: impl DoubleEndedIterator<Item = T>, to: Rc<Self>) -> Rc<Self> {
+        ts.rfold(to, |to, t| Self::cons(t, to))
     }
 
     /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#parallelS).
-    pub fn parallel(ts: impl Iterator<Item = T>) -> Rc<Self> {
+    pub fn parallel(ts: impl DoubleEndedIterator<Item = T>) -> Rc<Self> {
         Self::concat(ts, Default::default())
     }
 

@@ -29,5 +29,5 @@ fn simple_simplify() {
     };
     let body = id_def.clauses[0].body.clone().unwrap();
     let (body, _tcs) = simplify(tcs, body).unwrap();
-    assert_eq!(body, DeBruijn::from_dbi(DBI(1)))
+    assert_eq!(body, DeBruijn::from_dbi(DBI(0)))
 }
