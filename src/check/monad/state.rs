@@ -5,10 +5,12 @@ use voile_util::{
     uid::{DBI, GI, UID},
 };
 
-use crate::check::rules::ERROR_MSG;
-use crate::syntax::core::{
-    subst::{DeBruijn, RedEx, Subst},
-    Bind, Decl, Let, LetList, Tele, Term,
+use crate::{
+    check::rules::ERROR_MSG,
+    syntax::core::{
+        subst::{DeBruijn, RedEx, Subst},
+        Bind, Decl, Let, LetList, Tele, Term,
+    },
 };
 
 /// Typing context.
@@ -81,8 +83,7 @@ impl TCS {
     /// Create a new valid but unsolved meta variable,
     /// used for generating fresh metas during elaboration.
     pub fn fresh_meta(&mut self) -> Term {
-        self.mut_meta_ctx()
-            .fresh_meta(|m| Term::meta(m, vec![]))
+        self.mut_meta_ctx().fresh_meta(|m| Term::meta(m, vec![]))
     }
 
     pub fn def(&self, ix: GI) -> &Decl {
