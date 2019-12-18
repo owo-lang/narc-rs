@@ -160,8 +160,12 @@ fn final_check(tcs: TCS, mut lhs: LhsState) -> TCMS<Lhs> {
 
 /// Checking a pattern matching lhs recursively.
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.LHS.html).
-pub(super) fn check_lhs(mut tcs: TCS, lhs: LhsState) -> TCMS<Lhs> {
-    for split in (lhs.problem.equations.iter()).filter(|e| e.in_pat.is_split()) {
+pub(super) fn check_lhs(mut tcs: TCS, mut lhs: LhsState) -> TCMS<Lhs> {
+    let problem_equations = (lhs.problem.equations.iter())
+        .filter(|e| e.in_pat.is_split())
+        .cloned()
+        .collect::<Vec<_>>();
+    for split in problem_equations {
         use Copat::{App, Proj};
         use Pat::{Absurd, Forced};
         if lhs.problem.is_all_solved() {
@@ -173,10 +177,13 @@ pub(super) fn check_lhs(mut tcs: TCS, lhs: LhsState) -> TCMS<Lhs> {
         let ix = is_eta.ok_or_else(e)?;
         let pos = lhs.tele.len() - ix.0 + 1;
         let (delta1, delta2) = lhs.tele.split_at(pos);
-        match &split.in_pat {
+        match split.in_pat {
             App(Pat::Refl) => unimplemented!(),
-            App(Pat::Cons(true, a, b)) => unimplemented!(),
-            App(Pat::Cons(false, a, b)) => split_con(a.clone(), b),
+            App(Pat::Cons(force, a, b)) => {
+                let (lhs0, tcs0) = split_con(tcs, lhs, force, a, b)?;
+                tcs = tcs0;
+                lhs = lhs0;
+            }
             App(Pat::Var(..)) | App(Absurd) | App(Forced(..)) | Proj(..) => unreachable!(),
         }
     }
