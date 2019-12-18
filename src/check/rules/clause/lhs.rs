@@ -6,7 +6,7 @@ use crate::{
         monad::{TCE, TCMS, TCS},
         pats::CoreCopat,
         rules::{
-            clause::{classify_eqs, AsBind, LhsState, PatVars},
+            clause::{classify_eqs, split_con, AsBind, LhsState, PatVars},
             term::is_eta_var_borrow,
             ERROR_MSG,
         },
@@ -175,7 +175,8 @@ pub(super) fn check_lhs(mut tcs: TCS, lhs: LhsState) -> TCMS<Lhs> {
         let (delta1, delta2) = lhs.tele.split_at(pos);
         match &split.in_pat {
             App(Pat::Refl) => unimplemented!(),
-            App(Pat::Cons(c, a, b)) => unimplemented!(),
+            App(Pat::Cons(true, a, b)) => unimplemented!(),
+            App(Pat::Cons(false, a, b)) => split_con(a.clone(), b),
             App(Pat::Var(..)) | App(Absurd) | App(Forced(..)) | Proj(..) => unreachable!(),
         }
     }

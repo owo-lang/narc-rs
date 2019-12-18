@@ -2,7 +2,7 @@ use crate::{
     check::{
         monad::{TCMS, TCS},
         rules::{
-            clause::{eqs::*, lhs::*, state::*},
+            clause::{eqs::*, lhs::*, split::*, state::*},
             term::{check, simplify, HasMeta},
         },
     },
@@ -14,6 +14,7 @@ use crate::{
 
 mod eqs;
 mod lhs;
+mod split;
 mod state;
 
 /// Bind as patterns
