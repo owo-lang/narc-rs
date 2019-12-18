@@ -175,12 +175,10 @@ pub(super) fn check_lhs(mut tcs: TCS, mut lhs: LhsState) -> TCMS<Lhs> {
         tcs = tcs0;
         let e = || TCE::split_on_non_var(split.inst.clone(), split.ty.clone());
         let ix = is_eta.ok_or_else(e)?;
-        let pos = lhs.tele.len() - ix.0 + 1;
-        let (delta1, delta2) = lhs.tele.split_at(pos);
         match split.in_pat {
             App(Pat::Refl) => unimplemented!(),
             App(Pat::Cons(force, a, b)) => {
-                let (lhs0, tcs0) = split_con(tcs, lhs, force, a, b)?;
+                let (lhs0, tcs0) = split_con(tcs, ix, lhs, force, a, b)?;
                 tcs = tcs0;
                 lhs = lhs0;
             }
