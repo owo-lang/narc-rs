@@ -135,9 +135,8 @@ fn compare_closure(
     // Traverse through backup new solutions & solution list,
     // Take new solutions into account, into the backup
     for (new_sol, backup_sol) in sol.mut_solutions().iter_mut().zip(backup.iter_mut()) {
-        match (&*new_sol, &*backup_sol) {
-            (Solved(..), Unsolved) => std::mem::swap(new_sol, backup_sol),
-            _ => {}
+        if let (Solved(..), Unsolved) = (&*new_sol, &*backup_sol) {
+            std::mem::swap(new_sol, backup_sol)
         }
     }
     // Now, backup goes back to where it was
