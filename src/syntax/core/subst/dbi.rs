@@ -54,7 +54,7 @@ impl DeBruijn for Term {
 impl<T: DeBruijn> PrimSubst<T> {
     /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#%2B%2B%23).
     pub fn concat(ts: impl DoubleEndedIterator<Item = T>, to: Rc<Self>) -> Rc<Self> {
-        ts.rfold(to, |to, t| Self::cons(t, to))
+        ts.rfold(to, Self::cons)
     }
 
     /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#parallelS).
@@ -63,12 +63,12 @@ impl<T: DeBruijn> PrimSubst<T> {
     }
 
     /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Substitute.Class.html#consS).
-    pub fn cons(t: T, rho: Rc<Self>) -> Rc<Self> {
-        match (t.dbi_view(), &*rho) {
+    pub fn cons(self: Rc<Self>, t: T) -> Rc<Self> {
+        match (t.dbi_view(), &*self) {
             (Some(n), PrimSubst::Weak(m, rho)) if n + 1 == *m => {
                 rho.clone().lift_by(DBI(1)).weaken(*m - 1)
             }
-            _ => Rc::new(PrimSubst::Cons(t, rho)),
+            _ => Rc::new(PrimSubst::Cons(t, self)),
         }
     }
 }

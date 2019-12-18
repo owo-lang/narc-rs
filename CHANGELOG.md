@@ -2,6 +2,8 @@
 
 # 0.0.8
 
++ Fix a bug in `Subst::concat` that breaks delta conversion
+
 # 0.0.7
 
 + The implementations of `Subst` is no longer bound to `Term`
