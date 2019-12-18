@@ -1,10 +1,11 @@
 use std::iter::repeat;
 
 use voile_util::{
-    meta::MetaContext,
+    meta,
     uid::{DBI, GI, UID},
 };
 
+use crate::check::rules::ERROR_MSG;
 use crate::syntax::core::{
     subst::{DeBruijn, RedEx, Subst},
     Bind, Decl, Let, LetList, Tele, Term,
@@ -12,6 +13,7 @@ use crate::syntax::core::{
 
 /// Typing context.
 pub type Sigma = Vec<Decl>;
+pub type MetaCtx = meta::MetaContext<Term>;
 
 const UNRESOLVED: &str = "Unresolved reference";
 
@@ -19,7 +21,11 @@ const UNRESOLVED: &str = "Unresolved reference";
 #[derive(Debug, Clone, Default)]
 pub struct TCS {
     tc_depth: usize,
+    /// How many indentation should we add when enter each sub-inference-rule?
     indentation_size: usize,
+    /// Where are we?
+    current_checking_def: Option<GI>,
+    /// Are we tracing the type checking process?
     pub trace_tc: bool,
     /// Global context (definitions are attached with type annotations).
     pub sigma: Sigma,
@@ -27,8 +33,8 @@ pub struct TCS {
     pub gamma: Tele,
     /// Let bindings.
     pub lets: LetList,
-    /// Meta variable context. Always global.
-    pub meta_context: MetaContext<Term>,
+    /// Meta variable context, scoped. Always global.
+    pub meta_ctx: Vec<MetaCtx>,
 }
 
 impl TCS {
@@ -47,6 +53,15 @@ impl TCS {
         self.tc_depth += 1;
     }
 
+    pub fn enter_def(&mut self, def: GI) {
+        self.current_checking_def = Some(def);
+        self.meta_ctx.push(Default::default());
+    }
+
+    pub fn exit_def(&mut self) {
+        self.current_checking_def = None;
+    }
+
     pub fn tc_shallower(&mut self) {
         if self.tc_depth > 0 {
             self.tc_depth -= 1;
@@ -60,12 +75,14 @@ impl TCS {
     pub fn reserve_local_variables(&mut self, additional: usize) {
         self.gamma.reserve(additional);
         self.sigma.reserve(additional);
+        self.meta_ctx.reserve(additional);
     }
 
     /// Create a new valid but unsolved meta variable,
     /// used for generating fresh metas during elaboration.
     pub fn fresh_meta(&mut self) -> Term {
-        self.meta_context.fresh_meta(|m| Term::meta(m, vec![]))
+        self.mut_meta_ctx()
+            .fresh_meta(|m| Term::meta(m, vec![]))
     }
 
     pub fn def(&self, ix: GI) -> &Decl {
@@ -111,6 +128,16 @@ impl TCS {
 
     pub fn mut_def(&mut self, ix: GI) -> &mut Decl {
         &mut self.sigma[ix.0]
+    }
+
+    pub fn meta_ctx(&self) -> &MetaCtx {
+        let we_are_here = self.current_checking_def.expect(ERROR_MSG);
+        &self.meta_ctx[we_are_here.0]
+    }
+
+    pub fn mut_meta_ctx(&mut self) -> &mut MetaCtx {
+        let we_are_here = self.current_checking_def.expect(ERROR_MSG);
+        &mut self.meta_ctx[we_are_here.0]
     }
 
     pub fn mut_local(&mut self, ix: DBI) -> &mut Bind {

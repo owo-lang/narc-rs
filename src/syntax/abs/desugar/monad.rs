@@ -14,6 +14,7 @@ pub type DesugarM<State = DesugarState> = Result<State, DesugarErr>;
 pub struct DesugarState {
     pub decls: Vec<AbsDecl>,
     pub local: BTreeMap<String, UID>,
+    /// TODO: make it per-definition.
     pub meta_count: MI,
 }
 

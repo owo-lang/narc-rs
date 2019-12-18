@@ -117,16 +117,18 @@ fn compare_closure(
     term_cmp: impl FnOnce(TCS, &Term, &Term) -> TCM,
 ) -> TCM {
     use Closure::*;
-    let mut backup = tcs.meta_context.solutions().to_vec();
+    let sol = tcs.mut_meta_ctx();
+    let mut backup = sol.solutions().to_vec();
     let mut meta_ctx = Vec::with_capacity(backup.len());
-    meta_ctx.append(tcs.meta_context.mut_solutions());
+    meta_ctx.append(sol.mut_solutions());
     meta_ctx = meta_ctx.reduce_dbi(Subst::raise(DBI(1)));
-    tcs.meta_context.mut_solutions().append(&mut meta_ctx);
+    sol.mut_solutions().append(&mut meta_ctx);
     tcs = match (left, right) {
         (Plain(a), Plain(b)) => term_cmp(tcs, &**a, &**b)?,
     };
-    tcs.meta_context.mut_solutions().clear();
-    tcs.meta_context.mut_solutions().append(&mut backup);
+    let sol = tcs.mut_meta_ctx();
+    sol.mut_solutions().clear();
+    sol.mut_solutions().append(&mut backup);
     Ok(tcs)
 }
 
@@ -143,10 +145,10 @@ impl Unify for Val {
 }
 
 fn unify_meta_with(mut tcs: TCS, term: &Val, mi: MI) -> TCM {
-    match &tcs.meta_context.solution(mi) {
+    match tcs.meta_ctx().solution(mi) {
         MetaSolution::Unsolved => {
             check_solution(mi, term)?;
-            tcs.meta_context.solve_meta(mi, Term::Whnf(term.clone()));
+            tcs.mut_meta_ctx().solve_meta(mi, Term::Whnf(term.clone()));
             Ok(tcs)
         }
         MetaSolution::Solved(solution) => {

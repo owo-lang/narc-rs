@@ -73,7 +73,7 @@ impl HasMeta for Closure {
 
 fn solve_meta(tcs: TCS, mi: MI, elims: Vec<Elim>) -> TCMS<Term> {
     use MetaSolution::*;
-    let sol = match tcs.meta_context.solution(mi) {
+    let sol = match tcs.meta_ctx().solution(mi) {
         Solved(sol) => sol.clone(),
         Unsolved => return Err(TCE::MetaUnsolved(mi)),
         Inlined => unreachable!(),

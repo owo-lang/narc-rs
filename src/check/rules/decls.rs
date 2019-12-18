@@ -27,6 +27,7 @@ pub fn check_decls(mut tcs: TCS, decls: Vec<AbsDecl>) -> TCM {
         }
         let decl = take(&mut decls, i);
         tcs.tc_reset_depth();
+        tcs.enter_def(GI(i));
         match decl {
             AbsDecl::Data(i) => {
                 let cs = (i.conses.iter())
@@ -67,6 +68,7 @@ pub fn check_decls(mut tcs: TCS, decls: Vec<AbsDecl>) -> TCM {
             }
             _ => unimplemented!(),
         }
+        tcs.exit_def();
     }
     Ok(tcs)
 }

@@ -31,7 +31,7 @@ impl TCS {
 
     pub fn considerate_of(desugar: &DesugarState) -> Self {
         let mut tcs = TCS::default();
-        tcs.meta_context.expand_with_fresh_meta(desugar.meta_count);
+        // tcs.meta_context.expand_with_fresh_meta(desugar.meta_count);
         tcs.reserve_local_variables(desugar.decls.len());
         tcs
     }
