@@ -42,30 +42,36 @@ impl LhsState {
     pub(super) fn len_pats(&self) -> usize {
         self.pats.iter().take_while(|pat| !pat.is_proj()).count()
     }
-}
 
-/// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.LHS.ProblemRest.html#initLHSState).
-pub(super) fn init_lhs_state(todo_pats: Vec<AbsCopat>, ty: Term) -> LhsState {
-    let problem = Problem {
-        todo_pats,
-        equations: Default::default(),
-    };
-    LhsState {
-        tele: Default::default(),
-        pats: Default::default(),
-        problem,
-        target: ty,
+    /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.LHS.ProblemRest.html#initLHSState).
+    pub(super) fn new(todo_pats: Vec<AbsCopat>, ty: Term) -> Self {
+        let problem = Problem {
+            todo_pats,
+            equations: Default::default(),
+        };
+        Self {
+            tele: Default::default(),
+            pats: Default::default(),
+            problem,
+            target: ty,
+        }
     }
 }
 
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.LHS.ProblemRest.html#updateProblemRest).
-pub(super) fn progress_lhs_state(state: LhsState) -> TCM<LhsState> {
-    let Problem {
-        todo_pats,
-        mut equations,
-    } = state.problem;
+pub(super) fn progress_lhs_state(
+    LhsState {
+        pats,
+        problem: Problem {
+            todo_pats,
+            mut equations,
+        },
+        target,
+        tele: mut old_tele,
+    }: LhsState,
+) -> TCM<LhsState> {
     let mut pats_iter = todo_pats.into_iter();
-    let (mut tele, target) = state.target.tele_view();
+    let (mut tele, target) = target.tele_view();
     let tele_len = tele.len();
     equations.reserve(tele_len);
     for (i, bind) in tele.iter().enumerate() {
@@ -92,11 +98,10 @@ pub(super) fn progress_lhs_state(state: LhsState) -> TCM<LhsState> {
         todo_pats: pats_iter.collect(),
         equations,
     };
-    let mut new_tele = state.tele;
-    new_tele.append(&mut tele);
+    old_tele.append(&mut tele);
     let tele_dbi = (0..tele_len).rev().map(DBI).map(CoreCopat::var).collect();
     let state = LhsState {
-        tele: new_tele,
+        tele: old_tele,
         // TODO
         pats: tele_dbi,
         problem,

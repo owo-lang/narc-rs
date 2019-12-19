@@ -2,7 +2,7 @@ use crate::{
     check::{
         monad::{TCMS, TCS},
         rules::{
-            clause::{eqs::*, lhs::*, split::*, state::*},
+            clause::{eqs::*, lhs::*, state::*},
             term::{check, simplify, HasMeta},
         },
     },
@@ -64,7 +64,7 @@ pub fn clause(mut tcs: TCS, cls: AbsClause, against: Term) -> TCMS<Clause> {
 fn clause_impl(tcs: TCS, cls: AbsClause, against: Term) -> TCMS<Clause> {
     let body = cls.body;
     // Expand pattern synonyms here once we support it.
-    let lhs_state = progress_lhs_state(init_lhs_state(cls.patterns, against))?;
+    let lhs_state = progress_lhs_state(LhsState::new(cls.patterns, against))?;
     let (lhs, tcs) = check_lhs(tcs, lhs_state)?;
     let pat_tele = lhs.tele;
     let ty = lhs.ty;
