@@ -4,11 +4,11 @@ use voile_util::uid::DBI;
 
 use crate::syntax::{
     core::{subst::DeBruijn, Elim, Term},
-    pat,
+    pat::{Copat, Pat},
 };
 
-pub type CoreCopat = pat::Copat<DBI, Term>;
-pub type CorePat = pat::Pat<DBI, Term>;
+pub type CoreCopat = Copat<DBI, Term>;
+pub type CorePat = Pat<DBI, Term>;
 
 impl TryFrom<CoreCopat> for Term {
     type Error = String;
@@ -20,28 +20,26 @@ impl TryFrom<CoreCopat> for Term {
 impl TryFrom<CorePat> for Term {
     type Error = String;
     fn try_from(p: CorePat) -> Result<Term, String> {
-        Term::try_from(pat::Copat::App(p))
+        Term::try_from(Copat::App(p))
     }
 }
 
 impl From<CoreCopat> for Elim {
     fn from(p: CoreCopat) -> Elim {
-        use pat::Copat::*;
         match p {
-            Proj(field) => Elim::Proj(field),
-            App(p) => From::from(p),
+            Copat::Proj(field) => Elim::Proj(field),
+            Copat::App(p) => From::from(p),
         }
     }
 }
 
 impl From<CorePat> for Elim {
     fn from(p: CorePat) -> Elim {
-        use pat::Pat::*;
         match p {
-            Var(ix) => Elim::from_dbi(ix),
-            Forced(t) => Elim::app(t),
-            Refl => Elim::app(Term::reflexivity()),
-            Cons(_, head, args) => Elim::app(Term::cons(
+            Pat::Var(ix) => Elim::from_dbi(ix),
+            Pat::Forced(t) => Elim::app(t),
+            Pat::Refl => Elim::app(Term::reflexivity()),
+            Pat::Cons(_, head, args) => Elim::app(Term::cons(
                 head,
                 args.into_iter()
                     .map(Into::into)
@@ -49,7 +47,7 @@ impl From<CorePat> for Elim {
                     .collect(),
             )),
             // what?
-            Absurd => unreachable!(),
+            Pat::Absurd => unreachable!(),
         }
     }
 }
