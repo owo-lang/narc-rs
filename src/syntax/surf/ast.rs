@@ -12,8 +12,8 @@ use crate::syntax::pat::{Copat, Pat};
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Param {
     pub licit: Plicit,
-    /// This field can be empty -- which indicates the parameter to be anonymous.
-    /// Many `name`s means there are many params with same type.
+    /// This field can be empty -- which indicates the parameter to be
+    /// anonymous. Many `name`s means there are many params with same type.
     pub names: Vec<Ident>,
     /// Parameter type.
     pub ty: Expr,
@@ -32,8 +32,8 @@ pub enum Expr {
     Proj(Ident),
     /// Application, chained.
     App(Box<Self>, Box<Vec1<Self>>),
-    /// Pi-type expression, where `a -> b -> c` is represented as `Pi(vec![a, b], c)`
-    /// instead of `Pi(a, Pi(b, c))`.
+    /// Pi-type expression, where `a -> b -> c` is represented as `Pi(vec![a,
+    /// b], c)` instead of `Pi(a, Pi(b, c))`.
     /// `a` and `b` here can introduce telescopes.
     Pi(Box<Vec1<Param>>, Box<Self>),
 }

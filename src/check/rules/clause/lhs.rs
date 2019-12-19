@@ -6,7 +6,11 @@ use crate::{
         monad::{TCE, TCMS, TCS},
         pats::CoreCopat,
         rules::{
-            clause::{classify_eqs, split_con, AsBind, LhsState, PatVars},
+            clause::{
+                eqs::{classify_eqs, AsBind, PatVars},
+                split::split_con,
+                state::LhsState,
+            },
             term::is_eta_var_borrow,
             ERROR_MSG,
         },
@@ -24,8 +28,8 @@ use crate::{
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.LHS.html#LHSResult).
 #[derive(Clone)]
 pub(super) struct Lhs {
-    /// $\Delta$: The types of the pattern variables, in internal dependency order.
-    /// Corresponds to `clauseTel` (in Agda).
+    /// $\Delta$: The types of the pattern variables, in internal dependency
+    /// order. Corresponds to `clauseTel` (in Agda).
     pub(super) tele: Tele,
     /// Whether the LHS has at least one absurd pattern.
     pub(super) has_absurd: bool,
@@ -55,7 +59,6 @@ pub(super) struct Lhs {
 ///
 /// + `tele`: The telescope of pattern variables
 /// + `pat_vars`: The list of user names for each pattern variable
-///
 fn user_variable_names(tele: &TeleS, mut pat_vars: PatVars) -> (Vec<Option<UID>>, Vec<AsBind>) {
     let len_rng = 0..tele.len();
     let mut as_binds = Vec::with_capacity(pat_vars.len());
@@ -122,8 +125,8 @@ fn final_check(tcs: TCS, mut lhs: LhsState) -> TCMS<Lhs> {
     debug_assert!(lhs.problem.todo_pats.is_empty());
     let len_pats = lhs.len_pats();
     // It should be `len_pats - ctx.len()`,
-    // but I think the `ctx` in Agda comes from module parameters | variables | stuff,
-    // which we don't really support.
+    // but I think the `ctx` in Agda comes from module parameters | variables |
+    // stuff, which we don't really support.
     // let weak_sub = Subst::weaken(Default::default(), DBI(len_pats));
     let pat_sub = Subst::parallel(
         (lhs.pats.iter().take(len_pats).rev().cloned())
@@ -131,8 +134,8 @@ fn final_check(tcs: TCS, mut lhs: LhsState) -> TCMS<Lhs> {
             .map(|t| t.expect(ERROR_MSG)),
     );
     // let with_sub = Default::default();
-    // let param_sub = Subst::compose(Subst::compose(pat_sub.clone(), weak_sub), with_sub);
-    // TODO: check linearity
+    // let param_sub = Subst::compose(Subst::compose(pat_sub.clone(), weak_sub),
+    // with_sub); TODO: check linearity
     let equations = lhs.problem.equations;
     let (classified, tcs) = tcs.under(&mut lhs.tele, |tcs| classify_eqs(tcs, equations))?;
     debug_assert!(classified.other_pats.is_empty());
@@ -153,8 +156,8 @@ fn final_check(tcs: TCS, mut lhs: LhsState) -> TCMS<Lhs> {
         pat_sub,
         as_binds,
     };
-    // Agda is calling `computeLHSContext` here, and is updating context with `param_sub`.
-    // TODO: do it.
+    // Agda is calling `computeLHSContext` here, and is updating context with
+    // `param_sub`. TODO: do it.
     Ok((lhs_result, tcs))
 }
 

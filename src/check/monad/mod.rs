@@ -18,7 +18,8 @@ pub type TCMS<T> = TCM<(T, TCS)>;
 
 impl TCS {
     /// The `tele` won't be affected after this function is invoked.
-    /// This is equivalence to the type instance of `AddContext Telescope` in Agda.
+    /// This is equivalence to the type instance of `AddContext Telescope` in
+    /// Agda.
     pub fn under<T>(self, tele: &mut Tele, f: impl FnOnce(TCS) -> TCMS<T>) -> TCMS<T> {
         let mut tcs = self;
         let gamma_init_len = tcs.gamma.len();

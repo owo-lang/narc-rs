@@ -13,7 +13,8 @@ use crate::{
 
 /// Somehow like
 /// [this](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Reduce.html#Instantiate)
-/// in Agda, but different (Agda's instantiate one meta, but this one instantiate the term fully).
+/// in Agda, but different (Agda's instantiate one meta, but this one
+/// instantiate the term fully).
 pub trait HasMeta: Sized {
     /// Inline solved metas inside `self`.
     fn inline_meta(self, tcs: TCS) -> TCMS<Self>;

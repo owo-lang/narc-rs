@@ -2,3 +2,4 @@ edition = "2018"
 merge_imports = true
 unstable_features = true
 color = "Always"
+wrap_comments = true

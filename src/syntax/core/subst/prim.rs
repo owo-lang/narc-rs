@@ -35,8 +35,8 @@ pub enum PrimSubst<T> {
     /// $$
     Weak(DBI, Rc<Self>),
     /// Lifting substitution. Use this to go under a binder.
-    /// $\text{Lift}\_1 \rho := \text{Cons}(\texttt{Term::form\\\_dbi(0)}, \text{Weak}\_1 \rho)$.
-    /// $$
+    /// $\text{Lift}\_1 \rho := \text{Cons}(\texttt{Term::form\\\_dbi(0)},
+    /// \text{Weak}\_1 \rho)$. $$
     /// \cfrac{\Gamma \vdash \rho : \Delta}
     /// {\Gamma, \Psi \rho \vdash \text{Lift}_\Psi \rho : \Delta, \Psi}
     /// $$

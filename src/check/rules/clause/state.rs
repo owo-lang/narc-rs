@@ -1,7 +1,7 @@
 use voile_util::uid::DBI;
 
 use crate::{
-    check::{monad::TCM, pats::CoreCopat, rules::clause::Equation},
+    check::{monad::TCM, pats::CoreCopat, rules::clause::eqs::Equation},
     syntax::{
         abs::AbsCopat,
         core::{subst::DeBruijn, Tele, Term},

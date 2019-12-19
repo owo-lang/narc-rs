@@ -14,8 +14,8 @@ use crate::{
     },
 };
 
-/// If matching is inconclusive ([`Dunno`](self::Match::Dunno)) we want to know whether
-/// it is due to a particular meta variable.
+/// If matching is inconclusive ([`Dunno`](self::Match::Dunno)) we want to know
+/// whether it is due to a particular meta variable.
 #[derive(Debug, Clone)]
 pub enum Match {
     Yes(Simpl, HashMap<DBI, Term>),

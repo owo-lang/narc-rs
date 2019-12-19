@@ -3,7 +3,7 @@ use voile_util::uid::DBI;
 use crate::{
     check::{
         monad::{TCMS, TCS},
-        rules::clause::LhsState,
+        rules::clause::state::LhsState,
     },
     syntax::{
         abs::AbsPat,
