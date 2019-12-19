@@ -2,7 +2,11 @@ use crate::{
     check::{
         monad::{TCMS, TCS},
         rules::{
-            clause::{eqs::*, lhs::*, state::*},
+            clause::{
+                eqs::AsBind,
+                lhs::check_lhs,
+                state::{progress_lhs_state, LhsState},
+            },
             term::{check, simplify, HasMeta},
         },
     },
