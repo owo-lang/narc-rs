@@ -13,6 +13,7 @@ use crate::{
         Closure, Elim, FoldVal, Term, Val,
     },
 };
+use std::mem::swap;
 
 fn check_solution(meta: MI, rhs: &Val) -> TCM<()> {
     rhs.try_fold_val((), |(), v| match v {
@@ -136,11 +137,11 @@ fn compare_closure(
     // Take new solutions into account, into the backup
     for (new_sol, backup_sol) in sol.mut_solutions().iter_mut().zip(backup.iter_mut()) {
         if let (Solved(..), Unsolved) = (&*new_sol, &*backup_sol) {
-            std::mem::swap(new_sol, backup_sol)
+            swap(new_sol, backup_sol)
         }
     }
     // Now, backup goes back to where it was
-    std::mem::swap(sol.mut_solutions(), &mut backup);
+    swap(sol.mut_solutions(), &mut backup);
     Ok(tcs)
 }
 
@@ -160,6 +161,9 @@ fn unify_meta_with(mut tcs: TCS, term: &Val, mi: MI) -> TCM {
     match tcs.meta_ctx().solution(mi) {
         MetaSolution::Unsolved => {
             check_solution(mi, term)?;
+            if tcs.trace_tc {
+                println!("{}?{} := {}", tcs.tc_depth_ws(), mi.0, term);
+            }
             tcs.mut_meta_ctx().solve_meta(mi, Term::Whnf(term.clone()));
             Ok(tcs)
         }

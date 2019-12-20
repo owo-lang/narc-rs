@@ -13,7 +13,7 @@ use crate::{
     syntax::{
         abs::AbsCopat,
         core::{
-            subst::{PrimSubst, RedEx, Subst},
+            subst::{RedEx, Subst},
             Bind, Let, Term,
         },
         pat::{Copat, Pat, PatCommon},
