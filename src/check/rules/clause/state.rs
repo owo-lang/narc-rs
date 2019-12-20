@@ -1,5 +1,6 @@
 use voile_util::uid::DBI;
 
+use crate::syntax::core::subst::{RedEx, Subst};
 use crate::{
     check::{monad::TCM, pats::CoreCopat, rules::clause::eqs::Equation},
     syntax::{
@@ -20,6 +21,14 @@ pub(super) struct Problem {
 impl Problem {
     pub(super) fn is_all_solved(&self) -> bool {
         self.todo_pats.is_empty() && self.equations.iter().all(|eq| eq.is_solved())
+    }
+
+    pub(super) fn new(todo_pats: Vec<AbsCopat>) -> Self {
+        let equations = Vec::with_capacity(todo_pats.len());
+        Self {
+            todo_pats,
+            equations,
+        }
     }
 }
 
@@ -45,14 +54,10 @@ impl LhsState {
 
     /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.LHS.ProblemRest.html#initLHSState).
     pub(super) fn new(todo_pats: Vec<AbsCopat>, ty: Term) -> Self {
-        let problem = Problem {
-            todo_pats,
-            equations: Default::default(),
-        };
         Self {
             tele: Default::default(),
             pats: Default::default(),
-            problem,
+            problem: Problem::new(todo_pats),
             target: ty,
         }
     }
@@ -96,14 +101,16 @@ pub(super) fn progress_lhs_state(
     }
     let problem = Problem {
         todo_pats: pats_iter.collect(),
+        // TODO
         equations,
     };
     old_tele.append(&mut tele);
-    let tele_dbi = (0..tele_len).rev().map(DBI).map(CoreCopat::var).collect();
+    let tau = Subst::raise(DBI(tele_len));
+    let mut pats = pats.reduce_dbi(tau);
+    pats.extend((0..tele_len).rev().map(DBI).map(CoreCopat::var));
     let state = LhsState {
         tele: old_tele,
-        // TODO
-        pats: tele_dbi,
+        pats,
         problem,
         target,
     };
