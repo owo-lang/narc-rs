@@ -1,11 +1,13 @@
 use voile_util::uid::DBI;
 
-use crate::syntax::core::subst::{RedEx, Subst};
 use crate::{
     check::{monad::TCM, pats::CoreCopat, rules::clause::eqs::Equation},
     syntax::{
         abs::AbsCopat,
-        core::{subst::DeBruijn, Tele, Term},
+        core::{
+            subst::{DeBruijn, RedEx, Subst},
+            Tele, Term,
+        },
         pat::PatCommon,
     },
 };
@@ -69,7 +71,7 @@ pub(super) fn progress_lhs_state(
         pats,
         problem: Problem {
             todo_pats,
-            mut equations,
+            equations,
         },
         target,
         tele: mut old_tele,
@@ -78,7 +80,7 @@ pub(super) fn progress_lhs_state(
     let mut pats_iter = todo_pats.into_iter();
     let (mut tele, target) = target.tele_view();
     let tele_len = tele.len();
-    equations.reserve(tele_len);
+    let mut new_equations = Vec::with_capacity(tele_len);
     for (i, bind) in tele.iter().enumerate() {
         let mut f = |in_pat: AbsCopat| {
             let equation = Equation {
@@ -87,7 +89,7 @@ pub(super) fn progress_lhs_state(
                 inst: Term::from_dbi(DBI(tele_len - i - 1)),
                 ty: bind.ty.clone(),
             };
-            equations.push(equation);
+            new_equations.push(equation);
         };
         if bind.is_implicit() {
             f(AbsCopat::fresh_var());
@@ -99,13 +101,14 @@ pub(super) fn progress_lhs_state(
             break;
         }
     }
+    let tau = Subst::raise(DBI(tele_len));
+    let mut equations = equations.reduce_dbi(tau.clone());
+    equations.append(&mut new_equations);
     let problem = Problem {
         todo_pats: pats_iter.collect(),
-        // TODO
         equations,
     };
     old_tele.append(&mut tele);
-    let tau = Subst::raise(DBI(tele_len));
     let mut pats = pats.reduce_dbi(tau);
     pats.extend((0..tele_len).rev().map(DBI).map(CoreCopat::var));
     let state = LhsState {

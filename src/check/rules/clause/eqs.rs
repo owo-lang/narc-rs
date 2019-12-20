@@ -1,4 +1,4 @@
-use std::{collections::HashMap, ops::Add};
+use std::{collections::HashMap, ops::Add, rc::Rc};
 
 use voile_util::{
     tags::Plicit,
@@ -12,7 +12,10 @@ use crate::{
     },
     syntax::{
         abs::AbsCopat,
-        core::{Bind, Let, Term},
+        core::{
+            subst::{PrimSubst, RedEx, Subst},
+            Bind, Let, Term,
+        },
         pat::{Copat, Pat, PatCommon},
     },
 };
@@ -26,6 +29,15 @@ pub(super) struct Equation {
     pub in_pat: AbsCopat,
     pub inst: Term,
     pub ty: Term,
+}
+
+impl RedEx for Equation {
+    fn reduce_dbi(self, subst: Rc<Subst>) -> Self {
+        let in_pat = self.in_pat;
+        let inst = self.inst.reduce_dbi(subst.clone());
+        let ty = self.ty.reduce_dbi(subst);
+        Self { in_pat, inst, ty }
+    }
 }
 
 impl PatCommon for Equation {
