@@ -37,7 +37,7 @@ pub struct TCS {
     pub meta_ctx: Vec<MetaCtx>,
 }
 
-#[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Debug, Default)]
+#[derive(Copy, Clone, Debug, Default)]
 struct Indentation {
     tc_depth: usize,
     /// How many indentations should we add when enter each sub-inference-rule?

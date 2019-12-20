@@ -6,7 +6,7 @@ use voile_util::{
 use crate::{
     check::{
         monad::{TCE, TCM, TCS},
-        rules::term::simplify,
+        rules::term::{meta::print_meta_ctx, simplify},
     },
     syntax::core::{
         subst::{RedEx, Subst},
@@ -33,7 +33,9 @@ pub fn subtype(mut tcs: TCS, sub: &Val, sup: &Val) -> TCM {
         println!("{}Subtyping {} <: {}", depth_ws, sub, sup);
         e
     })?;
-    println!("{}\u{22A2} {} <: {}", depth_ws, sub, sup);
+    print!("{}{} <: {} --> ", depth_ws, sub, sup);
+    print_meta_ctx(tcs.meta_ctx());
+    println!();
     tcs.tc_shallower();
     Ok(tcs)
 }

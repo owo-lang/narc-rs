@@ -2,7 +2,7 @@ use voile_util::meta::{MetaSolution, MI};
 
 use crate::{
     check::{
-        monad::{TCE, TCMS, TCS},
+        monad::{MetaCtx, TCE, TCMS, TCS},
         rules::term::simplify,
     },
     syntax::{
@@ -10,6 +10,29 @@ use crate::{
         core::{Closure, Elim, Term, Val},
     },
 };
+
+/// For debugging
+pub(in crate::check) fn print_meta_ctx(meta: &MetaCtx) {
+    use MetaSolution::*;
+    let solutions = meta.solutions();
+    print!("[");
+    let mut iter = solutions.iter().enumerate();
+    if let Some((ix, sol)) = iter.next() {
+        print!("?{:?}", ix);
+        if let Solved(sol) = sol {
+            print!(" := {}", sol)
+        }
+    }
+    for (ix, sol) in iter {
+        print!(", ?{:?}", ix);
+        match sol {
+            Solved(sol) => print!(" := {}", sol),
+            Unsolved => print!(","),
+            Inlined => {}
+        }
+    }
+    print!("]");
+}
 
 /// Somehow like
 /// [this](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Reduce.html#Instantiate)
