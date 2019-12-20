@@ -1,3 +1,5 @@
+use std::mem::{swap, take};
+
 use voile_util::{
     meta::MI,
     uid::{DBI, GI},
@@ -13,7 +15,6 @@ use crate::{
         Closure, Elim, FoldVal, Term, Val,
     },
 };
-use std::mem::{swap, take};
 
 fn check_solution(meta: MI, rhs: &Val) -> TCM<()> {
     rhs.try_fold_val((), |(), v| match v {
@@ -121,6 +122,7 @@ fn compare_closure(
 ) -> TCM {
     use Closure::*;
     use MetaSol::*;
+    tcs.unify_depth += 1;
     let sol = tcs.mut_meta_ctx();
     let mut backup = sol.solutions().to_vec();
     let mut meta_ctx = Vec::with_capacity(backup.len());
@@ -147,6 +149,7 @@ fn compare_closure(
     }
     // Now, backup goes back to where it was
     swap(sol.mut_solutions(), &mut backup);
+    tcs.unify_depth -= 1;
     Ok(tcs)
 }
 
@@ -163,6 +166,7 @@ impl Unify for Val {
 }
 
 fn unify_meta_with(mut tcs: TCS, term: &Val, mi: MI) -> TCM {
+    let depth = tcs.unify_depth;
     match tcs.meta_ctx().solution(mi) {
         MetaSol::Unsolved => {
             check_solution(mi, term)?;
@@ -171,7 +175,7 @@ fn unify_meta_with(mut tcs: TCS, term: &Val, mi: MI) -> TCM {
             }
             // TODO
             tcs.mut_meta_ctx()
-                .solve_meta(mi, Default::default(), Term::Whnf(term.clone()));
+                .solve_meta(mi, depth, Term::Whnf(term.clone()));
             Ok(tcs)
         }
         // TODO

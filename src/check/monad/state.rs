@@ -26,6 +26,9 @@ pub struct TCS {
     current_checking_def: Option<GI>,
     /// Are we tracing the type checking process?
     pub trace_tc: bool,
+    /// Conversion check depth.
+    pub unify_depth: DBI,
+
     /// Global context (definitions are attached with type annotations).
     pub sigma: Sigma,
     /// Local typing context.
