@@ -3,7 +3,7 @@ use crate::syntax::{
     core::{Tele, TermInfo, Val},
 };
 
-pub use self::{error::*, state::*};
+pub use self::{error::*, meta::*, state::*};
 
 /// `Control.Monad.Except`, as type-checking error.
 mod error;

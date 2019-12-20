@@ -6,7 +6,7 @@ use voile_util::{
 };
 
 use crate::{
-    check::rules::ERROR_MSG,
+    check::{monad::meta::MetaContext, rules::ERROR_MSG},
     syntax::core::{
         subst::{DeBruijn, RedEx, Subst},
         Bind, Decl, Let, LetList, Tele, Term,
@@ -15,7 +15,6 @@ use crate::{
 
 /// Typing context.
 pub type Sigma = Vec<Decl>;
-pub type MetaCtx = meta::MetaContext<Term>;
 
 const UNRESOLVED: &str = "Unresolved reference";
 
@@ -34,7 +33,7 @@ pub struct TCS {
     /// Let bindings.
     pub lets: LetList,
     /// Meta variable context, scoped. Always global.
-    pub meta_ctx: Vec<MetaCtx>,
+    pub meta_ctx: Vec<MetaContext<Term>>,
 }
 
 #[derive(Copy, Clone, Debug, Default)]
@@ -143,12 +142,12 @@ impl TCS {
         &mut self.sigma[ix.0]
     }
 
-    pub fn meta_ctx(&self) -> &MetaCtx {
+    pub fn meta_ctx(&self) -> &MetaContext<Term> {
         let we_are_here = self.current_checking_def.expect(ERROR_MSG);
         &self.meta_ctx[we_are_here.0]
     }
 
-    pub fn mut_meta_ctx(&mut self) -> &mut MetaCtx {
+    pub fn mut_meta_ctx(&mut self) -> &mut MetaContext<Term> {
         let we_are_here = self.current_checking_def.expect(ERROR_MSG);
         &mut self.meta_ctx[we_are_here.0]
     }

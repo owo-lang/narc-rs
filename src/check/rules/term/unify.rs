@@ -1,11 +1,11 @@
 use voile_util::{
-    meta::{MetaSolution, MI},
+    meta::MI,
     uid::{DBI, GI},
 };
 
 use crate::{
     check::{
-        monad::{TCE, TCM, TCS},
+        monad::{MetaSol, TCE, TCM, TCS},
         rules::term::{meta::print_meta_ctx, simplify},
     },
     syntax::core::{
@@ -120,7 +120,7 @@ fn compare_closure(
     term_cmp: impl FnOnce(TCS, &Term, &Term) -> TCM,
 ) -> TCM {
     use Closure::*;
-    use MetaSolution::*;
+    use MetaSol::*;
     let sol = tcs.mut_meta_ctx();
     let mut backup = sol.solutions().to_vec();
     let mut meta_ctx = Vec::with_capacity(backup.len());
@@ -164,20 +164,22 @@ impl Unify for Val {
 
 fn unify_meta_with(mut tcs: TCS, term: &Val, mi: MI) -> TCM {
     match tcs.meta_ctx().solution(mi) {
-        MetaSolution::Unsolved => {
+        MetaSol::Unsolved => {
             check_solution(mi, term)?;
             if tcs.trace_tc {
                 println!("{}?{} := {}", tcs.tc_depth_ws(), mi.0, term);
             }
-            tcs.mut_meta_ctx().solve_meta(mi, Term::Whnf(term.clone()));
+            // TODO
+            tcs.mut_meta_ctx()
+                .solve_meta(mi, Default::default(), Term::Whnf(term.clone()));
             Ok(tcs)
         }
-        MetaSolution::Solved(solution) => {
+        // TODO
+        MetaSol::Solved(ix, solution) => {
             let solution = *solution.clone();
             let (val, tcs) = simplify(tcs, solution)?;
             Unify::unify(tcs, &val, term)
         }
-        MetaSolution::Inlined => unreachable!(),
     }
 }
 

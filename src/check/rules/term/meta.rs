@@ -1,8 +1,8 @@
-use voile_util::meta::{MetaSolution, MI};
+use voile_util::meta::MI;
 
 use crate::{
     check::{
-        monad::{MetaCtx, TCE, TCMS, TCS},
+        monad::{MetaContext, MetaSol, TCE, TCMS, TCS},
         rules::term::simplify,
     },
     syntax::{
@@ -12,23 +12,22 @@ use crate::{
 };
 
 /// For debugging
-pub(in crate::check) fn print_meta_ctx(meta: &MetaCtx) {
-    use MetaSolution::*;
+pub(in crate::check) fn print_meta_ctx(meta: &MetaContext<Term>) {
+    use MetaSol::*;
     let solutions = meta.solutions();
     print!("[");
     let mut iter = solutions.iter().enumerate();
     if let Some((ix, sol)) = iter.next() {
         print!("?{:?}", ix);
-        if let Solved(sol) = sol {
+        if let Solved(_, sol) = sol {
             print!(" := {}", sol)
         }
     }
     for (ix, sol) in iter {
         print!(", ?{:?}", ix);
         match sol {
-            Solved(sol) => print!(" := {}", sol),
+            Solved(_, sol) => print!(" := {}", sol),
             Unsolved => print!(","),
-            Inlined => {}
         }
     }
     print!("]");
@@ -96,11 +95,10 @@ impl HasMeta for Closure {
 }
 
 fn solve_meta(tcs: TCS, mi: MI, elims: Vec<Elim>) -> TCMS<Term> {
-    use MetaSolution::*;
+    use MetaSol::*;
     let sol = match tcs.meta_ctx().solution(mi) {
-        Solved(sol) => sol.clone(),
+        Solved(_, sol) => sol.clone(),
         Unsolved => return Err(TCE::MetaUnsolved(mi)),
-        Inlined => unreachable!(),
     };
     let (elims, tcs) = elims.inline_meta(tcs)?;
     Ok((sol.apply_elim(elims), tcs))
