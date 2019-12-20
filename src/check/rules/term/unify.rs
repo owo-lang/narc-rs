@@ -13,7 +13,7 @@ use crate::{
         Closure, Elim, FoldVal, Term, Val,
     },
 };
-use std::mem::swap;
+use std::mem::{swap, take};
 
 fn check_solution(meta: MI, rhs: &Val) -> TCM<()> {
     rhs.try_fold_val((), |(), v| match v {
@@ -139,7 +139,10 @@ fn compare_closure(
     // Take new solutions into account, into the backup
     for (new_sol, backup_sol) in sol.mut_solutions().iter_mut().zip(backup.iter_mut()) {
         if let (Solved(..), Unsolved) = (&*new_sol, &*backup_sol) {
-            swap(new_sol, backup_sol)
+            swap(new_sol, backup_sol);
+            // TODO: need reimplementing
+            let taken = take(backup_sol);
+            *backup_sol = taken.reduce_dbi(Subst::lift_by(Default::default(), DBI(1)));
         }
     }
     // Now, backup goes back to where it was
