@@ -1,4 +1,4 @@
-use std::iter::repeat;
+use std::fmt::{Display, Error, Formatter, Write};
 
 use voile_util::{
     meta,
@@ -22,9 +22,7 @@ const UNRESOLVED: &str = "Unresolved reference";
 /// Type-checking state.
 #[derive(Debug, Clone, Default)]
 pub struct TCS {
-    tc_depth: usize,
-    /// How many indentation should we add when enter each sub-inference-rule?
-    indentation_size: usize,
+    indentation: Indentation,
     /// Where are we?
     current_checking_def: Option<GI>,
     /// Are we tracing the type checking process?
@@ -39,20 +37,34 @@ pub struct TCS {
     pub meta_ctx: Vec<MetaCtx>,
 }
 
+#[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Debug, Default)]
+struct Indentation {
+    tc_depth: usize,
+    /// How many indentations should we add when enter each sub-inference-rule?
+    indentation_size: usize,
+}
+
+impl Display for Indentation {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        for _ in 0..self.tc_depth * self.indentation_size {
+            f.write_char(' ')?;
+        }
+        Ok(())
+    }
+}
+
 impl TCS {
     /// For debugging purpose.
-    pub fn tc_depth_ws(&self) -> String {
-        repeat(' ')
-            .take(self.tc_depth * self.indentation_size)
-            .collect()
+    pub fn tc_depth_ws(&self) -> impl Display {
+        self.indentation
     }
 
     pub fn indentation_size(&mut self, size: usize) {
-        self.indentation_size = size;
+        self.indentation.indentation_size = size;
     }
 
     pub fn tc_deeper(&mut self) {
-        self.tc_depth += 1;
+        self.indentation.tc_depth += 1;
     }
 
     pub fn enter_def(&mut self, def: GI) {
@@ -65,13 +77,13 @@ impl TCS {
     }
 
     pub fn tc_shallower(&mut self) {
-        if self.tc_depth > 0 {
-            self.tc_depth -= 1;
+        if self.indentation.tc_depth > 0 {
+            self.indentation.tc_depth -= 1;
         }
     }
 
     pub fn tc_reset_depth(&mut self) {
-        self.tc_depth = 0;
+        self.indentation.tc_depth = 0;
     }
 
     pub fn reserve_local_variables(&mut self, additional: usize) {

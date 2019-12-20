@@ -3,6 +3,7 @@
 # 0.0.8
 
 + Fix a bug in `Subst::concat` that breaks delta conversion
++ Improve indentation control in tracing
 
 # 0.0.7
 
