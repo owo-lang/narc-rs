@@ -7,6 +7,8 @@ pub use self::{error::*, state::*};
 
 /// `Control.Monad.Except`, as type-checking error.
 mod error;
+/// A reworked version of `voile_util::meta`.
+mod meta;
 /// `Control.Monad.State`, as type-checking state.
 mod state;
 
