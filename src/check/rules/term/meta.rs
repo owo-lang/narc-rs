@@ -92,21 +92,27 @@ impl<T: HasMeta> HasMeta for Bind<T> {
 }
 
 impl HasMeta for Closure {
-    fn inline_meta(self, tcs: TCS) -> TCMS<Self> {
-        match self {
-            Closure::Plain(body) => body
-                .inline_meta(tcs)
-                .map(|(b, tcs)| (Closure::plain(b), tcs)),
-        }
+    fn inline_meta(self, mut tcs: TCS) -> TCMS<Self> {
+        tcs.unify_depth += 1;
+        let (closure, mut tcs) = match self {
+            Closure::Plain(body) => {
+                let (body, tcs) = body.inline_meta(tcs)?;
+                (Closure::plain(body), tcs)
+            }
+        };
+        tcs.unify_depth -= 1;
+        Ok((closure, tcs))
     }
 }
 
 fn solve_meta(tcs: TCS, mi: MI, elims: Vec<Elim>) -> TCMS<Term> {
     use MetaSol::*;
-    let sol = match tcs.meta_ctx().solution(mi) {
-        Solved(_, sol) => sol.clone(),
+    let (ix, sol) = match tcs.meta_ctx().solution(mi) {
+        Solved(ix, sol) => (*ix, sol.clone()),
         Unsolved => return Err(TCE::MetaUnsolved(mi)),
     };
+    // TODO: handle the case when these two don't equal
+    debug_assert_eq!(ix, tcs.unify_depth);
     let (elims, tcs) = elims.inline_meta(tcs)?;
     Ok((sol.apply_elim(elims), tcs))
 }
