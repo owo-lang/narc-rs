@@ -150,23 +150,27 @@ fn unify_meta_with(mut tcs: TCS, term: &Val, mi: MI) -> TCM {
             tcs.mut_meta_ctx().solve_meta(mi, depth, solution);
             Ok(tcs)
         }
-        // TODO
-        MetaSol::Solved(ix, sol) => {
-            let sol_ix = *ix;
-            let sol = *sol.clone();
-            let lhs = match sol_ix.cmp(&depth) {
-                Ordering::Equal => sol,
-                Ordering::Less => sol.reduce_dbi(Subst::raise(depth - sol_ix)),
-                Ordering::Greater => {
-                    let (sol, tcs) = simplify(tcs, sol)?;
-                    let term = term.clone().reduce_dbi(Subst::raise(sol_ix - depth));
-                    let (term, tcs) = simplify(tcs, term)?;
-                    return Unify::unify(tcs, &sol, &term);
-                }
-            };
-            let (sol, tcs) = simplify(tcs, lhs)?;
-            Unify::unify(tcs, &sol, term)
-        }
+        MetaSol::Solved(ix, sol) => match ix.cmp(&depth) {
+            Ordering::Equal => {
+                let sol = *sol.clone();
+                let (sol, tcs) = simplify(tcs, sol)?;
+                Unify::unify(tcs, &sol, term)
+            }
+            Ordering::Less => {
+                let sol = sol.clone().reduce_dbi(Subst::raise(depth - *ix));
+                let (sol, tcs) = simplify(tcs, sol)?;
+                Unify::unify(tcs, &sol, term)
+            }
+            Ordering::Greater => {
+                let sol_ix = *ix;
+                let term = term.clone().reduce_dbi(Subst::raise(sol_ix - depth));
+                let sol = *sol.clone();
+                tcs.unify_depth = sol_ix;
+                tcs = Unify::unify(tcs, &sol, &term)?;
+                tcs.unify_depth = depth;
+                Ok(tcs)
+            }
+        },
     }
 }
 
