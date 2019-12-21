@@ -122,33 +122,9 @@ fn compare_closure(
 ) -> TCM {
     use Closure::*;
     tcs.unify_depth += 1;
-    // let sol = tcs.mut_meta_ctx();
-    // let mut backup = sol.solutions().to_vec();
-    // let mut meta_ctx = Vec::with_capacity(backup.len());
-    // meta_ctx.append(sol.mut_solutions());
-    // meta_ctx = meta_ctx.reduce_dbi(Subst::raise(DBI(1)));
-    // sol.mut_solutions().append(&mut meta_ctx);
     tcs = match (left, right) {
         (Plain(a), Plain(b)) => term_cmp(tcs, &**a, &**b)?,
     };
-    // let sol = tcs.mut_meta_ctx();
-    // We got even more solutions
-    // if sol.solutions().len() > backup.len() {
-    //     backup.resize_with(sol.solutions().len(), || Unsolved);
-    // }
-    // Traverse through backup new solutions & solution list,
-    // Take new solutions into account, into the backup
-    // for (new_sol, backup_sol) in
-    // sol.mut_solutions().iter_mut().zip(backup.iter_mut()) {     if let
-    // (Solved(..), Unsolved) = (&*new_sol, &*backup_sol) {
-    //         swap(new_sol, backup_sol);
-    //         // TODO: need reimplementing
-    //         let taken = take(backup_sol);
-    //         *backup_sol = taken.reduce_dbi(Subst::lift_by(Default::default(),
-    // DBI(1)));     }
-    // }
-    // // Now, backup goes back to where it was
-    // swap(sol.mut_solutions(), &mut backup);
     tcs.unify_depth -= 1;
     Ok(tcs)
 }
