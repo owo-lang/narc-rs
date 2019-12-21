@@ -1,4 +1,4 @@
-use voile_util::meta::MI;
+use voile_util::{meta::MI, uid::DBI};
 
 use crate::{
     check::{
@@ -19,14 +19,14 @@ pub(in crate::check) fn print_meta_ctx(meta: &MetaContext<Term>) {
     let mut iter = solutions.iter().enumerate();
     if let Some((ix, sol)) = iter.next() {
         print!("?{:?}", ix);
-        if let Solved(_, sol) = sol {
-            print!(" := {}", sol)
+        if let Solved(DBI(i), sol) = sol {
+            print!("={}({:?})", sol, i)
         }
     }
     for (ix, sol) in iter {
         print!(", ?{:?}", ix);
         match sol {
-            Solved(_, sol) => print!(" := {}", sol),
+            Solved(DBI(i), sol) => print!("={}({:?})", sol, i),
             Unsolved => print!(","),
         }
     }
@@ -107,12 +107,10 @@ impl HasMeta for Closure {
 
 fn solve_meta(tcs: TCS, mi: MI, elims: Vec<Elim>) -> TCMS<Term> {
     use MetaSol::*;
-    let (ix, sol) = match tcs.meta_ctx().solution(mi) {
+    let (_ix, sol) = match tcs.meta_ctx().solution(mi) {
         Solved(ix, sol) => (*ix, sol.clone()),
         Unsolved => return Err(TCE::MetaUnsolved(mi)),
     };
-    // TODO: handle the case when these two don't equal
-    debug_assert_eq!(ix, tcs.unify_depth);
     let (elims, tcs) = elims.inline_meta(tcs)?;
     Ok((sol.apply_elim(elims), tcs))
 }

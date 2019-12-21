@@ -1,7 +1,4 @@
-use std::{
-    fmt::{Display, Error, Formatter, Write},
-    mem::swap,
-};
+use std::fmt::{Display, Error, Formatter, Write};
 
 use voile_util::uid::{DBI, GI, UID};
 
@@ -114,7 +111,7 @@ impl TCS {
     #[cfg(test)]
     pub fn take_sigma(&mut self, ix: GI) -> Decl {
         let mut placeholder = Decl::ClausePlaceholder;
-        swap(&mut placeholder, self.mut_def(ix));
+        std::mem::swap(&mut placeholder, self.mut_def(ix));
         placeholder
     }
 
