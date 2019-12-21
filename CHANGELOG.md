@@ -4,6 +4,9 @@
 
 + Fix a bug in `Subst::concat` that breaks delta conversion
 + Improve indentation control in tracing
++ Rework the meta context infrastructure to handle meta variables
+  solved from different de-bruijn indices levels
++ Meta contexts are now stored per-definition
 
 # 0.0.7
 

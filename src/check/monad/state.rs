@@ -1,9 +1,6 @@
 use std::fmt::{Display, Error, Formatter, Write};
 
-use voile_util::{
-    meta,
-    uid::{DBI, GI, UID},
-};
+use voile_util::uid::{DBI, GI, UID};
 
 use crate::{
     check::{monad::meta::MetaContext, rules::ERROR_MSG},

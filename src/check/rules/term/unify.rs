@@ -1,9 +1,6 @@
 use std::cmp::Ordering;
 
-use voile_util::{
-    meta::MI,
-    uid::{DBI, GI},
-};
+use voile_util::{meta::MI, uid::GI};
 
 use crate::{
     check::{
