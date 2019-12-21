@@ -8,8 +8,18 @@ use crate::{
     syntax::core::{Term, Val},
 };
 
+/// Is it a datatype or a record type?
+pub fn is_data(tcs: TCS, term: Term) -> TCMS<Option<DBI>> {
+    let (val, tcs) = simplify(tcs, term)?;
+    match val {
+        Val::Data(k, def, args) => unimplemented!(),
+        // TODO: report error
+        e => unimplemented!(),
+    }
+}
+
 /// A borrowing version of [`is_eta_var`](Self::is_eta_var).
-pub fn is_eta_var_borrow(tcs: TCS, term: &Term, ty: &Term) -> TCMS<Option<DBI>> {
+pub fn is_eta_var_ref(tcs: TCS, term: &Term, ty: &Term) -> TCMS<Option<DBI>> {
     match term {
         Term::Whnf(Val::Var(dbi, v)) if v.is_empty() => Ok((Some(*dbi), tcs)),
         _ => is_eta_var(tcs, term.clone(), ty.clone()),

@@ -12,7 +12,7 @@ pub use self::{
     infer::{infer, type_of_decl},
     meta::HasMeta,
     unify::subtype,
-    view::{is_eta_var, is_eta_var_borrow},
+    view::{is_data, is_eta_var, is_eta_var_ref},
     whnf::simplify,
 };
 

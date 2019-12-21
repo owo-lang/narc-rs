@@ -11,7 +11,7 @@ use crate::{
                 split::split_con,
                 state::LhsState,
             },
-            term::is_eta_var_borrow,
+            term::is_eta_var_ref,
             ERROR_MSG,
         },
     },
@@ -174,7 +174,7 @@ pub(super) fn check_lhs(mut tcs: TCS, mut lhs: LhsState) -> TCMS<Lhs> {
         if lhs.problem.is_all_solved() {
             return final_check(tcs, lhs);
         }
-        let (is_eta, tcs0) = is_eta_var_borrow(tcs, &split.inst, &split.ty)?;
+        let (is_eta, tcs0) = is_eta_var_ref(tcs, &split.inst, &split.ty)?;
         tcs = tcs0;
         let e = || TCE::split_on_non_var(split.inst.clone(), split.ty.clone());
         let ix = is_eta.ok_or_else(e)?;

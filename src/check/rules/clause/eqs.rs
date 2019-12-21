@@ -8,7 +8,7 @@ use voile_util::{
 use crate::{
     check::{
         monad::{TCMS, TCS},
-        rules::term::is_eta_var_borrow,
+        rules::term::is_eta_var_ref,
     },
     syntax::{
         abs::AbsCopat,
@@ -108,7 +108,7 @@ pub(super) fn classify_eqs(mut tcs: TCS, eqs: Vec<Equation>) -> TCMS<PatClass> {
         match eq.in_pat {
             Copat::App(Pat::Absurd) => absurd_count += 1,
             Copat::App(Pat::Var(x)) => {
-                let (i, new_tcs) = is_eta_var_borrow(tcs, &eq.inst, &eq.ty)?;
+                let (i, new_tcs) = is_eta_var_ref(tcs, &eq.inst, &eq.ty)?;
                 tcs = new_tcs;
                 if let Some(i) = i {
                     pat_vars
