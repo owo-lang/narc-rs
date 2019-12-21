@@ -69,6 +69,7 @@ pub fn check_decls(mut tcs: TCS, decls: Vec<AbsDecl>) -> TCM {
             _ => unimplemented!(),
         }
         tcs.exit_def();
+        tcs.sanity_check();
     }
     Ok(tcs)
 }

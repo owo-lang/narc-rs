@@ -3,7 +3,7 @@ use voile_util::uid::DBI;
 use crate::{
     check::{
         monad::{TCMS, TCS},
-        rules::{clause::state::LhsState, term::is_data},
+        rules::{clause::state::LhsState, term::expect_data},
     },
     syntax::{
         abs::AbsPat,
@@ -30,6 +30,6 @@ pub(super) fn split_con(
     pats: Vec<AbsPat>,
 ) -> TCMS<LhsState> {
     let (delta1, dom, delta2) = split_tele(lhs.tele, ix);
-    let (data, tcs) = is_data(tcs, dom.ty)?;
+    let (data, tcs) = expect_data(tcs, dom.ty)?;
     unimplemented!()
 }

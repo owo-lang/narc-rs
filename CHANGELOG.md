@@ -8,6 +8,7 @@
   solved from different de-bruijn indices levels
 + Meta contexts are now stored per-definition
 + Introduce `ValData`
++ Do some sanity checks after each decl check
 
 # 0.0.7
 

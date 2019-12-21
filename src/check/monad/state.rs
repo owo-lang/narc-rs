@@ -1,4 +1,7 @@
-use std::fmt::{Display, Error, Formatter, Write};
+use std::{
+    fmt::{Display, Error, Formatter, Write},
+    mem::swap,
+};
 
 use voile_util::uid::{DBI, GI, UID};
 
@@ -85,6 +88,13 @@ impl TCS {
         self.indentation.tc_depth = 0;
     }
 
+    /// Should be invoked only before/after a decl check
+    pub fn sanity_check(&self) {
+        debug_assert_eq!(self.unify_depth, DBI(0));
+        debug_assert!(self.lets.is_empty());
+        debug_assert!(self.gamma.is_empty());
+    }
+
     pub fn reserve_local_variables(&mut self, additional: usize) {
         self.gamma.reserve(additional);
         self.sigma.reserve(additional);
@@ -104,7 +114,7 @@ impl TCS {
     #[cfg(test)]
     pub fn take_sigma(&mut self, ix: GI) -> Decl {
         let mut placeholder = Decl::ClausePlaceholder;
-        std::mem::swap(&mut placeholder, self.mut_def(ix));
+        swap(&mut placeholder, self.mut_def(ix));
         placeholder
     }
 

@@ -9,7 +9,7 @@ use crate::{
 };
 
 /// Is it a datatype or a record type?
-pub fn is_data(tcs: TCS, term: Term) -> TCMS<ValData> {
+pub fn expect_data(tcs: TCS, term: Term) -> TCMS<ValData> {
     let (val, tcs) = simplify(tcs, term)?;
     match val {
         Val::Data(d) => Ok((d, tcs)),
