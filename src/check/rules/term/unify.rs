@@ -1,4 +1,4 @@
-use std::mem::{swap, take};
+use std::cmp::Ordering;
 
 use voile_util::{
     meta::MI,
@@ -121,34 +121,34 @@ fn compare_closure(
     term_cmp: impl FnOnce(TCS, &Term, &Term) -> TCM,
 ) -> TCM {
     use Closure::*;
-    use MetaSol::*;
     tcs.unify_depth += 1;
-    let sol = tcs.mut_meta_ctx();
-    let mut backup = sol.solutions().to_vec();
-    let mut meta_ctx = Vec::with_capacity(backup.len());
-    meta_ctx.append(sol.mut_solutions());
-    meta_ctx = meta_ctx.reduce_dbi(Subst::raise(DBI(1)));
-    sol.mut_solutions().append(&mut meta_ctx);
+    // let sol = tcs.mut_meta_ctx();
+    // let mut backup = sol.solutions().to_vec();
+    // let mut meta_ctx = Vec::with_capacity(backup.len());
+    // meta_ctx.append(sol.mut_solutions());
+    // meta_ctx = meta_ctx.reduce_dbi(Subst::raise(DBI(1)));
+    // sol.mut_solutions().append(&mut meta_ctx);
     tcs = match (left, right) {
         (Plain(a), Plain(b)) => term_cmp(tcs, &**a, &**b)?,
     };
-    let sol = tcs.mut_meta_ctx();
+    // let sol = tcs.mut_meta_ctx();
     // We got even more solutions
-    if sol.solutions().len() > backup.len() {
-        backup.resize_with(sol.solutions().len(), || Unsolved);
-    }
+    // if sol.solutions().len() > backup.len() {
+    //     backup.resize_with(sol.solutions().len(), || Unsolved);
+    // }
     // Traverse through backup new solutions & solution list,
     // Take new solutions into account, into the backup
-    for (new_sol, backup_sol) in sol.mut_solutions().iter_mut().zip(backup.iter_mut()) {
-        if let (Solved(..), Unsolved) = (&*new_sol, &*backup_sol) {
-            swap(new_sol, backup_sol);
-            // TODO: need reimplementing
-            let taken = take(backup_sol);
-            *backup_sol = taken.reduce_dbi(Subst::lift_by(Default::default(), DBI(1)));
-        }
-    }
-    // Now, backup goes back to where it was
-    swap(sol.mut_solutions(), &mut backup);
+    // for (new_sol, backup_sol) in
+    // sol.mut_solutions().iter_mut().zip(backup.iter_mut()) {     if let
+    // (Solved(..), Unsolved) = (&*new_sol, &*backup_sol) {
+    //         swap(new_sol, backup_sol);
+    //         // TODO: need reimplementing
+    //         let taken = take(backup_sol);
+    //         *backup_sol = taken.reduce_dbi(Subst::lift_by(Default::default(),
+    // DBI(1)));     }
+    // }
+    // // Now, backup goes back to where it was
+    // swap(sol.mut_solutions(), &mut backup);
     tcs.unify_depth -= 1;
     Ok(tcs)
 }
@@ -173,16 +173,26 @@ fn unify_meta_with(mut tcs: TCS, term: &Val, mi: MI) -> TCM {
             if tcs.trace_tc {
                 println!("{}?{} := {}", tcs.tc_depth_ws(), mi.0, term);
             }
-            // TODO
-            tcs.mut_meta_ctx()
-                .solve_meta(mi, depth, Term::Whnf(term.clone()));
+            let solution = Term::Whnf(term.clone());
+            tcs.mut_meta_ctx().solve_meta(mi, depth, solution);
             Ok(tcs)
         }
         // TODO
-        MetaSol::Solved(ix, solution) => {
-            let solution = *solution.clone();
-            let (val, tcs) = simplify(tcs, solution)?;
-            Unify::unify(tcs, &val, term)
+        MetaSol::Solved(ix, sol) => {
+            let sol_ix = *ix;
+            let sol = *sol.clone();
+            let lhs = match sol_ix.cmp(&depth) {
+                Ordering::Equal => sol,
+                Ordering::Less => sol.reduce_dbi(Subst::raise(depth - sol_ix)),
+                Ordering::Greater => {
+                    let (sol, tcs) = simplify(tcs, sol)?;
+                    let term = term.clone().reduce_dbi(Subst::raise(sol_ix - depth));
+                    let (term, tcs) = simplify(tcs, term)?;
+                    return Unify::unify(tcs, &sol, &term);
+                }
+            };
+            let (sol, tcs) = simplify(tcs, lhs)?;
+            Unify::unify(tcs, &sol, term)
         }
     }
 }
