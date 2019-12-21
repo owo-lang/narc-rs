@@ -9,7 +9,7 @@ use crate::{
     },
     syntax::core::{
         subst::{RedEx, Subst},
-        Closure, Elim, FoldVal, Term, Val,
+        Closure, Elim, FoldVal, Term, Val, ValData,
     },
 };
 
@@ -132,6 +132,13 @@ impl Unify for Closure {
     }
 }
 
+impl Unify for ValData {
+    fn unify(tcs: TCS, left: &Self, right: &Self) -> TCM {
+        let tcs = Unify::unify(tcs, &left.def, &right.def)?;
+        Unify::unify(tcs, left.args.as_slice(), right.args.as_slice())
+    }
+}
+
 impl Unify for Val {
     fn unify(tcs: TCS, left: &Self, right: &Self) -> TCM {
         unify_val(tcs, left, right)
@@ -179,10 +186,7 @@ fn unify_val(mut tcs: TCS, left: &Val, right: &Val) -> TCM {
     use Val::*;
     match (left, right) {
         (Type(sub_l), Type(sup_l)) if sub_l == sup_l => Ok(tcs),
-        (Data(k0, i, a), Data(k1, j, b)) if k0 == k1 => {
-            tcs = Unify::unify(tcs, i, j)?;
-            Unify::unify(tcs, a.as_slice(), b.as_slice())
-        }
+        (Data(left), Data(right)) if left.kind == right.kind => Unify::unify(tcs, left, right),
         (Pi(a, c0), Pi(b, c1)) if a.licit == b.licit => {
             tcs = Unify::unify(tcs, &a.ty, &b.ty)?;
             Unify::unify(tcs, c0, c1)

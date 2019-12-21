@@ -7,7 +7,7 @@ use crate::{
     },
     syntax::{
         common::Bind,
-        core::{Closure, Elim, Term, Val},
+        core::{Closure, Elim, Term, Val, ValData},
     },
 };
 
@@ -51,6 +51,13 @@ impl<T: HasMeta> HasMeta for Vec<T> {
             r.push(t);
         }
         Ok((r, tcs))
+    }
+}
+
+impl HasMeta for ValData {
+    fn inline_meta(self, tcs: TCS) -> TCMS<Self> {
+        let (args, tcs) = self.args.inline_meta(tcs)?;
+        Ok((ValData::new(self.kind, self.def, args), tcs))
     }
 }
 
@@ -109,7 +116,7 @@ impl HasMeta for Val {
         use Val::*;
         match self {
             Type(l) => Ok((Type(l), tcs)),
-            Data(k, gi, args) => args.inline_meta(tcs).map(|(a, tcs)| (Data(k, gi, a), tcs)),
+            Data(info) => info.inline_meta(tcs).map(|(i, tcs)| (Data(i), tcs)),
             Pi(t, clos) => {
                 let (t, tcs) = t.unboxed().inline_meta(tcs)?;
                 let (clos, tcs) = clos.inline_meta(tcs)?;

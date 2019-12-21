@@ -56,7 +56,7 @@ fn infer_impl(tcs: TCS, abs: &Abs) -> InferTCM {
         match loop {
             let (param, clos) = match ty_val {
                 Val::Pi(param, clos) => (param, clos),
-                Val::Data(VarRec::Record, codata_def, elims) => break Right((codata_def, elims)),
+                Val::Data(i) if i.kind == VarRec::Record => break Right((i.def, i.args)),
                 e => return Err(TCE::NotPi(Term::Whnf(e), arg.loc())),
             };
             let (param_ty, loop_tcs) = simplify(new_tcs, *param.ty)?;

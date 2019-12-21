@@ -5,7 +5,7 @@ use Plicit::{Ex as Explicit, Im as Implicit};
 
 use crate::syntax::{
     common::ConHead,
-    core::{Bind, Closure, Elim, Term, TermInfo, Val},
+    core::{Bind, Closure, Elim, Term, TermInfo, Val, ValData},
 };
 
 impl Display for Elim {
@@ -41,17 +41,21 @@ impl Display for Val {
                 Implicit => write!(f, "({{{}}} -> {})", ty, clos),
             },
             Cons(name, a) => pretty_application(f, name, a),
-            Data(info) => {
-                f.write_str(match info.kind {
-                    VarRec::Variant => "data",
-                    VarRec::Record => "codata",
-                })?;
-                pretty_application(f, &info.def, &info.args)
-            }
+            Data(info) => info.fmt(f),
             Axiom(i) => write!(f, "<{}>", i),
             Id(ty, a, b) => write!(f, "({} =[{}] {})", a, ty, b),
             Refl => f.write_str("refl"),
         }
+    }
+}
+
+impl Display for ValData {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        f.write_str(match self.kind {
+            VarRec::Variant => "data",
+            VarRec::Record => "codata",
+        })?;
+        pretty_application(f, &self.def, &self.args)
     }
 }
 

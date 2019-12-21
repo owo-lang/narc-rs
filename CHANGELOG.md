@@ -7,6 +7,7 @@
 + Rework the meta context infrastructure to handle meta variables
   solved from different de-bruijn indices levels
 + Meta contexts are now stored per-definition
++ Introduce `ValData`
 
 # 0.0.7
 
