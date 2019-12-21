@@ -1,9 +1,11 @@
-use std::rc::Rc;
+use std::{
+    fmt::{Debug, Display, Error, Formatter, Write},
+    rc::Rc,
+};
 
 use voile_util::{meta::MI, uid::DBI};
 
 use crate::syntax::core::subst::{RedEx, Subst};
-use std::fmt::Debug;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum MetaSol<Val> {
@@ -81,5 +83,28 @@ impl<Val: Debug + Eq> MetaContext<Val> {
         let meta_solution = &mut self.mut_solutions()[meta_index.0];
         debug_assert_eq!(meta_solution, &mut MetaSol::Unsolved);
         *meta_solution = MetaSol::solved(at, solution);
+    }
+}
+
+impl<Val: Display> Display for MetaContext<Val> {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        use MetaSol::*;
+        f.write_char('[')?;
+        let solutions = self.solutions();
+        let mut iter = solutions.iter().enumerate();
+        if let Some((ix, sol)) = iter.next() {
+            write!(f, "?{:?}", ix)?;
+            if let Solved(DBI(i), sol) = sol {
+                write!(f, "={}({:?})", sol, i)?;
+            }
+        }
+        for (ix, sol) in iter {
+            write!(f, ", ?{:?}", ix)?;
+            match sol {
+                Solved(DBI(i), sol) => write!(f, "={}({:?})", sol, i)?,
+                Unsolved => f.write_char(',')?,
+            }
+        }
+        f.write_char(']')
     }
 }

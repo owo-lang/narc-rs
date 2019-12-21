@@ -5,7 +5,7 @@ use voile_util::{meta::MI, uid::GI};
 use crate::{
     check::{
         monad::{MetaSol, TCE, TCM, TCS},
-        rules::term::{meta::print_meta_ctx, simplify},
+        rules::term::simplify,
     },
     syntax::core::{
         subst::{RedEx, Subst},
@@ -31,9 +31,7 @@ pub fn subtype(mut tcs: TCS, sub: &Val, sup: &Val) -> TCM {
         println!("{}Subtyping {} <: {}", depth_ws, sub, sup);
         e
     })?;
-    print!("{}{} <: {} --> ", depth_ws, sub, sup);
-    print_meta_ctx(tcs.meta_ctx());
-    println!();
+    println!("{}{} <: {} --> {}", depth_ws, sub, sup, tcs.meta_ctx());
     tcs.tc_shallower();
     Ok(tcs)
 }

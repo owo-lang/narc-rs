@@ -1,8 +1,8 @@
-use voile_util::{meta::MI, uid::DBI};
+use voile_util::meta::MI;
 
 use crate::{
     check::{
-        monad::{MetaContext, MetaSol, TCE, TCMS, TCS},
+        monad::{MetaSol, TCE, TCMS, TCS},
         rules::term::simplify,
     },
     syntax::{
@@ -10,28 +10,6 @@ use crate::{
         core::{Closure, Elim, Term, Val, ValData},
     },
 };
-
-/// For debugging
-pub(in crate::check) fn print_meta_ctx(meta: &MetaContext<Term>) {
-    use MetaSol::*;
-    let solutions = meta.solutions();
-    print!("[");
-    let mut iter = solutions.iter().enumerate();
-    if let Some((ix, sol)) = iter.next() {
-        print!("?{:?}", ix);
-        if let Solved(DBI(i), sol) = sol {
-            print!("={}({:?})", sol, i)
-        }
-    }
-    for (ix, sol) in iter {
-        print!(", ?{:?}", ix);
-        match sol {
-            Solved(DBI(i), sol) => print!("={}({:?})", sol, i),
-            Unsolved => print!(","),
-        }
-    }
-    print!("]");
-}
 
 /// Somehow like
 /// [this](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Reduce.html#Instantiate)
