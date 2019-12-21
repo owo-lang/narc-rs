@@ -22,12 +22,12 @@ pub fn check_decls(mut tcs: TCS, decls: Vec<AbsDecl>) -> TCM {
     let take = |decls: &mut [Option<AbsDecl>], i: usize| decls[i].take().expect(ERROR_MSG);
 
     for i in range {
+        tcs.enter_def(GI(i));
         if decls[i].is_none() {
             continue;
         }
         let decl = take(&mut decls, i);
         tcs.tc_reset_depth();
-        tcs.enter_def(GI(i));
         match decl {
             AbsDecl::Data(i) => {
                 let cs = (i.conses.iter())

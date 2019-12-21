@@ -35,8 +35,8 @@ pub(in crate::check) fn print_meta_ctx(meta: &MetaContext<Term>) {
 
 /// Somehow like
 /// [this](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Reduce.html#Instantiate)
-/// in Agda, but different (Agda's instantiate one meta, but this one
-/// instantiate the term fully).
+/// in Agda, but different (Agda's instantiates one meta, but this one
+/// instantiates the term fully. Maybe this corresponds to `instantiateFull`?).
 pub trait HasMeta: Sized {
     /// Inline solved metas inside `self`.
     fn inline_meta(self, tcs: TCS) -> TCMS<Self>;
