@@ -8,14 +8,20 @@ use voile_util::{
 
 use crate::syntax::{
     common::ConHead,
-    core::{Bind, Closure, Elim, Tele, Term, Val},
+    core::{Bind, Closure, Elim, Tele, Term, Val, ValData},
 };
 
 pub const TYPE_OMEGA: Val = Val::Type(Level::Omega);
 
+impl ValData {
+    pub fn new(kind: VarRec, def: GI, args: Vec<Term>) -> Self {
+        Self { kind, def, args }
+    }
+}
+
 impl Val {
     pub fn inductive(ix: GI, params: Vec<Term>) -> Self {
-        Val::Data(VarRec::Variant, ix, params)
+        Val::Data(ValData::new(VarRec::Variant, ix, params))
     }
 
     pub fn identity(ty: Term, a: Term, b: Term) -> Self {
@@ -23,7 +29,7 @@ impl Val {
     }
 
     pub fn coinductive(ix: GI, params: Vec<Term>) -> Self {
-        Val::Data(VarRec::Record, ix, params)
+        Val::Data(ValData::new(VarRec::Record, ix, params))
     }
 }
 
@@ -53,16 +59,8 @@ impl Term {
         Term::Whnf(Val::Cons(name, params))
     }
 
-    pub fn data(kind: VarRec, ix: GI, params: Vec<Self>) -> Self {
-        Term::Whnf(Val::Data(kind, ix, params))
-    }
-
-    pub fn inductive(ix: GI, params: Vec<Self>) -> Self {
-        Self::data(VarRec::Variant, ix, params)
-    }
-
-    pub fn coinductive(ix: GI, params: Vec<Self>) -> Self {
-        Self::data(VarRec::Record, ix, params)
+    pub fn data(info: ValData) -> Self {
+        Term::Whnf(Val::Data(info))
     }
 
     pub fn meta(index: MI, params: Vec<Elim>) -> Self {

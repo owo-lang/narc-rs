@@ -5,14 +5,14 @@ use crate::{
         monad::{TCMS, TCS},
         rules::simplify,
     },
-    syntax::core::{Term, Val},
+    syntax::core::{Term, Val, ValData},
 };
 
 /// Is it a datatype or a record type?
-pub fn is_data(tcs: TCS, term: Term) -> TCMS<Option<DBI>> {
+pub fn is_data(tcs: TCS, term: Term) -> TCMS<ValData> {
     let (val, tcs) = simplify(tcs, term)?;
     match val {
-        Val::Data(k, def, args) => unimplemented!(),
+        Val::Data(d) => Ok((d, tcs)),
         // TODO: report error
         e => unimplemented!(),
     }

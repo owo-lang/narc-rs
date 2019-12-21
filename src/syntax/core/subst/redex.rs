@@ -6,7 +6,7 @@ use crate::syntax::{
     common::{Bind, Let},
     core::{
         subst::{def_app, PrimSubst, Subst},
-        Closure, Elim, Term, Val,
+        Closure, Elim, Term, Val, ValData,
     },
     pat::{Copat, Pat},
 };
@@ -60,6 +60,12 @@ impl<R, T: RedEx<R>> RedEx<Let<R>> for Let<T> {
     }
 }
 
+impl RedEx for ValData {
+    fn reduce_dbi(self, subst: Rc<Subst>) -> Self {
+        ValData::new(self.kind, self.def, self.args.reduce_dbi(subst))
+    }
+}
+
 impl RedEx<Term> for Val {
     fn reduce_dbi(self, subst: Rc<Subst>) -> Term {
         match self {
@@ -69,7 +75,7 @@ impl RedEx<Term> for Val {
             ),
             Val::Cons(name, a) => Term::cons(name, a.reduce_dbi(subst)),
             Val::Type(n) => Term::universe(n),
-            Val::Data(kind, gi, a) => Term::data(kind, gi, a.reduce_dbi(subst)),
+            Val::Data(info) => Term::data(info.reduce_dbi(subst)),
             Val::Meta(m, a) => Term::meta(m, a.reduce_dbi(subst)),
             Val::Var(f, args) => subst.lookup(f).apply_elim(args.reduce_dbi(subst)),
             Val::Axiom(a) => Term::Whnf(Val::Axiom(a)),

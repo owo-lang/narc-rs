@@ -41,12 +41,12 @@ impl Display for Val {
                 Implicit => write!(f, "({{{}}} -> {})", ty, clos),
             },
             Cons(name, a) => pretty_application(f, name, a),
-            Data(kind, ix, args) => {
-                f.write_str(match kind {
+            Data(info) => {
+                f.write_str(match info.kind {
                     VarRec::Variant => "data",
                     VarRec::Record => "codata",
                 })?;
-                pretty_application(f, ix, args)
+                pretty_application(f, &info.def, &info.args)
             }
             Axiom(i) => write!(f, "<{}>", i),
             Id(ty, a, b) => write!(f, "({} =[{}] {})", a, ty, b),

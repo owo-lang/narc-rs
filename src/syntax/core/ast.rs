@@ -12,13 +12,20 @@ use crate::syntax::{
     core::subst::{RedEx, Subst},
 };
 
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub struct ValData {
+    pub kind: VarRec,
+    pub def: GI,
+    pub args: Vec<Term>,
+}
+
 /// Weak-head-normal-form terms, canonical values.
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum Val {
     /// Type universe.
     Type(Level),
     /// (Co)Data types, fully applied.
-    Data(VarRec, GI, Vec<Term>),
+    Data(ValData),
     /// Pi-like types (dependent types), with parameter explicitly typed.
     Pi(Bind<Box<Term>>, Closure),
     /// Constructor invocation, fully applied.

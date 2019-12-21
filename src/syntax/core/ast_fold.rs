@@ -66,7 +66,8 @@ impl FoldVal for Val {
         use Val::*;
         let init = f(init, self)?;
         match self {
-            Data(_, _, v) | Cons(_, v) => v.try_fold_val(init, f),
+            Cons(_, v) => v.try_fold_val(init, f),
+            Data(i) => i.args.try_fold_val(init, f),
             Axiom(..) | Type(..) | Refl => Ok(init),
             Pi(p, clos) => clos.try_fold_val(p.ty.try_fold_val(init, f)?, f),
             Id(a, b, c) => c.try_fold_val(b.try_fold_val(a.try_fold_val(init, f)?, f)?, f),
