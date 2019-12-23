@@ -8,7 +8,7 @@ use crate::{
     syntax::{
         abs::AbsPat,
         common::ConHead,
-        core::{Bind, Tele},
+        core::{Bind, Tele, Decl},
     },
 };
 
@@ -29,7 +29,15 @@ pub(super) fn split_con(
     head: ConHead,
     pats: Vec<AbsPat>,
 ) -> TCMS<LhsState> {
-    let (delta1, dom, delta2) = split_tele(lhs.tele, ix);
+    let (mut delta1, dom, delta2) = split_tele(lhs.tele, ix);
     let (data, tcs) = expect_data(tcs, dom.ty)?;
+    // For disambiguation:
+    // tcs.under(&mut delta1, |tcs| {
+    //     unimplemented!()
+    // })?;
+    let cons_params = match tcs.def(head.cons_ix) {
+        Decl::Cons(c) => c.params.to_vec(),
+        _ => unreachable!()
+    };
     unimplemented!()
 }

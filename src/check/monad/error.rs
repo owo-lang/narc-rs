@@ -10,7 +10,7 @@ use crate::{
     check::pats::Blocked,
     syntax::{
         abs::Abs,
-        core::{Elim, Term},
+        core::{Elim, Term, Val},
     },
 };
 
@@ -26,6 +26,7 @@ pub enum TCE {
     NotProj(Abs),
     /// A projection is not a term.
     NotTerm(String),
+    NotData(Box<Val>),
 
     // === Split* === //
     SplitOnNonVar(Box<Term>, Box<Term>),
@@ -42,12 +43,20 @@ pub enum TCE {
     DifferentName(Ident, Ident),
 
     // === Misc === //
-    Blocked(Blocked<Term>),
+    Blocked(Box<Blocked<Term>>),
 }
 
 impl TCE {
     pub fn wrap(self, info: Loc) -> Self {
         TCE::Wrapped(Box::new(self), info)
+    }
+
+    pub fn blocked(block: Blocked<Term>) -> Self {
+        TCE::Blocked(Box::new(block))
+    }
+
+    pub fn not_data(val: Val) -> Self {
+        TCE::NotData(Box::new(val))
     }
 
     fn boxing_two<A, B>(a: A, b: B, f: impl FnOnce(Box<A>, Box<B>) -> Self) -> Self {
@@ -76,8 +85,9 @@ impl Display for TCE {
             }
             TCE::NotHead(abs) => write!(f, "`{}` is not a head (at {}).", abs, abs.loc()),
             TCE::NotPi(term, loc) => write!(f, "`{}` is not a pi type (at {}).", term, loc),
-            TCE::NotProj(abs) => write!(f, "`{:?}` is not a projection (at {}).", abs, abs.loc()),
+            TCE::NotProj(abs) => write!(f, "`{}` is not a projection (at {}).", abs, abs.loc()),
             TCE::NotTerm(proj) => write!(f, "Cannot project `{}` on a datatype.", proj),
+            TCE::NotData(val) => write!(f, "`{}` is not a datatype.", val),
             TCE::SplitOnNonVar(term, ty) => {
                 write!(f, "Splitting on non variable `{}` (of type `{}`)", term, ty)
             }

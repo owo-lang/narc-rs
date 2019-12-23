@@ -38,7 +38,7 @@ pub fn simplify(tcs: TCS, term: Term) -> ValTCM {
                     Ok((_, term)) => simplify(tcs, term),
                     Err(blockage) => match blockage.stuck {
                         Stuck::NotBlocked => simplify(tcs, blockage.anyway),
-                        _ => Err(TCE::Blocked(blockage)),
+                        _ => Err(TCE::blocked(blockage)),
                     },
                 }
             }
