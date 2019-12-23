@@ -6,7 +6,7 @@ use crate::{
         abs::AbsCopat,
         core::{
             subst::{DeBruijn, RedEx, Subst},
-            Tele, Term,
+            Tele, TeleS, Term,
         },
         pat::PatCommon,
     },
@@ -65,7 +65,27 @@ impl LhsState {
     }
 }
 
-/// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.LHS.ProblemRest.html#updateProblemRest).
+/// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.LHS.Implicit.html#insertImplicitPatterns).
+pub(super) fn insert_implicit_pats(pats: Vec<AbsCopat>, tele: &TeleS) -> Vec<AbsCopat> {
+    debug_assert!(pats.len() <= tele.len());
+    let mut new_pats = Vec::with_capacity(tele.len().max(pats.capacity()));
+    for bind in tele {
+        if bind.is_implicit() {
+            new_pats.push(AbsCopat::fresh_var())
+        } else {
+            break;
+        }
+    }
+    // Shouldn't insert too many patterns
+    debug_assert!(new_pats.len() + pats.len() <= tele.len());
+    let mut original_pats = pats;
+    new_pats.append(&mut original_pats);
+    new_pats
+}
+
+/// It's supposed to use [`insert_implicit_pats`](self::insert_implicit_pats) to
+/// insert patterns, but as I'm refactoring it to an imperative style, reusing
+/// the code becomes a bit difficult. [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.LHS.ProblemRest.html#updateProblemRest).
 pub(super) fn progress_lhs_state(
     LhsState {
         pats,

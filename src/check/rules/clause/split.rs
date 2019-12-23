@@ -8,7 +8,7 @@ use crate::{
     syntax::{
         abs::AbsPat,
         common::ConHead,
-        core::{Bind, Tele, Decl},
+        core::{Bind, Decl, Tele},
     },
 };
 
@@ -37,7 +37,9 @@ pub(super) fn split_con(
     // })?;
     let cons_params = match tcs.def(head.cons_ix) {
         Decl::Cons(c) => c.params.to_vec(),
-        _ => unreachable!()
+        _ => unreachable!(),
     };
+    // Agda checks if we're splitting on non-eta records as we
+    // shouldn't split on lazy (non-eta) constructor.
     unimplemented!()
 }

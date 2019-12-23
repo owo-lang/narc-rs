@@ -2,7 +2,7 @@ use voile_util::uid::DBI;
 
 use crate::{
     check::{
-        monad::{TCMS, TCS, TCE},
+        monad::{TCE, TCMS, TCS},
         rules::simplify,
     },
     syntax::core::{Term, Val, ValData},
@@ -13,7 +13,6 @@ pub fn expect_data(tcs: TCS, term: Term) -> TCMS<ValData> {
     let (val, tcs) = simplify(tcs, term)?;
     match val {
         Val::Data(d) => Ok((d, tcs)),
-        // TODO: report error
         e => Err(TCE::not_data(e)),
     }
 }
