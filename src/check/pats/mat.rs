@@ -9,7 +9,7 @@ use crate::{
         rules::ERROR_MSG,
     },
     syntax::{
-        core::{subst::Subst, Elim, Term},
+        core::{subst::Subst, Elim, Term, Val},
         pat::{Copat, Pat},
     },
 };
@@ -128,6 +128,7 @@ fn match_pat(tcs: &TCS, p: CorePat, t: Term) -> (Match, Term) {
         (Pat::Var(i), t) => (Match::Yes(Simpl::No, once((i, t.clone())).collect()), t),
         (Pat::Forced(_), t) => (Match::Yes(Simpl::No, Default::default()), t),
         (Pat::Absurd, _) => unreachable!(),
+        (Pat::Refl, Term::Whnf(Val::Refl)) => (Match::Yes(Simpl::Yes, Default::default()), Term::Whnf(Val::Refl)),
         _ => unimplemented!(),
     }
 }
