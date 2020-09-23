@@ -9,7 +9,7 @@ use voile_util::{
 use crate::{
     check::pats::Blocked,
     syntax::{
-        abs::Abs,
+        abs::{Abs, AbsCopat},
         core::{Elim, Term, Val},
     },
 };
@@ -46,7 +46,7 @@ pub enum TCE {
     // === Misc === //
     Blocked(Box<Blocked<Term>>),
     NoSuchProj(String),
-    CantCosplit(String),
+    CantElim(AbsCopat),
 }
 
 impl TCE {
@@ -120,7 +120,8 @@ impl Display for TCE {
             ),
             TCE::Blocked(b) => b.fmt(f),
             TCE::NoSuchProj(s) => write!(f, "No such field `{}`.", s),
-            TCE::CantCosplit(s) => write!(f, "Cannot copattern-match using `{}`.", s),
+            // TODO: display
+            TCE::CantElim(e) => write!(f, "Cannot eliminate-using pattern `{:?}`.", e),
         }
     }
 }

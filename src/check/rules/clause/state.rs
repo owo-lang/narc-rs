@@ -21,6 +21,14 @@ pub(super) struct Problem {
 }
 
 impl Problem {
+    pub(super) fn take_first_todo_pat(&mut self) -> Option<AbsCopat> {
+        if self.todo_pats.is_empty() {
+            None
+        } else {
+            Some(self.todo_pats.remove(0))
+        }
+    }
+
     pub(super) fn is_all_solved(&self) -> bool {
         self.todo_pats.is_empty() && self.equations.iter().all(|eq| eq.is_solved())
     }

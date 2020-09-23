@@ -185,17 +185,17 @@ pub(super) fn check_lhs(mut tcs: TCS, mut lhs: LhsState) -> TCMS<Lhs> {
                 tcs = tcs0;
                 lhs = lhs0;
             }
-            App(Pat::Var(..)) | App(Absurd) | App(Forced(..)) => unreachable!(),
-            Proj(proj) => {
-                // FIXME: This should be performed last
-                if !lhs.tele.is_empty() {
-                    return Err(TCE::CantCosplit(proj));
-                }
-                let (lhs0, tcs0) = split_proj(tcs, lhs, proj)?;
-                tcs = tcs0;
-                lhs = lhs0;
-            }
+            App(Pat::Var(..)) | App(Absurd) | App(Forced(..)) | Proj(..) => unreachable!(),
         }
+    }
+    if let Some(copat) = lhs.problem.take_first_todo_pat() {
+        let proj = match copat {
+            Copat::Proj(proj) => proj,
+            e => return Err(TCE::CantElim(e)),
+        };
+        let (lhs, tcs) = split_proj(tcs, lhs, proj)?;
+        // Recursively invoke
+        return check_lhs(tcs, lhs);
     }
     debug_assert!(lhs.problem.is_all_solved());
     final_check(tcs, lhs)
