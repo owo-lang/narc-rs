@@ -87,7 +87,7 @@ fn infer_impl(tcs: TCS, abs: &Abs) -> InferTCM {
                         Decl::Codata(i) => (i.name.clone(), &i.fields),
                         _ => unreachable!(),
                     };
-                    if !codata_fields.contains(&proj_def) {
+                    if !codata_fields.iter().any(|(_, &ix)| ix == proj_def) {
                         return Err(TCE::DifferentFieldCodata(
                             ident.loc,
                             codata_name.text.clone(),
@@ -135,24 +135,22 @@ pub fn type_of_decl(tcs: &TCS, decl: GI) -> TCM<TermInfo> {
             let ret = Term::def(data, ident, elims);
             Ok(Term::pi_from_tele(tele, ret).at(cons.loc()))
         }
-        Decl::Proj {
-            loc, codata, ty, ..
-        } => {
-            let data_tele = match tcs.def(*codata) {
+        Decl::Proj (proj) => {
+            let data_tele = match tcs.def(proj.codata) {
                 Decl::Codata(i) => &i.params,
                 _ => unreachable!(),
             };
             let range = 0..data_tele.len() - 1;
-            let ident = tcs.def(*codata).def_name().clone();
+            let ident = tcs.def(proj.codata).def_name().clone();
             let elims = range.rev().map(DBI).map(Elim::from_dbi).collect();
-            let codata = Term::def(*codata, ident, elims);
+            let codata = Term::def(proj.codata, ident, elims);
             let bind = Bind::new(Plicit::Ex, unsafe { next_uid() }, codata);
             let tele = (data_tele.iter().cloned())
                 // Or maybe we shouldn't?
                 .map(Bind::into_implicit)
                 .chain(once(bind))
                 .collect();
-            Ok(Term::pi_from_tele(tele, ty.clone()).at(*loc))
+            Ok(Term::pi_from_tele(tele, proj.ty.clone()).at(proj.loc()))
         }
         Decl::Func(func) => Ok(func.signature.clone().at(func.loc)),
         Decl::ClausePlaceholder => unreachable!(),

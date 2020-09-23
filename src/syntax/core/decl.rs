@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use voile_util::{level::Level, loc::*, uid::GI};
 
 use crate::{
@@ -12,8 +14,16 @@ pub struct CodataInfo {
     pub name: Ident,
     pub params: Tele,
     /// References to its projections (fields).
-    pub fields: Vec<GI>,
+    pub fields: HashMap<String, GI>,
     pub level: Level,
+}
+
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub struct ProjInfo {
+    pub loc: Loc,
+    pub name: Ident,
+    pub codata: GI,
+    pub ty: Term,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -54,12 +64,7 @@ pub enum Decl {
     /// Coinductive records.
     Codata(CodataInfo),
     Cons(ConsInfo),
-    Proj {
-        loc: Loc,
-        name: Ident,
-        codata: GI,
-        ty: Term,
-    },
+    Proj(ProjInfo),
     /// Function definitions.
     Func(FuncInfo),
     /// Placeholder for a clause, should never be accessed.
@@ -69,7 +74,7 @@ pub enum Decl {
 impl Decl {
     pub fn def_name(&self) -> &Ident {
         match self {
-            Decl::Proj { name, .. } => name,
+            Decl::Proj(i) => &i.name,
             Decl::Data(i) => &i.name,
             Decl::Cons(i) => &i.name,
             Decl::Codata(i) => &i.name,
@@ -82,7 +87,7 @@ impl Decl {
 impl ToLoc for Decl {
     fn loc(&self) -> Loc {
         match self {
-            Decl::Proj { loc, .. } => *loc,
+            Decl::Proj(i) => i.loc(),
             Decl::Data(i) => i.loc(),
             Decl::Cons(i) => i.loc(),
             Decl::Codata(i) => i.loc(),

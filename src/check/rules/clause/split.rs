@@ -28,8 +28,13 @@ pub(super) fn split_proj(tcs: TCS, ix: DBI, lhs: LhsState, proj: String) -> TCMS
         return Err(TCE::not_codata(Data(data)));
     }
     let rec_info = match tcs.def(data.def) {
-        Decl::Codata(info) => info.clone(),
-        _ => unreachable!()
+        Decl::Codata(info) => info,
+        _ => unreachable!(),
+    };
+    let proj_ix = rec_info.fields[&proj];
+    let proj_info = match tcs.def(proj_ix) {
+        Decl::Proj(info) => info.clone(),
+        _ => unreachable!(),
     };
 
     unimplemented!()
