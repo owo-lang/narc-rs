@@ -46,6 +46,7 @@ pub enum TCE {
     // === Misc === //
     Blocked(Box<Blocked<Term>>),
     NoSuchProj(String),
+    CantCosplit(String),
 }
 
 impl TCE {
@@ -119,6 +120,7 @@ impl Display for TCE {
             ),
             TCE::Blocked(b) => b.fmt(f),
             TCE::NoSuchProj(s) => write!(f, "No such field `{}`.", s),
+            TCE::CantCosplit(s) => write!(f, "Cannot copattern-match using `{}`.", s),
         }
     }
 }

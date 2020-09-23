@@ -187,7 +187,10 @@ pub(super) fn check_lhs(mut tcs: TCS, mut lhs: LhsState) -> TCMS<Lhs> {
             }
             App(Pat::Var(..)) | App(Absurd) | App(Forced(..)) => unreachable!(),
             Proj(proj) => {
-                // TODO: check if it's the telescope is already empty.
+                // FIXME: This should be performed last
+                if !lhs.tele.is_empty() {
+                    return Err(TCE::CantCosplit(proj));
+                }
                 let (lhs0, tcs0) = split_proj(tcs, lhs, proj)?;
                 tcs = tcs0;
                 lhs = lhs0;
