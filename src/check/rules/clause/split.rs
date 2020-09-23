@@ -1,14 +1,14 @@
-use voile_util::uid::DBI;
+use voile_util::{tags::VarRec, uid::DBI};
 
 use crate::{
     check::{
-        monad::{TCMS, TCS},
+        monad::{TCE, TCMS, TCS},
         rules::{clause::state::LhsState, term::expect_data},
     },
     syntax::{
         abs::AbsPat,
         common::ConHead,
-        core::{Bind, Decl, Tele},
+        core::{Bind, Decl, Tele, Val::Data},
     },
 };
 
@@ -18,6 +18,21 @@ fn split_tele(mut tele: Tele, DBI(til): DBI) -> (Tele, Bind, Tele) {
     let delta2 = tele.split_off(pos + 1);
     let dom = tele.remove(tele.len() - 1);
     (tele, dom, delta2)
+}
+
+/// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.LHS.html#local-6989586621681883972).
+pub(super) fn split_proj(tcs: TCS, ix: DBI, lhs: LhsState, proj: String) -> TCMS<LhsState> {
+    let (mut delta1, dom, delta2) = split_tele(lhs.tele, ix);
+    let (data, tcs) = expect_data(tcs, dom.ty)?;
+    if data.kind == VarRec::Variant {
+        return Err(TCE::not_codata(Data(data)));
+    }
+    let rec_info = match tcs.def(data.def) {
+        Decl::Codata(info) => info.clone(),
+        _ => unreachable!()
+    };
+
+    unimplemented!()
 }
 
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.LHS.html#local-6989586621683054881).

@@ -8,7 +8,7 @@ use crate::{
         rules::{
             clause::{
                 eqs::{classify_eqs, AsBind, PatVars},
-                split::split_con,
+                split::{split_con, split_proj},
                 state::LhsState,
             },
             term::is_eta_var_ref,
@@ -185,7 +185,12 @@ pub(super) fn check_lhs(mut tcs: TCS, mut lhs: LhsState) -> TCMS<Lhs> {
                 tcs = tcs0;
                 lhs = lhs0;
             }
-            App(Pat::Var(..)) | App(Absurd) | App(Forced(..)) | Proj(..) => unreachable!(),
+            App(Pat::Var(..)) | App(Absurd) | App(Forced(..)) => unreachable!(),
+            Proj(proj) => {
+                let (lhs0, tcs0) = split_proj(tcs, ix, lhs, proj)?;
+                tcs = tcs0;
+                lhs = lhs0;
+            }
         }
     }
     debug_assert!(lhs.problem.is_all_solved());

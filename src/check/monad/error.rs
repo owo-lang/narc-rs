@@ -27,6 +27,7 @@ pub enum TCE {
     /// A projection is not a term.
     NotTerm(String),
     NotData(Box<Val>),
+    NotCodata(Box<Val>),
 
     // === Split* === //
     SplitOnNonVar(Box<Term>, Box<Term>),
@@ -59,6 +60,10 @@ impl TCE {
         TCE::NotData(Box::new(val))
     }
 
+    pub fn not_codata(val: Val) -> Self {
+        TCE::NotCodata(Box::new(val))
+    }
+
     fn boxing_two<A, B>(a: A, b: B, f: impl FnOnce(Box<A>, Box<B>) -> Self) -> Self {
         f(Box::new(a), Box::new(b))
     }
@@ -88,6 +93,7 @@ impl Display for TCE {
             TCE::NotProj(abs) => write!(f, "`{}` is not a projection (at {}).", abs, abs.loc()),
             TCE::NotTerm(proj) => write!(f, "Cannot project `{}` on a datatype.", proj),
             TCE::NotData(val) => write!(f, "`{}` is not a datatype.", val),
+            TCE::NotCodata(val) => write!(f, "`{}` is not a record type.", val),
             TCE::SplitOnNonVar(term, ty) => {
                 write!(f, "Splitting on non variable `{}` (of type `{}`)", term, ty)
             }
