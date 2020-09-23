@@ -9,6 +9,7 @@ use crate::{
         abs::AbsPat,
         common::ConHead,
         core::{Bind, Decl, Tele, Val::Data},
+        pat::Copat,
     },
 };
 
@@ -38,8 +39,20 @@ pub(super) fn split_proj(tcs: TCS, lhs: LhsState, proj: String) -> TCMS<LhsState
         Decl::Proj(info) => info.clone(),
         _ => unreachable!(),
     };
+    let target = proj_info.ty;
+    // It might be of a function type taking a `self` parameter,
+    // we should apply it to `target`.
+    let mut pats = lhs.pats;
+    pats.push(Copat::Proj(proj));
+    // `lhs.problem.take_first_todo_pat()` has
+    // already modified the todo_pat
+    let lhs = LhsState {
+        pats,
+        target,
+        ..lhs
+    };
 
-    unimplemented!()
+    Ok((lhs, tcs))
 }
 
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.LHS.html#local-6989586621683054881).
