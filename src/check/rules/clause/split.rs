@@ -3,7 +3,10 @@ use voile_util::{tags::VarRec, uid::DBI};
 use crate::{
     check::{
         monad::{TCE, TCMS, TCS},
-        rules::{clause::state::LhsState, term::expect_data},
+        rules::{
+            clause::state::{progress_lhs_state, LhsState},
+            term::expect_data,
+        },
     },
     syntax::{
         abs::AbsPat,
@@ -40,7 +43,7 @@ pub(super) fn split_proj(tcs: TCS, lhs: LhsState, proj: String) -> TCMS<LhsState
         _ => unreachable!(),
     };
     let target = proj_info.ty;
-    // It might be of a function type taking a `self` parameter,
+    // FIXME: It might be of a function type taking a `self` parameter,
     // we should apply it to `target`.
     let mut pats = lhs.pats;
     pats.push(Copat::Proj(proj));
@@ -52,7 +55,7 @@ pub(super) fn split_proj(tcs: TCS, lhs: LhsState, proj: String) -> TCMS<LhsState
         ..lhs
     };
 
-    Ok((lhs, tcs))
+    Ok((progress_lhs_state(lhs)?, tcs))
 }
 
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.LHS.html#local-6989586621683054881).
