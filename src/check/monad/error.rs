@@ -45,6 +45,7 @@ pub enum TCE {
 
     // === Misc === //
     Blocked(Box<Blocked<Term>>),
+    NoSuchProj(String),
 }
 
 impl TCE {
@@ -117,6 +118,7 @@ impl Display for TCE {
                 a.text, a.loc, b.text, b.loc
             ),
             TCE::Blocked(b) => b.fmt(f),
+            TCE::NoSuchProj(s) => write!(f, "No such field `{}`.", s),
         }
     }
 }

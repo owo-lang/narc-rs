@@ -135,7 +135,7 @@ pub fn type_of_decl(tcs: &TCS, decl: GI) -> TCM<TermInfo> {
             let ret = Term::def(data, ident, elims);
             Ok(Term::pi_from_tele(tele, ret).at(cons.loc()))
         }
-        Decl::Proj (proj) => {
+        Decl::Proj(proj) => {
             let data_tele = match tcs.def(proj.codata) {
                 Decl::Codata(i) => &i.params,
                 _ => unreachable!(),
