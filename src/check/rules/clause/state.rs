@@ -74,7 +74,8 @@ impl LhsState {
 }
 
 /// [Agda](https://hackage.haskell.org/package/Agda-2.6.0.1/docs/src/Agda.TypeChecking.Rules.LHS.Implicit.html#insertImplicitPatterns).
-pub(super) fn insert_implicit_pats(pats: Vec<AbsCopat>, tele: &TeleS) -> Vec<AbsCopat> {
+#[allow(dead_code)]
+fn insert_implicit_pats(pats: Vec<AbsCopat>, tele: &TeleS) -> Vec<AbsCopat> {
     debug_assert!(pats.len() <= tele.len());
     let mut new_pats = Vec::with_capacity(tele.len().max(pats.capacity()));
     for bind in tele {
