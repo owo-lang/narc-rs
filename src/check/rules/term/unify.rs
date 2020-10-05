@@ -193,7 +193,17 @@ fn unify_val(mut tcs: TCS, left: &Val, right: &Val) -> TCM {
             Unify::unify(tcs, a.as_slice(), b.as_slice())
         }
         (Axiom(i), Axiom(j)) if i == j => Ok(tcs),
-        (Meta(i, a), Meta(j, b)) if i == j => Unify::unify(tcs, a.as_slice(), b.as_slice()),
+        (Meta(i, a), Meta(j, b)) => {
+            if i == j {
+                Unify::unify(tcs, a.as_slice(), b.as_slice())
+            } else if a.is_empty() {
+                unify_meta_with(tcs, right, *i)
+            } else if b.is_empty() {
+                unify_meta_with(tcs, left, *j)
+            } else {
+                unimplemented!()
+            }
+        }
         (Meta(i, a), b) | (b, Meta(i, a)) if a.is_empty() => unify_meta_with(tcs, b, *i),
         (Var(i, a), Var(j, b)) if i == j => Unify::unify(tcs, a.as_slice(), b.as_slice()),
         (Id(a, b, c), Id(x, y, z)) => {
