@@ -11,16 +11,16 @@ The purpose of this language is to realize the elaboration algorithm described
 in [this paper][paper].
 
  [paper]: https://dl.acm.org/citation.cfm?id=3236770
- [Agda]: http://hackage.haskell.org/package/Agda-2.6.0.1
+ [Agda]: http://hackage.haskell.org/package/Agda-2.6.1
 
-The implementation is heavily inspired from [Agda version 2.6.0.1][Agda].
+The implementation is heavily inspired from [Agda version 2.6.1][Agda].
 Special thanks to Jesper Cockx for answering my questions about the Agda
 codebase during the development of Narc.
 
 I want this language to have:
 
 + Conversion check should be nominal for simplicity
-+ Only case-tree instantiation need to be supported
++ Support case-tree and pattern instantiation
 + Surface syntax should be considerate of parsing ease
 + Simple (co)inductive types (not indexed) with an identity type as
   described in Jesper's paper
@@ -34,17 +34,11 @@ I want this language to have:
 ... and I plan to enhance everything in the *next language after* Narc,
 including (but not limited to):
 
-+ Pattern instantiation, to see if we can prove things easier
++ Overlapping and order-independent patterns
 + Structural conversion check (or a partial one, like in mlang)
 + Totality check: termination/productivity
-+ ... more?
-
-... and even next language in the future:
-
-+ Indexed data families, remove the built-in identity type
-+ IDE mode like `agda2-mode`,
-  but I'll go for both Code (primary) and Emacs (secondary)
-+ De-morgan cubical primitives (Interval, Path, hcomp, transport, Glue)
++ IDE mode like `agda2-mode`, as language servers
++ Cubical primitives like in Agda (Interval, Path, hcomp, transport, Glue)
 + ... more?
 
 <br/>
