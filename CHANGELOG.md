@@ -2,6 +2,10 @@
 
 # 0.0.9
 
++ Fix meta unification (#60)
++ Implement copattern type-checking
++ Update minitt-util dependency to fix `rustyline` compilation error
+
 # 0.0.8
 
 + Fix a bug in `Subst::concat` that breaks delta conversion
